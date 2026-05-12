@@ -6,6 +6,11 @@
 - Expanded `AGENTS.md` with UX Research Manager and UI Design Manager responsibilities, feature branch/worktree guidance, board/devlog/git synchronization, and stale subagent cleanup rules.
 - Updated `.agent/templates/subagent-report.md` so subagent handoffs include card ID, status movement, branch/worktree, artifacts, sync status, commit hash, and stale ownership cleanup.
 - Completed `ORCH-001` board setup and docs coordination update; docs-only verification `git diff --check` passed.
+- Added a 100% e2e coverage standard to `AGENTS.md` and `TODO.md`, requiring Expert QA, Senior Dev, DevOps/System Engineering, and UX Research participation before production release.
+- Added `docs/qa/e2e-matrix.md` with route, workflow, language-mode, accessibility, deployment-smoke, and exception-ledger sections.
+- Integrated DevOps/System Engineering dependency fixes for `DEVOPS-001`: Node engine now requires `^22.12.0 || >=24.0.0`, ESLint is pinned to the Next-compatible 9.x line, `@testing-library/dom` is explicit for strict peers, Dockerfile prepares pnpm 10.33.4, and Next standalone tracing root is set for the monorepo.
+- Generated `pnpm-lock.yaml` using `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false`; command succeeded with the expected host Node warning because the shell is still Node `v21.7.2`.
+- DevOps manager reported `corepack pnpm@10.33.4 install --ignore-scripts --config.engine-strict=false` succeeded, but plain root scripts still resolve to host `pnpm 8.6.12`.
 - Initialized repository on `main`.
 - Researched current agentic coding harness guidance across Codex, Claude Code, Gemini CLI, GitHub Copilot/VS Code, OpenHands, and SWE-agent.
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
@@ -21,8 +26,9 @@
 ### Next Handoff
 
 - Use `TODO.md` as the board before assigning new implementation work.
+- Treat QA-001/QA-002/QA-003 as production blockers for e2e coverage.
 - Assign `SEC-001`, `UXR-001`, `UID-001`, and `DEVOPS-001` before frontend implementation starts.
-- Upgrade or activate a Node 22+ environment and pnpm 10.33.4+ before installing dependencies.
+- Upgrade or activate a Node 22.12+ or Node 24+ environment and pnpm 10.33.4+ before running quality gates.
 - Run `pnpm install` to create `pnpm-lock.yaml`.
 - Run `pnpm lint`, `pnpm typecheck`, and `pnpm test` after install.
 - Run `docker compose config` and then `docker compose build` once Docker is available.

@@ -7,6 +7,9 @@
 - Commit `30edc37` added agent operating docs.
 - Commit `f0c3fbc` added the dockerized app scaffold.
 - Last completed card: `ORCH-001` established the product/UX TODO board and coordination discipline.
+- Active branch: `chore/agent-board-dependency-sync`.
+- Active card: `DEVOPS-001` is in progress; dependency install/lockfile generation succeeded with Corepack pnpm 10.33.4, but quality gates still need the correct host Node/pnpm environment.
+- Production blocker cards: `QA-001`, `QA-002`, and `QA-003` define the 100% e2e coverage standard and matrix.
 - Latest research pass happened on 2026-05-12 and covered Codex AGENTS.md, Codex subagents, Anthropic Claude Code subagents/best practices, Gemini CLI context files and commands, GitHub Copilot/VS Code custom instructions, OpenHands skills, SWE-agent trajectories, and current web stack docs.
 
 ## Active Decisions
@@ -15,13 +18,15 @@
 - Romanization should sit behind adapters and be accuracy-tested before product claims.
 - Future high-complexity chats should use an orchestrator/subagent-manager pattern when the harness permits.
 - `TODO.md` is now the Jira-style source of truth for card IDs, statuses, manager ownership, acceptance criteria, blockers/dependencies, and evidence.
+- Before production, every committed route/workflow/language mode/accessibility-critical interaction/deployment smoke path needs Playwright e2e coverage or an explicit tracked exception.
 - UX Research Manager and UI Design Manager are first-class managers for core reader/import workflow decisions before frontend implementation starts.
 - Security/legal and accessibility gaps should be treated as blockers when they affect lyric ingestion, stored content, keyboard access, screen-reader naming, CJK readability, or mobile density.
 
 ## Next Useful Work
 
-- Assign SEC-001, UXR-001, UID-001, and DEVOPS-001 before implementing the reader/import workspace.
-- Install dependencies and generate `pnpm-lock.yaml`.
+- Assign SEC-001, UXR-001, UID-001, and continue DEVOPS-001 before implementing the reader/import workspace.
+- Rerun install and quality gates with Node 22.12+ or Node 24+ and pnpm 10.33.4 active.
+- Replace the current home smoke test with route-contract e2e coverage.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
@@ -30,8 +35,9 @@
 ## Verification Gap
 
 - `git status --short` was clean after commits.
-- Host versions checked on 2026-05-12: `node v21.7.2`, `pnpm 8.6.12`.
-- These are below the scaffold targets: Node 22+ and pnpm 10.33.4+.
-- No dependencies are installed yet and no lockfile exists.
-- No build/test/lint commands have run yet.
+- Host versions checked on 2026-05-12: `node v21.7.2`, plain `pnpm 8.6.12`.
+- These are below the scaffold targets: Node 22.12+ or Node 24+ and pnpm 10.33.4+.
+- `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false` succeeded and generated `pnpm-lock.yaml`.
+- DevOps manager reported full dependency materialization with Corepack pnpm 10.33.4 succeeded.
+- Build/test/lint commands have not passed yet in this host shell because plain scripts resolve to the wrong pnpm/Node environment.
 - Docker Compose file has not been validated because `docker` is not available in this WSL distro.

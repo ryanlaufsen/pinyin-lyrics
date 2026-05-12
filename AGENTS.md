@@ -98,6 +98,21 @@
 - No visible instructional filler in the UI. The interface should explain itself through layout, labels, states, and affordances.
 - Preserve user text. Lyric editing, romanization correction, and annotation workflows need explicit save/discard states and undo where practical.
 
+## E2E Coverage Standard
+
+- Before production, e2e coverage must be 100% by obligation, not by vibes. Every committed user-facing route, critical workflow, supported language mode, accessibility-critical interaction, and deployment smoke path must have an automated Playwright e2e test or a tracked explicit exception.
+- E2E coverage must be written and reviewed by a team that includes Expert QA, Senior Dev, DevOps/System Engineering, and UX Research roles. Expert QA owns matrix completeness and anti-fake-coverage review. Senior Dev owns testability, deterministic fixtures, and behavior-level assertions. DevOps/System Engineering owns CI, Docker/Compose smoke, environment parity, artifacts, and browser dependencies. UX Research owns learner-task realism and CJK accessibility evidence.
+- A covered item must prove user behavior, not merely page existence. Tests should assert accessible roles/names/states, real keyboard and pointer flows, preserved lyric text, expected romanization display, error/empty states where relevant, and absence of uncaught browser errors.
+- Screenshots may support review but never count as sole coverage.
+- The e2e matrix must track every public App Router route on desktop and mobile.
+- The e2e matrix must track critical workflows: lyric import, mode switching, language settings, reader settings, typography controls, search, editing/correction, save/discard, and persistence when implemented.
+- The e2e matrix must track language modes: Chinese pinyin, Japanese romaji, Korean romanization, mixed CJK punctuation/wrapping, and legally clean fixture text.
+- The e2e matrix must track accessibility-critical interactions: keyboard navigation, focus visibility, control state announcements, dialog/menu escape behavior, touch target viability, zoom/reflow, CJK/ruby/annotation spacing, and mobile density.
+- The e2e matrix must track deployment smoke paths: dev server, production `pnpm build` plus `pnpm start`, Dockerfile image, and `docker compose up --build` with PostgreSQL/Redis readiness.
+- Exceptions must be explicit, temporary, owned, risk-rated, linked from `TODO.md` or an issue, and include missing test scope, reason, mitigation, expiry release/date, and approver.
+- Skipped, flaky, screenshot-only, or text-only tests do not count as coverage.
+- Production release requires sign-off from Expert QA, Senior Dev, DevOps/System Engineering, and UX Research roles.
+
 ## Implementation Standards
 
 - Use strict TypeScript and explicit domain types at data boundaries.

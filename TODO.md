@@ -9,9 +9,10 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Every non-trivial task gets a card ID before implementation starts.
 - Card IDs use the owning discipline prefix: `ORCH`, `UXR`, `UID`, `FE`, `RZN`, `DATA`, `DEVOPS`, `QA`, or `SEC`.
 - Valid statuses: `Backlog`, `Ready`, `In Progress`, `Blocked`, `Review`, `Done`.
-- Valid priorities: `P0`, `P1`, `P2`, `P3`. `P0` means legal, data loss, security, accessibility blocker, or broken core workflow.
+- Valid priorities: `P0`, `P1`, `P2`, `P3`. `P0` means legal, data loss, security, missing required e2e coverage, accessibility blocker, or broken core workflow.
 - Each active card must name one primary manager, supporting managers, acceptance criteria, blockers/dependencies, and evidence required.
 - Do not move a card to `Done` without updating evidence. Evidence can be commands, screenshots, accessibility notes, design review links, test files, or a short written review.
+- Production readiness requires 100% e2e coverage across committed routes, critical workflows, supported language modes, accessibility-critical interactions, and deployment smoke paths. Anything not automated must have a tracked, temporary, owner-approved exception.
 - High-risk UX, legal, romanization, accessibility, and persistence cards require skeptical review before `Done`. Reviewers should challenge weak claims, hidden coupling, copyright exposure, unsupported language claims, and inaccessible interaction states.
 - If implementation spans multiple agents, the Orchestrator assigns file ownership before work starts and resolves merge conflicts. Parallel write-heavy work needs disjoint scopes.
 - If a card changes user-facing behavior, update this board and `DEVLOG.md` in the same branch before handoff.
@@ -34,7 +35,26 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## In Progress
 
-No cards currently in progress.
+### DEVOPS-001: Clear Local Tooling And Service Gaps
+
+- Status: `In Progress`
+- Priority: `P1`
+- Primary Manager: DevOps/System Engineering Manager
+- Supporting Managers: Orchestrator, QA/Accessibility Manager, Frontend Manager, Data Manager
+- Goal: Make the local development stack verifiable with the expected Node, pnpm, Docker, lint, typecheck, test, and e2e commands.
+- Acceptance Criteria:
+  - Node 22.12+ or Node 24+ and pnpm 10.33.4+ are available or the repo documents the activation path.
+  - Package manifests use versions that exist on npm and satisfy peer/engine constraints.
+  - `pnpm install` creates a committed lockfile when dependencies are ready.
+  - `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm e2e` run or have documented blockers.
+  - Docker availability is checked, and `docker compose config`/`docker compose build` are run or blocked with evidence.
+- Blockers/Dependencies:
+  - Current host has Node `v21.7.2` and plain `pnpm` resolves to `8.6.12`.
+  - Docker was previously unavailable in the WSL distro.
+- Evidence Required:
+  - `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false` succeeded on 2026-05-12 and generated `pnpm-lock.yaml`.
+  - DevOps manager reported full dependency materialization succeeded with Corepack pnpm 10.33.4.
+  - Quality gates still need rerun under Node 22.12+ or 24+ with pnpm 10.33.4.
 
 ## Done
 
@@ -158,42 +178,60 @@ No cards currently in progress.
   - Prisma schema diff and migration notes when implemented.
   - Data risk review by Security/Legal Manager before persistence is considered shippable.
 
-### DEVOPS-001: Clear Local Tooling And Service Gaps
+### QA-001: Define 100% E2E Coverage Matrix And Exception Ledger
 
 - Status: `Ready`
-- Priority: `P1`
-- Primary Manager: DevOps/System Engineering Manager
-- Supporting Managers: Orchestrator, QA/Accessibility Manager, Frontend Manager, Data Manager
-- Goal: Make the local development stack verifiable with the expected Node, pnpm, Docker, lint, typecheck, test, and e2e commands.
-- Acceptance Criteria:
-  - Node 22+ and pnpm 10.33.4+ are available or the repo documents the activation path.
-  - `pnpm install` creates a committed lockfile when dependencies are ready.
-  - `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm e2e` run or have documented blockers.
-  - Docker availability is checked, and `docker compose config`/`docker compose build` are run or blocked with evidence.
-- Blockers/Dependencies:
-  - Current host has Node `v21.7.2` and pnpm `8.6.12`.
-  - Docker was previously unavailable in the WSL distro.
-- Evidence Required:
-  - Command outputs summarized in `DEVLOG.md`.
-  - Any environment workaround documented in `.agent/scratch/CURRENT.md`.
-
-### QA-001: Define Accessibility And Verification Gates
-
-- Status: `Ready`
-- Priority: `P1`
+- Priority: `P0`
 - Primary Manager: QA/Accessibility Manager
-- Supporting Managers: UI Design Manager, Frontend Manager, UX Research Manager, Security/Legal Manager
-- Goal: Establish the minimum checks required before UI cards can move to `Done`.
+- Supporting Managers: Expert QA, Senior Dev, DevOps/System Engineering Manager, UX Research Manager, UI Design Manager, Frontend Manager, Security/Legal Manager
+- Goal: Establish the coverage matrix and exception ledger required before production.
 - Acceptance Criteria:
-  - Defines keyboard, focus, screen-reader, contrast, reduced motion, touch target, CJK wrapping, and mobile viewport checks.
-  - Adds Playwright screenshot expectations for desktop and mobile once UI exists.
-  - Defines when Vitest versus Playwright versus manual accessibility notes are required.
-  - Requires evidence for every user-facing state, including empty, loading, error, unsaved edits, and blocked legal states.
+  - Every committed user-facing route, critical workflow, supported language mode, accessibility-critical interaction, and deployment smoke path is marked `Automated`, `Blocked Exception`, or `Not Yet Committed`.
+  - Exceptions list missing test scope, reason, mitigation, expiry release/date, owner, approver, and risk rating.
+  - Matrix includes desktop and mobile coverage for every public App Router route.
+  - Matrix includes lyric import, mode switching, language settings, reader settings, typography controls, search, editing/correction, save/discard, and persistence when implemented.
+  - Matrix includes Chinese pinyin, Japanese romaji, Korean romanization, mixed CJK punctuation/wrapping, and legally clean fixture text.
+  - Matrix includes keyboard, focus, screen-reader naming/states, contrast, reduced motion, touch target, zoom/reflow, CJK wrapping, ruby/annotation spacing, and mobile viewport checks.
+  - Matrix includes dev server, production `pnpm build` plus `pnpm start`, Dockerfile image, and `docker compose up --build` with PostgreSQL/Redis readiness.
+  - Skipped, flaky, screenshot-only, or text-only tests are excluded from coverage.
 - Blockers/Dependencies:
   - Needs UID-001 design states and FE-001 implementation targets.
 - Evidence Required:
-  - QA checklist linked or embedded in board/devlog.
+  - `docs/qa/e2e-matrix.md` or equivalent ledger.
   - Test command evidence once tooling is available.
+
+### QA-002: Replace Home Smoke With Route Contract Coverage
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: QA/Accessibility Manager
+- Supporting Managers: Expert QA, Senior Dev, DevOps/System Engineering Manager, UX Research Manager, UI Design Manager, Frontend Manager
+- Goal: Replace the current text-only Playwright heartbeat with behavior-level route coverage for `/`.
+- Acceptance Criteria:
+  - `/` is tested on desktop and mobile.
+  - Tests assert landmarks, headings, controls by role/name, focusable controls, responsive CJK layout sanity, and no uncaught console/page errors.
+  - Tests do not depend on copyrighted fixture lyrics.
+  - Screenshots may support layout review but cannot be the only assertion.
+- Blockers/Dependencies:
+  - Depends on DEVOPS-001 for dependency install and Playwright browser availability.
+- Evidence Required:
+  - Updated Playwright specs and summarized test output.
+
+### QA-003: Add Reader Workflow And Language-Mode E2E Tests
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: QA/Accessibility Manager
+- Supporting Managers: Expert QA, Senior Dev, DevOps/System Engineering Manager, UX Research Manager, Romanization/NLP Manager, Security/Legal Manager
+- Goal: Cover the production reader workflow and language modes end to end as features land.
+- Acceptance Criteria:
+  - Playwright covers paste/import of user-owned lyric text, Original/Romanized/Split/Study switching, typography density changes, settings/search controls, text preservation, editing/correction, save/discard, and persistence when implemented.
+  - Chinese, Japanese, Korean, and mixed-script fixtures exercise romanization display and wrapping using legally clean text.
+  - User-observable romanization behavior is deterministic or explicitly marked as an approved fixture exception.
+- Blockers/Dependencies:
+  - Depends on FE-001, RZN-001, SEC-001, and DATA-001 implementation surfaces.
+- Evidence Required:
+  - Updated e2e matrix, specs, fixture provenance, and test output.
 
 ### SEC-001: Write Copyright And Input-Safety Guardrails
 
@@ -270,6 +308,8 @@ No cards currently in progress.
 - UX and UI cards cannot pass review with "looks fine" as evidence. They need task-flow evidence, visual state coverage, or accessibility notes.
 - Legal cards cannot pass review with assumptions about fair use, public availability, or "just links." Treat lyrics as copyrighted unless proven otherwise.
 - Accessibility cards cannot pass review without keyboard and screen-reader naming consideration. Dense CJK text makes spacing and focus failures easy to miss.
+- Production cannot ship without 100% e2e coverage or explicitly approved temporary exceptions across routes, workflows, language modes, accessibility-critical interactions, and deployment smoke paths.
+- Screenshot-only, skipped, flaky, or text-only Playwright tests are not valid coverage.
 - Romanization cards cannot pass review with happy-path examples only. Require fixture categories and versioned adapter settings.
 
 ## Git And Devlog Sync
