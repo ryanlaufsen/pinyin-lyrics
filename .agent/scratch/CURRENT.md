@@ -4,6 +4,8 @@
 
 - Repository initialized on `main`.
 - Initial task: create agentic coding files and a dockerizable full-stack scaffold for a CJK lyric-reading app.
+- Commit `30edc37` added agent operating docs.
+- Commit `f0c3fbc` added the dockerized app scaffold.
 - Latest research pass happened on 2026-05-12 and covered Codex AGENTS.md, Codex subagents, Anthropic Claude Code subagents/best practices, Gemini CLI context files and commands, GitHub Copilot/VS Code custom instructions, OpenHands skills, SWE-agent trajectories, and current web stack docs.
 
 ## Active Decisions
@@ -15,6 +17,13 @@
 ## Next Useful Work
 
 - Install dependencies and generate `pnpm-lock.yaml`.
+- Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
 - Build the lyric reader/import first screen.
+
+## Verification Gap
+
+- No dependencies are installed yet.
+- No build/test/lint commands have run yet.
+- Docker Compose file has not been validated yet.

@@ -7,6 +7,16 @@
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
 - Added root `AGENTS.md` with orchestration protocol, council-of-experts review mode, git discipline, product principles, implementation standards, and continuity file rules.
 - Added compatibility bridges for Claude, Gemini, Copilot, VS Code path-specific instructions, and agent scratch/cache directories.
+- Commit `30edc37`: added the agent operating guide and continuity files.
+- Commit `f0c3fbc`: added the dockerized web scaffold, Next.js app shell, Prisma schema, test/lint configs, OpenHands hooks, and stack decision record.
+- Not yet verified: dependency install, lockfile generation, Next build, Prisma generate/migrate, Vitest, Playwright, and Docker image build.
+
+### Next Handoff
+
+- Run `pnpm install` to create `pnpm-lock.yaml`.
+- Run `pnpm lint`, `pnpm typecheck`, and `pnpm test` after install.
+- Run `docker compose config` and then `docker compose build` once Docker is available.
+- Review romanization dependency versions before committing product logic; the adapter boundary is in place but actual engines are not wired yet.
 
 ### Research Sources
 
