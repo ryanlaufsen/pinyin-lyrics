@@ -2,6 +2,10 @@
 
 ## 2026-05-12
 
+- Added `TODO.md` as the Jira-style board with card IDs, manager assignments, statuses, priorities, acceptance criteria, blockers/dependencies, evidence requirements, and TODO/devlog/git sync rules.
+- Expanded `AGENTS.md` with UX Research Manager and UI Design Manager responsibilities, feature branch/worktree guidance, board/devlog/git synchronization, and stale subagent cleanup rules.
+- Updated `.agent/templates/subagent-report.md` so subagent handoffs include card ID, status movement, branch/worktree, artifacts, sync status, commit hash, and stale ownership cleanup.
+- Completed `ORCH-001` board setup and docs coordination update; docs-only verification `git diff --check` passed.
 - Initialized repository on `main`.
 - Researched current agentic coding harness guidance across Codex, Claude Code, Gemini CLI, GitHub Copilot/VS Code, OpenHands, and SWE-agent.
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
@@ -16,6 +20,8 @@
 
 ### Next Handoff
 
+- Use `TODO.md` as the board before assigning new implementation work.
+- Assign `SEC-001`, `UXR-001`, `UID-001`, and `DEVOPS-001` before frontend implementation starts.
 - Upgrade or activate a Node 22+ environment and pnpm 10.33.4+ before installing dependencies.
 - Run `pnpm install` to create `pnpm-lock.yaml`.
 - Run `pnpm lint`, `pnpm typecheck`, and `pnpm test` after install.

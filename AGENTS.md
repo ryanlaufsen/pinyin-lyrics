@@ -30,12 +30,48 @@
 
 - In new high-complexity chats running at `xhigh`, act as the orchestrator. The orchestrator should preserve the main thread for requirements, risk decisions, integration, and final handoff.
 - The orchestrator should do minimal direct implementation. Delegate exploration, expert review, and bounded implementation to relevant subject-matter subagent managers when the harness allows it.
-- Subagent managers for architecture, frontend, data/modeling, romanization/NLP, security/legal, testing, and DevOps should also run at `xhigh` for high-risk or high-detail work.
+- Subagent managers for architecture, UX research, UI design, frontend, data/modeling, romanization/NLP, security/legal, testing/accessibility, and DevOps should also run at `xhigh` for high-risk or high-detail work.
 - Subagent managers may spawn explorers or implementers at reasoning levels appropriate to the task: `low` for mechanical scans, `medium` for straightforward implementation, `high` for bug isolation or data modeling, and `xhigh` for ambiguity, security, language accuracy, concurrency, legal risk, or broad refactors.
 - Use council-of-experts review for high-risk or high-detail changes. The council must be blunt, skeptical, and adversarial toward assumptions. "Cranky and belligerent" means they aggressively challenge weak evidence, hidden coupling, data loss, accessibility misses, legal exposure, and sloppy tests; it never means hostility toward the user or teammates.
 - Before delegation, define ownership boundaries. Implementation subagents must have disjoint write scopes and must not revert or overwrite others' work.
 - Ask subagents for concise structured returns: changed files, evidence, commands run, risks found, unresolved questions, and next recommended action.
 - The orchestrator integrates results, resolves conflicts, updates the devlog/scratch notes, and performs final verification.
+
+## Product And Design Teams
+
+- UX Research Manager owns learner workflows, task evidence, research plans, reading-comfort criteria, and copyright-safe research scenarios. They should be skeptical of generic "language learner" assumptions that flatten Chinese, Japanese, and Korean into one workflow.
+- UI Design Manager owns interaction models, CJK typography, visual density, responsive behavior, control selection, and design QA. They should reject decorative layouts that delay the reader workspace or hide core controls behind marketing composition.
+- UX research and UI design should work together before frontend implementation on core flows. Research defines the user job and failure modes; design defines the operating surface and state coverage.
+- High-risk UX/UI gaps need cranky review: unreadable annotation spacing, inaccessible hover-only details, vague import provenance, hidden save/discard behavior, mobile clipping, and unsupported romanization accuracy claims are blockers, not polish notes.
+- UI work must include explicit states for empty content, pasted content, unsaved edits, generated annotations, correction mode, blocked legal paths, errors, loading, and mobile/keyboard navigation.
+- Use `TODO.md` card IDs in research notes, design specs, implementation branches, and final reports so evidence stays attached to the work.
+
+## Board, Devlog, And Git Sync
+
+- `TODO.md` is the live Jira-style board. Every non-trivial task needs a card ID, status, priority, primary manager, supporting managers, acceptance criteria, blockers/dependencies, and evidence.
+- Move cards deliberately: `Backlog`, `Ready`, `In Progress`, `Blocked`, `Review`, `Done`. Do not mark `Done` without evidence.
+- `DEVLOG.md` records durable decisions, commits, verification runs, blockers, and handoffs. If a TODO card changes scope, risk, status, or evidence in a meaningful way, record the durable part in the devlog.
+- `.agent/scratch/CURRENT.md` records active branch state, current assumptions, resume points, local environment gaps, and short-lived blockers.
+- Before editing, run `git status --short` and read the relevant continuity files. If unrelated changes exist, leave them alone and work around them.
+- Before handoff, sync TODO status, devlog evidence, scratch resume notes, and git state. If a commit was made, include the latest commit hash in both `DEVLOG.md` and the final handoff.
+- For docs-only changes, `git diff --check` is the minimum verification. For implementation, use the narrowest relevant gate first, then broaden to lint/typecheck/test/e2e as risk increases.
+
+## Branches, Worktrees, And Ownership
+
+- Use feature branches for meaningful work. Prefer names like `feature/FE-001-reader-workspace` or `docs/ORCH-001-todo-board`.
+- Use worktrees when multiple agents need to work concurrently or when a risky branch should be isolated from the main workspace.
+- The Orchestrator assigns branch/worktree ownership and file ownership before parallel implementation starts.
+- Do not share uncommitted edits to the same files across agents. If ownership must change, the current owner should summarize state, commit or stash intentionally, and hand off the branch.
+- Keep branch scope aligned to TODO cards. If a branch drifts into another manager's card, pause and update the board before editing.
+- Merge only after evidence is attached to the relevant card and stale subagents or running commands have been cleared.
+
+## Clearing Stale Subagents
+
+- At the start of any resumed or high-complexity session, check `TODO.md`, `DEVLOG.md`, `.agent/scratch/CURRENT.md`, `git status --short`, and active tool sessions before assigning new work.
+- Treat a subagent as stale when its branch, card status, ownership claim, or command output no longer matches the current repo state.
+- Stale subagents must not keep file ownership by default. The Orchestrator should mark the prior state in scratch notes, preserve useful evidence, and reassign ownership explicitly.
+- Do not trust old "tests passed" claims after dependency, schema, environment, or UI state changes. Re-run the smallest relevant verification.
+- If an agent disappears mid-task, capture the last known card, branch, changed files, commands, blockers, and next action in `.agent/scratch/CURRENT.md` before another agent continues.
 
 ## Git Discipline
 
