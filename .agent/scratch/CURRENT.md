@@ -24,6 +24,9 @@
 
 ## Verification Gap
 
-- No dependencies are installed yet.
+- `git status --short` was clean after commits.
+- Host versions checked on 2026-05-12: `node v21.7.2`, `pnpm 8.6.12`.
+- These are below the scaffold targets: Node 22+ and pnpm 10.33.4+.
+- No dependencies are installed yet and no lockfile exists.
 - No build/test/lint commands have run yet.
-- Docker Compose file has not been validated yet.
+- Docker Compose file has not been validated because `docker` is not available in this WSL distro.

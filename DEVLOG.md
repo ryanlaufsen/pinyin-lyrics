@@ -10,9 +10,13 @@
 - Commit `30edc37`: added the agent operating guide and continuity files.
 - Commit `f0c3fbc`: added the dockerized web scaffold, Next.js app shell, Prisma schema, test/lint configs, OpenHands hooks, and stack decision record.
 - Not yet verified: dependency install, lockfile generation, Next build, Prisma generate/migrate, Vitest, Playwright, and Docker image build.
+- Local verification after scaffold: `git status --short` clean, latest commits are `5a68e4d`, `f0c3fbc`, and `30edc37`.
+- Local tool gap: host has `node v21.7.2` and `pnpm 8.6.12`, below this scaffold's target of Node 22+ and pnpm 10.33.4+.
+- Docker gap: `docker compose config` could not run because Docker is not available in this WSL distro.
 
 ### Next Handoff
 
+- Upgrade or activate a Node 22+ environment and pnpm 10.33.4+ before installing dependencies.
 - Run `pnpm install` to create `pnpm-lock.yaml`.
 - Run `pnpm lint`, `pnpm typecheck`, and `pnpm test` after install.
 - Run `docker compose config` and then `docker compose build` once Docker is available.
