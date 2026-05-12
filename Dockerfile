@@ -1,16 +1,21 @@
 # syntax=docker/dockerfile:1.7
 
+ARG PNPM_VERSION=10.33.4
+
 FROM node:22-alpine AS base
+ARG PNPM_VERSION
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 WORKDIR /app
-RUN corepack enable
+RUN apk add --no-cache libc6-compat openssl \
+  && corepack enable \
+  && corepack prepare "pnpm@${PNPM_VERSION}" --activate
 
 FROM base AS deps
-COPY package.json pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web/package.json apps/web/package.json
-RUN pnpm install --frozen-lockfile=false
+RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules

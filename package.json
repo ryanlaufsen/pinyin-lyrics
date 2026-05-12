@@ -4,10 +4,11 @@
   "private": true,
   "packageManager": "pnpm@10.33.4",
   "engines": {
-    "node": ">=22.0.0",
+    "node": "^22.12.0 || >=24.0.0",
     "pnpm": ">=10.33.4"
   },
   "scripts": {
+    "package-manager": "corepack pnpm@10.33.4 --version",
     "dev": "pnpm --filter @pinyin-lyrics/web dev",
     "build": "pnpm --filter @pinyin-lyrics/web build",
     "start": "pnpm --filter @pinyin-lyrics/web start",
@@ -19,6 +20,6 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "prettier": "^3.5.3"
+    "prettier": "^3.8.3"
   }
 }
