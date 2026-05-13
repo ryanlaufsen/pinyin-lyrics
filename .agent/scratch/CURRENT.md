@@ -26,11 +26,13 @@
 - 5M/month growth path is CDN-first static shell plus API/data/jobs later. GitHub Pages is prototype/demo hosting only because bandwidth and commercial-growth assumptions do not fit the target.
 - Public SEO growth must use legal song-practice shells and tools, not copied full lyrics or full romanized copyrighted lyrics.
 - AI-agent discovery policy allows public search and user-requested fetchers while disallowing model training, bulk scraping, dataset building, and user lyric/custom-track extraction.
+- Baseline legal posture now has public Terms, Privacy, and Copyright pages. They match the current static app and keep public UGC, server-side lyric persistence, and production DMCA safe-harbor operations blocked until SEC-002/SEC-003/DATA-002 and formal designated-agent/provenance work are complete.
 
 ## Next Useful Work
 
 - Continue `ORCH-003` 5M monthly views readiness epic. Highest-risk next cards: `SEC-002`, `DATA-002`, `RZN-001`, `RZN-002`, `ARCH-001`, `DEVOPS-002`, `DEVOPS-003`, `DEVOPS-005`, `SEO-001`, and `QA-004`.
 - Continue `SEC-004` after production host selection to enforce advisory AI crawler policy with WAF/rate limits, verified bot IP ranges, and lyric-safe logs.
+- Continue legal hardening with counsel review, formal DMCA designated agent registration, a non-public contact channel, cookie/consent flow before real ads, and public UGC moderation/provenance before any indexed lyric sharing.
 - Assign SEC-001/SEC-002, UXR-001, UID-001, and continue DEVOPS-001 before implementing server-side reader/import persistence.
 - Rerun install and quality gates with Node 22.12+ or Node 24+ and pnpm 10.33.4 active.
 - Replace the current home smoke test with route-contract e2e coverage.
@@ -102,4 +104,6 @@
 - SEO-002 local verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts`. Host Node warning remains `v21.7.2`.
 - Live smoke after workflow run `25799805866` found `/.well-known/ai-policy.json` returned `404` because the Pages artifact excluded hidden files. Commit `d5cdf84` updated `.github/workflows/pages.yml` with `include-hidden-files: true`.
 - Workflow run `25799936251` completed successfully, and final live smoke returned `HTTP/2 200` for the static reader, `/robots.txt`, and `/.well-known/ai-policy.json`.
-- Current branch state has post-deploy SEO-002 bookkeeping edits; commit with `[skip ci]` before final handoff.
+- Latest implementation commit: `fa741f0` (`Add site legal chrome and policies`).
+- Current local verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `static-bafang.spec.ts`, `home.spec.ts`, `legal.spec.ts`, and `seo-static.spec.ts`. Host Node warning remains `v21.7.2`.
+- Current branch state has post-implementation legal/chrome bookkeeping edits; commit, push, deploy, and smoke before final handoff.

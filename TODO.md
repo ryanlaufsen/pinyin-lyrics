@@ -302,6 +302,53 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - GitHub Pages workflow run `25799936251` completed successfully.
   - Final live smoke returned `HTTP/2 200` for the static reader, `/robots.txt`, and `/.well-known/ai-policy.json`, and fetched robots/policy contents matched the expected AI rules.
 
+### FE-009: Add Site Header Nav Footer And Fix Static Control Spacing
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, UX Research Manager, QA/Accessibility Manager
+- Goal: Give the app a consistent, no-nonsense header/nav/footer and make the static segmented-control headings match the lyric text-size control spacing.
+- Acceptance Criteria:
+  - Root workspace has a main navigation landmark with links to Workspace, Static reader, Terms, Privacy, and Copyright.
+  - Static reader has themed header navigation and a footer that work in Light, Dark, and OLED mode.
+  - `Theme`, `Chinese script`, and `Chinese romanization` headings have the same measured bottom gap as `Lyric text size`.
+  - Footer links expose Terms, Privacy, Copyright, and AI policy without crowding the reader workflow.
+  - Desktop and mobile e2e coverage verifies navigation/footer presence and static control heading spacing.
+- Blockers/Dependencies:
+  - Full workspace route-contract coverage remains broader QA work; this card covers chrome and the static spacing bug.
+- Evidence Required:
+  - Commit `fa741f0` added shared site chrome, static themed nav/footer, spacing normalization, and e2e coverage.
+  - `apps/web/app/_components/SiteChrome.tsx`
+  - `apps/web/tests/e2e/home.spec.ts`
+  - `apps/web/tests/e2e/static-bafang.spec.ts`
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/home.spec.ts tests/e2e/legal.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
+
+### SEC-005: Add Public Legal Policy Pages
+
+- Status: `Done`
+- Priority: `P0`
+- Primary Manager: Security/Legal Manager
+- Supporting Managers: SEO/Growth Manager, Revenue/Monetization Manager, QA/Accessibility Manager, Frontend Manager
+- Goal: Publish baseline Terms, Privacy, and Copyright pages that match the current static product and block unsafe lyric/AI/ad claims.
+- Acceptance Criteria:
+  - `/terms/`, `/privacy/`, and `/copyright/` exist with canonical metadata and footer/header navigation.
+  - Terms require lawful user-provided lyrics, prohibit scraping/training/dataset use, and point to AI policy files.
+  - Privacy policy states pasted lyrics/custom tracks are browser-local in current static mode, documents localStorage, and blocks analytics/session replay/ad capture of lyric text.
+  - Copyright policy states full copyrighted lyrics are not bundled, defines takedown notice contents, and keeps public UGC blocked until DMCA/provenance controls are implemented.
+  - Sitemap, llms.txt, AI policy JSON, and RSL license terms link to the legal pages.
+  - E2E coverage verifies legal pages on desktop/mobile and checks for known copied-lyric leakage.
+- Blockers/Dependencies:
+  - These pages are a baseline, not counsel sign-off. Production public UGC still depends on formal DMCA agent registration, SEC-002, SEC-003, DATA-002, moderation, and takedown operations.
+- Evidence Required:
+  - Research reviewed FTC privacy policy patterns, California privacy notice structure, U.S. Copyright Office DMCA/Section 512 guidance, and Google AdSense privacy disclosure requirements on 2026-05-13.
+  - Commit `fa741f0` added `/terms/`, `/privacy/`, `/copyright/`, sitemap/legal policy alignment, and e2e coverage.
+  - `apps/web/tests/e2e/legal.spec.ts` covers legal pages on desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed with and without `PAGES_BASE_PATH=/pinyin-lyrics`.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web budget:static` passed against the GitHub Pages export: `685.7 KiB` first render total and `222.2 KiB` largest referenced asset.
+
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 
 - Status: `Done`

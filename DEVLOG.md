@@ -27,6 +27,12 @@
 - Commit `d5cdf84` deployed the Pages artifact hidden-file fix.
 - GitHub Pages workflow run `25799936251` completed successfully with passing build and deploy jobs.
 - Final live smoke checks returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`, `/robots.txt`, `/.well-known/ai-policy.json`, and the fetched live robots/policy contents contained the expected AI policy.
+- Fixed the static-reader segmented-control heading spacing by normalizing `legend` layout and adding explicit e2e measurement: `Theme`, `Chinese script`, and `Chinese romanization` now match the `Lyric text size` label-to-control gap on desktop and mobile.
+- Added shared site chrome for the workspace plus themed static-reader header/footer navigation with links to Workspace, Static reader, Terms, Privacy, Copyright, and AI policy.
+- Added `/terms/`, `/privacy/`, and `/copyright/` pages with canonical metadata. The policies state the current static app keeps pasted lyrics/browser custom tracks local, requires lawful lyric use, prohibits scraping/training/dataset extraction, documents localStorage/ad disclosure boundaries, and blocks public UGC until DMCA/provenance/moderation controls exist.
+- Updated sitemap, `/llms.txt`, `/.well-known/ai-policy.json`, and `/license.xml` so legal URLs and RSL terms point at `/terms/`.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `static-bafang.spec.ts`, `home.spec.ts`, `legal.spec.ts`, and `seo-static.spec.ts`. The GitHub Pages export budget measured `685.7 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
+- Commit `fa741f0` added the site legal chrome, baseline policy pages, spacing fix, metadata/sitemap/policy alignment, and e2e coverage.
 - Added Light, Dark, and OLED theme modes to the static `八方来财` reader, with the theme applied to the full static route shell instead of only the inner panel.
 - UX/UI council review pushed the final theme direction: page-level theming, dedicated pinyin/Hanzi/focus/border tokens, restrained OLED surfaces, readable dark study tiles, and visible focus states across controls.
 - Added semantic static-reader tokens for page/header/panel surfaces, tiered borders, pinyin text, Hanzi text, tile color mixes, guide lines, focus rings, and active segmented controls.
