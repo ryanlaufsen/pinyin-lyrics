@@ -7,7 +7,7 @@
 - Commit `30edc37` added agent operating docs.
 - Commit `f0c3fbc` added the dockerized app scaffold.
 - Last completed card: `ORCH-001` established the product/UX TODO board and coordination discipline.
-- Active branch: `feature/static-bafang-reader`.
+- Active branch: `main`.
 - `main` has been fast-forwarded to include `chore/agent-board-dependency-sync`; both refs point at `679d51c` before this bookkeeping update.
 - Active card: `DEVOPS-001` is in progress; dependency install/lockfile generation succeeded with Corepack pnpm 10.33.4, but quality gates still need the correct host Node/pnpm environment.
 - Completed card: `FE-002` adds static `八方来财` pinyin practice mode. It excludes copyrighted lyrics and uses only title/artist metadata plus title-character practice content.
@@ -31,6 +31,7 @@
 - Replace the current home smoke test with route-contract e2e coverage.
 - Full release gates still need Node 22.12+ or 24+, but targeted static mode checks passed with Corepack pnpm 10.33.4.
 - Commit `c69b748` contains the static mode implementation and tests.
+- `main` was fast-forwarded to `adee912` after the static mode handoff commit.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
