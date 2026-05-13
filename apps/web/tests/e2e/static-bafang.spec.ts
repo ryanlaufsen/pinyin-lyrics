@@ -93,6 +93,14 @@ const getFontSizePx = async (locator: Locator) => {
   return Number.parseFloat(value);
 };
 
+const getOpacity = async (locator: Locator) => {
+  const value = await locator.evaluate(
+    (element) => window.getComputedStyle(element).opacity,
+  );
+
+  return Number.parseFloat(value);
+};
+
 const getVerticalGapPx = async (label: Locator, control: Locator) => {
   const [labelBox, controlBox] = await Promise.all([
     label.boundingBox(),
@@ -210,8 +218,14 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   const lyricOutputPinyinBox = page.locator(
     '[aria-label="Rendered romanized lyrics"] .static-pinyin-box',
   );
+  const lyricOutputRomanizationText = page.locator(
+    '[aria-label="Rendered romanized lyrics"] .static-romanization-text',
+  );
   const lyricOutputHanzi = page.locator(
     '[aria-label="Rendered romanized lyrics"] .static-hanzi',
+  );
+  const lyricOutputCharacterText = page.locator(
+    '[aria-label="Rendered romanized lyrics"] .static-character-text',
   );
   const lyricsLayout = page.locator(".static-lyrics-layout");
   const lyricsFields = page.locator(".static-lyrics-fields");
@@ -482,6 +496,62 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(characterSizeDecrease).toBeEnabled();
   await expect(characterSizeIncrease).toBeEnabled();
 
+  const romanizationOpacitySlider = page.getByRole("slider", {
+    name: /Romanization opacity/i,
+  });
+  const characterOpacitySlider = page.getByRole("slider", {
+    name: /Character opacity/i,
+  });
+  const romanizationOpacityIncrease = page.getByRole("button", {
+    name: /Increase romanization text opacity/i,
+  });
+  const romanizationOpacityDecrease = page.getByRole("button", {
+    name: /Decrease romanization text opacity/i,
+  });
+  const characterOpacityIncrease = page.getByRole("button", {
+    name: /Increase character text opacity/i,
+  });
+  const characterOpacityDecrease = page.getByRole("button", {
+    name: /Decrease character text opacity/i,
+  });
+
+  await expect(romanizationOpacitySlider).toBeVisible();
+  await expect(romanizationOpacitySlider).toHaveValue("100");
+  await expect(romanizationOpacitySlider).toHaveAttribute(
+    "aria-valuetext",
+    "100%",
+  );
+  await expect(characterOpacitySlider).toBeVisible();
+  await expect(characterOpacitySlider).toHaveValue("100");
+  await expect(characterOpacitySlider).toHaveAttribute(
+    "aria-valuetext",
+    "100%",
+  );
+  await expect(romanizationOpacityIncrease).toBeDisabled();
+  await romanizationOpacityDecrease.click();
+  await expect(romanizationOpacitySlider).toHaveValue("95");
+  await expect(romanizationOpacityIncrease).toBeEnabled();
+  await clickUntilDisabled(
+    romanizationOpacityDecrease,
+    romanizationOpacitySlider,
+  );
+  await expect(romanizationOpacitySlider).toHaveValue("25");
+  await expect(romanizationOpacitySlider).toHaveAttribute(
+    "aria-valuetext",
+    "25%",
+  );
+  await romanizationOpacitySlider.fill("100");
+  await expect(romanizationOpacitySlider).toHaveValue("100");
+  await expect(characterOpacityIncrease).toBeDisabled();
+  await characterOpacityDecrease.click();
+  await expect(characterOpacitySlider).toHaveValue("95");
+  await expect(characterOpacityIncrease).toBeEnabled();
+  await clickUntilDisabled(characterOpacityDecrease, characterOpacitySlider);
+  await expect(characterOpacitySlider).toHaveValue("25");
+  await expect(characterOpacitySlider).toHaveAttribute("aria-valuetext", "25%");
+  await characterOpacitySlider.fill("100");
+  await expect(characterOpacitySlider).toHaveValue("100");
+
   await expect(lyricsInput).toBeEnabled();
   await lyricsInput.fill(
     [
@@ -517,9 +587,35 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   expect(characterPinyinPx).toBeCloseTo(romanizedPinyinPx, 1);
   expect(characterHanziPx).toBeGreaterThan(romanizedHanziPx);
 
+  await romanizationOpacitySlider.fill("55");
+  await expect(romanizationOpacitySlider).toHaveValue("55");
+  await expect(romanizationOpacitySlider).toHaveAttribute(
+    "aria-valuetext",
+    "55%",
+  );
+  expect(await getOpacity(lyricOutputRomanizationText.first())).toBeCloseTo(
+    0.55,
+    2,
+  );
+  expect(await getOpacity(lyricOutputCharacterText.first())).toBeCloseTo(1, 2);
+
+  await characterOpacitySlider.fill("70");
+  await expect(characterOpacitySlider).toHaveValue("70");
+  await expect(characterOpacitySlider).toHaveAttribute("aria-valuetext", "70%");
+  expect(await getOpacity(lyricOutputRomanizationText.first())).toBeCloseTo(
+    0.55,
+    2,
+  );
+  expect(await getOpacity(lyricOutputCharacterText.first())).toBeCloseTo(
+    0.7,
+    2,
+  );
+
   await sizeSlider.fill("100");
   await romanizationSizeSlider.fill("100");
   await characterSizeSlider.fill("100");
+  await romanizationOpacitySlider.fill("100");
+  await characterOpacitySlider.fill("100");
 
   await expect(page.getByTestId("pinyin-line-1")).toHaveAttribute(
     "data-language",
@@ -722,6 +818,8 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     characterSizeMin,
     characterSizeMax,
   );
+  const persistedRomanizationOpacity = "55";
+  const persistedCharacterOpacity = "70";
 
   await lyricsInput.fill(persistedLyrics);
   await sizeSlider.fill("130");
@@ -731,6 +829,12 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
   await characterSizeSlider.fill(persistedCharacterSize);
   await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
+  await romanizationOpacitySlider.fill(persistedRomanizationOpacity);
+  await expect(romanizationOpacitySlider).toHaveValue(
+    persistedRomanizationOpacity,
+  );
+  await characterOpacitySlider.fill(persistedCharacterOpacity);
+  await expect(characterOpacitySlider).toHaveValue(persistedCharacterOpacity);
   await oledThemeButton.click();
   await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
   await expect(lightThemeButton).toHaveAttribute("aria-pressed", "false");
@@ -749,6 +853,12 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     lyricOutputPinyinBox.first(),
   );
   const persistedHanziFontPx = await getFontSizePx(lyricOutputHanzi.first());
+  const persistedRomanizationOpacityValue = await getOpacity(
+    lyricOutputRomanizationText.first(),
+  );
+  const persistedCharacterOpacityValue = await getOpacity(
+    lyricOutputCharacterText.first(),
+  );
 
   await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
   await expect(page.getByTestId("pinyin-line-2")).toContainText("か");
@@ -784,6 +894,10 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
   await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
+  await expect(romanizationOpacitySlider).toHaveValue(
+    persistedRomanizationOpacity,
+  );
+  await expect(characterOpacitySlider).toHaveValue(persistedCharacterOpacity);
   await expect(
     getFontSizePx(lyricOutputPinyinBox.first()),
   ).resolves.toBeCloseTo(persistedPinyinFontPx, 1);
@@ -791,6 +905,12 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     persistedHanziFontPx,
     1,
   );
+  await expect(
+    getOpacity(lyricOutputRomanizationText.first()),
+  ).resolves.toBeCloseTo(persistedRomanizationOpacityValue, 2);
+  await expect(
+    getOpacity(lyricOutputCharacterText.first()),
+  ).resolves.toBeCloseTo(persistedCharacterOpacityValue, 2);
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator(".writing-guide")).toHaveCount(0);
   await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
@@ -810,6 +930,10 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
   await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
+  await expect(romanizationOpacitySlider).toHaveValue(
+    persistedRomanizationOpacity,
+  );
+  await expect(characterOpacitySlider).toHaveValue(persistedCharacterOpacity);
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator(".writing-guide")).toHaveCount(0);
 
@@ -824,6 +948,10 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
   await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
+  await expect(romanizationOpacitySlider).toHaveValue(
+    persistedRomanizationOpacity,
+  );
+  await expect(characterOpacitySlider).toHaveValue(persistedCharacterOpacity);
 
   await expect(page.getByRole("link", { name: "Workspace" })).toBeVisible();
   await expect(
@@ -836,4 +964,77 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     page.getByRole("contentinfo").getByRole("link", { name: "Copyright" }),
   ).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("migrates static reader settings from the legacy storage namespace", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      "pinyin-lyrics:static-bafang:v1",
+      JSON.stringify({
+        characterTextOpacity: 70,
+        characterTextSize: 115,
+        chineseRomanizationMode: "jyutping",
+        chineseScript: "traditional",
+        customRomanizationText: "saan1",
+        guidesVisible: false,
+        lyricTextSize: 125,
+        lyricsText: "[zh] 山",
+        romanizationTextOpacity: 55,
+        romanizationTextSize: 120,
+        theme: "oled",
+        useCustomTrack: true,
+      }),
+    );
+  });
+
+  await page.goto("/static/bafang-laicai");
+
+  await expect(
+    page.getByRole("textbox", { name: "User-provided lyrics" }),
+  ).toHaveValue("[zh] 山");
+  await expect(
+    page.getByRole("textbox", { name: "Custom romanization track" }),
+  ).toHaveValue("saan1");
+  await expect(
+    page.getByRole("checkbox", { name: "Use custom track" }),
+  ).toBeChecked();
+  await expect(
+    page.locator(".static-reader-page[data-reader-theme]"),
+  ).toHaveAttribute("data-reader-theme", "oled");
+  await expect(page.getByRole("button", { name: "繁" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("button", { name: "Jyutping" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(
+    page.getByRole("button", { name: "Writing guide" }),
+  ).toHaveAttribute("aria-pressed", "false");
+  await expect(
+    page.getByRole("slider", { name: /Lyric text size/i }),
+  ).toHaveValue("125");
+  await expect(
+    page.getByRole("slider", { name: /Romanization size/i }),
+  ).toHaveValue("120");
+  await expect(
+    page.getByRole("slider", { name: /Character size/i }),
+  ).toHaveValue("115");
+  await expect(
+    page.getByRole("slider", { name: /Romanization opacity/i }),
+  ).toHaveValue("55");
+  await expect(
+    page.getByRole("slider", { name: /Character opacity/i }),
+  ).toHaveValue("70");
+  await expect(page.getByTestId("pinyin-line-1")).toContainText("saan1");
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        window.localStorage.getItem("lyricbridge:static-bafang:v1"),
+      ),
+    )
+    .not.toBeNull();
 });

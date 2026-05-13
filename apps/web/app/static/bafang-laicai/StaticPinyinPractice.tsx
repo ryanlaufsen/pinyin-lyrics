@@ -11,6 +11,12 @@ import {
 import Link from "next/link";
 import { ArrowLeft, Eraser, Grid3X3, Minus, Plus } from "lucide-react";
 import { clsx } from "clsx";
+import {
+  copyrightYear,
+  legacyStaticReaderStorageKeys,
+  siteName,
+  staticReaderStorageKey,
+} from "@/lib/site";
 
 const titleTiles = [
   { character: "八", pinyin: "bā", color: "#f9d7da" },
@@ -47,6 +53,9 @@ const romanizationTextSizeStep = 5;
 const characterTextSizeMin = 75;
 const characterTextSizeMax = 140;
 const characterTextSizeStep = 5;
+const textOpacityMin = 25;
+const textOpacityMax = 100;
+const textOpacityStep = 5;
 const hangulBase = 0xac00;
 const hangulLast = 0xd7a3;
 const hangulVowelCount = 21;
@@ -177,7 +186,7 @@ const chineseRomanizationModes = [
   "jyutping",
   "cantonese",
 ] as const satisfies readonly ChineseRomanizationMode[];
-const storageKey = "pinyin-lyrics:static-bafang:v1";
+const storageKey = staticReaderStorageKey;
 
 type StaticReaderSettings = {
   guidesVisible: boolean;
@@ -190,6 +199,8 @@ type StaticReaderSettings = {
   lyricTextSize: number;
   romanizationTextSize: number;
   characterTextSize: number;
+  romanizationTextOpacity: number;
+  characterTextOpacity: number;
 };
 
 const defaultStaticReaderSettings: StaticReaderSettings = {
@@ -203,6 +214,8 @@ const defaultStaticReaderSettings: StaticReaderSettings = {
   lyricTextSize: 100,
   romanizationTextSize: 100,
   characterTextSize: 100,
+  romanizationTextOpacity: 100,
+  characterTextOpacity: 100,
 };
 
 let romanizationEnginesPromise: Promise<RomanizationEngines> | null = null;
@@ -577,6 +590,10 @@ function clampCharacterTextSize(value: number) {
   return Math.min(characterTextSizeMax, Math.max(characterTextSizeMin, value));
 }
 
+function clampTextOpacity(value: number) {
+  return Math.min(textOpacityMax, Math.max(textOpacityMin, value));
+}
+
 function getLineLanguageLabel(language: LineLanguage) {
   if (language === "zh") {
     return "ZH";
@@ -661,13 +678,38 @@ function clampPersistedCharacterTextSize(value: number) {
   return clampCharacterTextSize(Math.round(value));
 }
 
+function clampPersistedTextOpacity(value: number) {
+  if (Number.isNaN(value)) {
+    return null;
+  }
+
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  return clampTextOpacity(Math.round(value));
+}
+
 function readStoredStaticReaderSettings() {
   if (typeof window === "undefined") {
     return null;
   }
 
   try {
-    const raw = window.localStorage.getItem(storageKey);
+    let raw = window.localStorage.getItem(storageKey);
+    let readFromLegacyStorage = false;
+
+    if (raw === null) {
+      for (const legacyStorageKey of legacyStaticReaderStorageKeys) {
+        raw = window.localStorage.getItem(legacyStorageKey);
+
+        if (raw !== null) {
+          readFromLegacyStorage = true;
+          break;
+        }
+      }
+    }
+
     if (raw === null) {
       return null;
     }
@@ -737,6 +779,24 @@ function readStoredStaticReaderSettings() {
       next.characterTextSize = maybeCharacterTextSize;
     }
 
+    const maybeRomanizationTextOpacity = clampPersistedTextOpacity(
+      parsed.romanizationTextOpacity,
+    );
+    if (maybeRomanizationTextOpacity !== null) {
+      next.romanizationTextOpacity = maybeRomanizationTextOpacity;
+    }
+
+    const maybeCharacterTextOpacity = clampPersistedTextOpacity(
+      parsed.characterTextOpacity,
+    );
+    if (maybeCharacterTextOpacity !== null) {
+      next.characterTextOpacity = maybeCharacterTextOpacity;
+    }
+
+    if (readFromLegacyStorage) {
+      window.localStorage.setItem(storageKey, raw);
+    }
+
     return next;
   } catch {
     return null;
@@ -783,6 +843,12 @@ export function StaticPinyinPractice() {
   );
   const [characterTextSize, setCharacterTextSize] = useState(
     defaultStaticReaderSettings.characterTextSize,
+  );
+  const [romanizationTextOpacity, setRomanizationTextOpacity] = useState(
+    defaultStaticReaderSettings.romanizationTextOpacity,
+  );
+  const [characterTextOpacity, setCharacterTextOpacity] = useState(
+    defaultStaticReaderSettings.characterTextOpacity,
   );
   const [romanizationEngines, setRomanizationEngines] =
     useState<RomanizationEngines | null>(null);
@@ -849,6 +915,14 @@ export function StaticPinyinPractice() {
         if (storedSettings.characterTextSize !== undefined) {
           setCharacterTextSize(storedSettings.characterTextSize);
         }
+
+        if (storedSettings.romanizationTextOpacity !== undefined) {
+          setRomanizationTextOpacity(storedSettings.romanizationTextOpacity);
+        }
+
+        if (storedSettings.characterTextOpacity !== undefined) {
+          setCharacterTextOpacity(storedSettings.characterTextOpacity);
+        }
       }
 
       setIsHydratedFromStorage(true);
@@ -880,8 +954,11 @@ export function StaticPinyinPractice() {
       lyricTextSize,
       romanizationTextSize,
       characterTextSize,
+      romanizationTextOpacity,
+      characterTextOpacity,
     });
   }, [
+    characterTextOpacity,
     chineseRomanizationMode,
     chineseScript,
     customRomanizationText,
@@ -889,6 +966,7 @@ export function StaticPinyinPractice() {
     isHydratedFromStorage,
     lyricTextSize,
     romanizationTextSize,
+    romanizationTextOpacity,
     characterTextSize,
     lyricsText,
     theme,
@@ -971,6 +1049,12 @@ export function StaticPinyinPractice() {
   const updateCharacterTextSize = (value: number) => {
     setCharacterTextSize(clampCharacterTextSize(value));
   };
+  const updateRomanizationTextOpacity = (value: number) => {
+    setRomanizationTextOpacity(clampTextOpacity(value));
+  };
+  const updateCharacterTextOpacity = (value: number) => {
+    setCharacterTextOpacity(clampTextOpacity(value));
+  };
 
   return (
     <div
@@ -982,7 +1066,7 @@ export function StaticPinyinPractice() {
         <div className="static-reader-page-header-inner">
           <div>
             <p className="text-xs font-semibold uppercase text-forest">
-              Pinyin Lyrics
+              {siteName}
             </p>
             <h1 className="text-xl font-semibold">Static reader</h1>
           </div>
@@ -1264,11 +1348,113 @@ export function StaticPinyinPractice() {
                   </button>
                 </div>
               </div>
+              <div className="static-control-group">
+                <label htmlFor="romanization-text-opacity">
+                  Romanization opacity <span>{romanizationTextOpacity}%</span>
+                </label>
+                <div className="static-size-control">
+                  <button
+                    aria-label="Decrease romanization text opacity"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive ||
+                      romanizationTextOpacity <= textOpacityMin
+                    }
+                    onClick={() =>
+                      updateRomanizationTextOpacity(
+                        romanizationTextOpacity - textOpacityStep,
+                      )
+                    }
+                    type="button"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <input
+                    aria-valuetext={`${romanizationTextOpacity}%`}
+                    disabled={!isInteractive}
+                    id="romanization-text-opacity"
+                    max={textOpacityMax}
+                    min={textOpacityMin}
+                    onChange={(event) =>
+                      updateRomanizationTextOpacity(Number(event.target.value))
+                    }
+                    step={textOpacityStep}
+                    type="range"
+                    value={romanizationTextOpacity}
+                  />
+                  <button
+                    aria-label="Increase romanization text opacity"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive ||
+                      romanizationTextOpacity >= textOpacityMax
+                    }
+                    onClick={() =>
+                      updateRomanizationTextOpacity(
+                        romanizationTextOpacity + textOpacityStep,
+                      )
+                    }
+                    type="button"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="static-control-group">
+                <label htmlFor="character-text-opacity">
+                  Character opacity <span>{characterTextOpacity}%</span>
+                </label>
+                <div className="static-size-control">
+                  <button
+                    aria-label="Decrease character text opacity"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive || characterTextOpacity <= textOpacityMin
+                    }
+                    onClick={() =>
+                      updateCharacterTextOpacity(
+                        characterTextOpacity - textOpacityStep,
+                      )
+                    }
+                    type="button"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <input
+                    aria-valuetext={`${characterTextOpacity}%`}
+                    disabled={!isInteractive}
+                    id="character-text-opacity"
+                    max={textOpacityMax}
+                    min={textOpacityMin}
+                    onChange={(event) =>
+                      updateCharacterTextOpacity(Number(event.target.value))
+                    }
+                    step={textOpacityStep}
+                    type="range"
+                    value={characterTextOpacity}
+                  />
+                  <button
+                    aria-label="Increase character text opacity"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive || characterTextOpacity >= textOpacityMax
+                    }
+                    onClick={() =>
+                      updateCharacterTextOpacity(
+                        characterTextOpacity + textOpacityStep,
+                      )
+                    }
+                    type="button"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
             </div>
 
             <ol
               className="static-pinyin-row static-title-practice"
-              aria-label="Pinyin title practice"
+              aria-label="Romanized title practice"
             >
               {titleTiles.map((tile) => (
                 <li
@@ -1383,6 +1569,8 @@ export function StaticPinyinPractice() {
                     "--lyric-scale": lyricTextSize / 100,
                     "--romanization-scale": romanizationTextSize / 100,
                     "--character-scale": characterTextSize / 100,
+                    "--romanization-opacity": romanizationTextOpacity / 100,
+                    "--character-opacity": characterTextOpacity / 100,
                   } as CSSProperties
                 }
               >
@@ -1452,7 +1640,9 @@ export function StaticPinyinPractice() {
                                     !token.isHanzi && "static-pinyin-empty",
                                   )}
                                 >
-                                  {token.pinyin || "\u00a0"}
+                                  <span className="static-romanization-text">
+                                    {token.pinyin || "\u00a0"}
+                                  </span>
                                 </span>
                                 <span
                                   className={clsx(
@@ -1472,7 +1662,9 @@ export function StaticPinyinPractice() {
                                     </span>
                                   ) : null}
                                   <span className="static-hanzi cjk">
-                                    {token.character}
+                                    <span className="static-character-text">
+                                      {token.character}
+                                    </span>
                                   </span>
                                 </span>
                               </>
@@ -1491,8 +1683,8 @@ export function StaticPinyinPractice() {
       <footer className="static-reader-page-footer">
         <div className="static-reader-page-footer-inner">
           <p>
-            &copy; 2026 Pinyin Lyrics. User-provided lyrics stay local in this
-            static reader.
+            &copy; {copyrightYear} {siteName}. User-provided lyrics stay local
+            in this static reader.
           </p>
           <nav
             aria-label="Footer navigation"

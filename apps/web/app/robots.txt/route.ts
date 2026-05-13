@@ -1,4 +1,4 @@
-import { absoluteSiteUrl } from "@/lib/site";
+import { absoluteSiteUrl, siteName } from "@/lib/site";
 
 export const dynamic = "force-static";
 
@@ -31,7 +31,7 @@ function agentGroup(userAgents: string[], directive: "Allow" | "Disallow") {
 
 export function GET() {
   const lines = [
-    "# Pinyin Lyrics crawler policy",
+    `# ${siteName} crawler policy`,
     "# AI search and user-requested agent fetches are welcome for public pages.",
     "# Model training, bulk scraping, and user-provided lyric extraction are not granted.",
     `License: ${absoluteSiteUrl("/license.xml")}`,

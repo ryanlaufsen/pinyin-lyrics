@@ -23,7 +23,7 @@ test("opens the reader workspace", async ({ page }) => {
   await expect(page.getByRole("contentinfo")).toContainText(
     "full copyrighted lyrics are not bundled",
   );
-  await expect(page).toHaveTitle("Pinyin Lyrics");
+  await expect(page).toHaveTitle("LyricBridge");
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
     /CJK song lyric reader/,
@@ -38,6 +38,6 @@ test("opens the reader workspace", async ({ page }) => {
   );
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
     "content",
-    "Pinyin Lyrics",
+    "LyricBridge",
   );
 });

@@ -910,6 +910,10 @@ textarea {
   );
 }
 
+.static-lyric-output .static-character-text {
+  opacity: var(--character-opacity, 1);
+}
+
 .static-lyric-output .static-pinyin-box {
   font-size: clamp(
     calc(0.68rem * var(--lyric-scale, 1) * var(--romanization-scale, 1)),
@@ -917,6 +921,10 @@ textarea {
     calc(0.9rem * var(--lyric-scale, 1) * var(--romanization-scale, 1))
   );
   white-space: nowrap;
+}
+
+.static-lyric-output .static-romanization-text {
+  opacity: var(--romanization-opacity, 1);
 }
 
 @media (max-width: 640px) {

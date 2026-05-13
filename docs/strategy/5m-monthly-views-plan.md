@@ -2,7 +2,7 @@
 
 Date: 2026-05-13  
 Owner: Orchestrator  
-Goal: build Pinyin Lyrics into a legally clean CJK song-romanization product capable of reaching and serving 5M monthly pageviews.
+Goal: build LyricBridge into a legally clean CJK song-romanization product capable of reaching and serving 5M monthly pageviews.
 
 ## Positioning
 

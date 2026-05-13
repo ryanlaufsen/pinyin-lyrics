@@ -88,6 +88,33 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Done
 
+### FE-010: Rename App And Add Static Text Opacity Controls
+
+- Status: `Done`
+- Priority: `P0`
+- Primary Manager: Frontend Manager
+- Supporting Managers: Security/Legal Manager, UI Design Manager, QA/Accessibility Manager, DevOps/System Engineering Manager, Orchestrator
+- Goal: Rename the customer-facing app to a more inclusive multilingual brand, centralize configurable site variables, make public legal copy customer-facing, and add separate romanization/character text opacity controls.
+- Acceptance Criteria:
+  - Customer-facing app name is `LyricBridge`, with UI/legal/manifest/metadata surfaces reading from centralized config in `apps/web/lib/site.ts`.
+  - App name, short name, tagline, description, legal entity, copyright year, site URL, repository URL, support URL, and storage namespace are configurable through `NEXT_PUBLIC_*` environment variables.
+  - Public legal pages avoid internal process language and describe current product limits in customer-facing terms.
+  - Static reader exposes separate `Romanization opacity` and `Character opacity` range controls with minus/plus buttons, accessible names, bounds, and percent values.
+  - Opacity applies to the romanization/character glyph text inside the lyric boxes, not the pastel box surfaces.
+  - Static reader persists the opacity settings and migrates from the legacy `pinyin-lyrics:static-bafang:v1` storage namespace to `lyricbridge:static-bafang:v1`.
+  - Package/workflow/Docker command filters use `@lyricbridge/web`.
+- Blockers/Dependencies:
+  - GitHub Pages repo slug remains `/pinyin-lyrics` unless the repository is renamed and Pages base path is changed.
+  - Legacy storage namespace remains intentionally referenced for migration.
+- Evidence Required:
+  - `git diff --check` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed at `691.3 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/legal.spec.ts tests/e2e/home.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
+
 ### FE-003: Add Dark And OLED Static Reader Themes
 
 - Status: `Done`
@@ -107,11 +134,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - None for the static route. Full production release still depends on DEVOPS-001 clearing the host Node/Docker gaps.
 - Evidence Required:
   - UX/UI council review completed on 2026-05-13 and required page-level theming, dedicated pinyin/Hanzi/focus/border tokens, restrained OLED surfaces, and desktop/mobile visual QA.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed with the existing host Node warning.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed with the existing host Node warning.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed, including the production TypeScript phase.
-  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed, including the production TypeScript phase.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### FE-004: Add Custom And Cantonese Romanization Tracks
 
@@ -133,11 +160,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Evidence Required:
   - `to-jyutping@3.1.1` installed as the Cantonese converter dependency.
   - Static reader component and e2e spec diffs.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### FE-005: Persist Static Reader State Locally
 
@@ -159,11 +186,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Host Node still warns as `v21.7.2`, below the repo target, so DEVOPS-001 remains open for environment parity.
 - Evidence Required:
   - Versioned key `pinyin-lyrics:static-bafang:v1` added for static reader state.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### FE-006: Add Box Text Size Controls
 
@@ -186,11 +213,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Commit `fbe32cd` added the lyric box text-size controls.
   - GitHub Pages workflow run `25795539053` deployed the box-size controls with the accessibility/layout follow-up.
   - Direct static route smoke check returned `HTTP/2 200`.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### FE-007: Improve Dark/OLED Accessibility And Lyric Workspace Layout
 
@@ -213,11 +240,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Commit `6f5ccbb` improved Dark/OLED accessibility metrics, lyric input/ad layout, heading spacing, and e2e coverage.
   - GitHub Pages workflow run `25795539053` completed successfully.
   - Direct static route smoke check returned `HTTP/2 200`.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### REV-001: Optimize Static Reader Ad Slot Geometry
 
@@ -241,11 +268,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Commit `0423632` optimized static reader ad slot geometry and e2e coverage.
   - GitHub Pages workflow run `25796125840` completed successfully.
   - Direct static route smoke check returned `HTTP/2 200`.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### FE-008: Reduce Static Reader First-Load Work
 
@@ -292,11 +319,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `apps/web/scripts/check-static-budget.mjs` enforces the `/static/bafang-laicai/` first-render static asset budget.
   - Commit `5962a7d` added the AI crawler policy files, tests, and static budget gate.
   - `git diff --check` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed with the existing host Node warning.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed with the existing host Node warning.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed with and without `PAGES_BASE_PATH=/pinyin-lyrics`.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web budget:static` passed against the GitHub Pages export: `680.7 KiB` first render total and `222.2 KiB` largest referenced asset.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/home.spec.ts tests/e2e/static-bafang.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed with and without `PAGES_BASE_PATH=/pinyin-lyrics`.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed against the GitHub Pages export: `680.7 KiB` first render total and `222.2 KiB` largest referenced asset.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/home.spec.ts tests/e2e/static-bafang.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
   - Initial live smoke after workflow run `25799805866` found `/.well-known/ai-policy.json` was excluded from the Pages artifact; `.github/workflows/pages.yml` now sets `include-hidden-files: true`.
   - Commit `d5cdf84` added the Pages hidden-file artifact fix.
   - GitHub Pages workflow run `25799936251` completed successfully.
@@ -325,7 +352,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `apps/web/app/_components/SiteChrome.tsx`
   - `apps/web/tests/e2e/home.spec.ts`
   - `apps/web/tests/e2e/static-bafang.spec.ts`
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/home.spec.ts tests/e2e/legal.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/home.spec.ts tests/e2e/legal.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
 
 ### SEC-005: Add Public Legal Policy Pages
 
@@ -350,10 +377,10 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - GitHub Pages workflow run `25801865548` completed successfully.
   - Live smoke returned `HTTP/2 200` for `/terms/`, `/privacy/`, and `/copyright/`; fetched sitemap, `/license.xml`, and `/llms.txt` include legal route references.
   - `apps/web/tests/e2e/legal.spec.ts` covers legal pages on desktop and mobile Chromium.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed with the existing host Node warning.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed with the existing host Node warning.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed with and without `PAGES_BASE_PATH=/pinyin-lyrics`.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web budget:static` passed against the GitHub Pages export: `685.7 KiB` first render total and `222.2 KiB` largest referenced asset.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed with and without `PAGES_BASE_PATH=/pinyin-lyrics`.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed against the GitHub Pages export: `685.7 KiB` first render total and `222.2 KiB` largest referenced asset.
 
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 
@@ -402,11 +429,11 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Artist metadata corrected to `SKAI ISYOURGOD`.
   - Web-searched/full song lyrics are not bundled in source, tests, build output, or the public static bundle.
   - `opencc-js@1.0.5` added for browser-side Chinese script conversion.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
-  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### DEVOPS-002: Deploy Static Mode To GitHub Pages
 

@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/app/_components/LegalPage";
-import { absoluteSiteUrl } from "@/lib/site";
+import { absoluteSiteUrl, siteName } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Terms of Use",
-  description:
-    "Terms for using Pinyin Lyrics, including user-provided lyrics, copyright boundaries, AI crawler rules, ads, and service limitations.",
+  description: `Terms for using ${siteName}, including user-provided lyrics, copyright boundaries, AI crawler rules, ads, and service limitations.`,
   alternates: {
     canonical: "/terms/",
   },
   openGraph: {
     title: "Terms of Use",
-    description:
-      "Terms for using Pinyin Lyrics, including user-provided lyrics, copyright boundaries, AI crawler rules, ads, and service limitations.",
+    description: `Terms for using ${siteName}, including user-provided lyrics, copyright boundaries, AI crawler rules, ads, and service limitations.`,
     type: "website",
     url: absoluteSiteUrl("/terms/"),
   },
@@ -23,7 +21,7 @@ export default function TermsPage() {
   return (
     <LegalPage
       activeHref="/terms"
-      description="These terms define the narrow, practical use of Pinyin Lyrics: a reader for lawful, user-provided CJK lyric text and public song-practice shells."
+      description={`These terms define the narrow, practical use of ${siteName}: a reader for lawful, user-provided CJK lyric text and public song-practice shells.`}
       title="Terms of Use"
     >
       <section>
@@ -32,9 +30,9 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h2>What Pinyin Lyrics Provides</h2>
+        <h2>What {siteName} Provides</h2>
         <p>
-          Pinyin Lyrics provides tools for reading and practicing Chinese,
+          {siteName} provides tools for reading and practicing Chinese,
           Japanese, and Korean song lyrics with romanization support. Public
           song pages are practice shells that may include metadata,
           title-character practice, settings, romanization notes, and a
@@ -57,10 +55,10 @@ export default function TermsPage() {
           publicity, contract, platform, or other rights.
         </p>
         <p>
-          If future account, save, export, or public-sharing features are added,
-          those features must include ownership, visibility, provenance,
-          takedown, deletion, and moderation controls before public lyric
-          content can be indexed or monetized.
+          We do not currently provide public lyric upload or public sharing
+          features. If those features are added, they will include clear
+          ownership, visibility, provenance, takedown, deletion, and moderation
+          controls before public lyric content is indexed or monetized.
         </p>
       </section>
 
@@ -106,8 +104,10 @@ export default function TermsPage() {
         <p>
           The current static build reserves ad space but does not require you to
           create an account. If advertising, analytics, error reporting, or
-          other third-party services are enabled, they must be disclosed in the
-          privacy policy and must not receive user-pasted lyric text.
+          other third-party services are enabled, we will disclose them in the
+          privacy policy and will not send user-pasted lyric text to those
+          services unless you choose a feature that requires it and we explain
+          that transfer.
         </p>
       </section>
 
@@ -115,17 +115,17 @@ export default function TermsPage() {
         <h2>No Warranty</h2>
         <p>
           Romanization output can be wrong, incomplete, dialect-dependent, or
-          context-dependent. Pinyin Lyrics is provided as a reading aid, not as
-          a legal, linguistic, educational, or professional guarantee.
+          context-dependent. {siteName} is provided as a reading aid, not as a
+          legal, linguistic, educational, or professional guarantee.
         </p>
       </section>
 
       <section>
         <h2>Changes</h2>
         <p>
-          We may update these terms as the product changes. Material changes
-          should be reflected in the devlog, public legal pages, and policy
-          files before production launch.
+          We may update these terms as the product changes. When material
+          changes apply, the updated terms and related policy files will be
+          published with a current effective date.
         </p>
       </section>
     </LegalPage>

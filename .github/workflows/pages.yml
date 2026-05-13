@@ -43,7 +43,7 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: "1"
           PAGES_BASE_PATH: /pinyin-lyrics
-        run: pnpm --filter @pinyin-lyrics/web build:static
+        run: pnpm --filter @lyricbridge/web build:static
 
       - name: Disable Jekyll processing
         run: touch apps/web/out/.nojekyll

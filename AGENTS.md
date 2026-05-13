@@ -135,7 +135,7 @@
 
 - Primary package manager: `pnpm`.
 - Local services should run with `docker compose up --build`.
-- Development web server should run with `pnpm --filter @pinyin-lyrics/web dev`.
+- Development web server should run with `pnpm --filter @lyricbridge/web dev`.
 - Expected quality gates once dependencies are installed:
   - `pnpm lint`
   - `pnpm typecheck`

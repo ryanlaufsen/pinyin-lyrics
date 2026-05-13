@@ -1,5 +1,5 @@
 {
-  "name": "@pinyin-lyrics/web",
+  "name": "@lyricbridge/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",

@@ -1,5 +1,5 @@
 {
-  "name": "pinyin-lyrics",
+  "name": "lyricbridge",
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@10.33.4",
@@ -9,15 +9,15 @@
   },
   "scripts": {
     "package-manager": "corepack pnpm@10.33.4 --version",
-    "dev": "pnpm --filter @pinyin-lyrics/web dev",
-    "build": "pnpm --filter @pinyin-lyrics/web build",
-    "build:static": "pnpm --filter @pinyin-lyrics/web build:static",
-    "budget:static": "pnpm --filter @pinyin-lyrics/web budget:static",
-    "start": "pnpm --filter @pinyin-lyrics/web start",
+    "dev": "pnpm --filter @lyricbridge/web dev",
+    "build": "pnpm --filter @lyricbridge/web build",
+    "build:static": "pnpm --filter @lyricbridge/web build:static",
+    "budget:static": "pnpm --filter @lyricbridge/web budget:static",
+    "start": "pnpm --filter @lyricbridge/web start",
     "lint": "pnpm --recursive lint",
     "typecheck": "pnpm --recursive typecheck",
     "test": "pnpm --recursive test",
-    "e2e": "pnpm --filter @pinyin-lyrics/web e2e",
+    "e2e": "pnpm --filter @lyricbridge/web e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

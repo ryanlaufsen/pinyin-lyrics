@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/app/_components/LegalPage";
-import { absoluteSiteUrl } from "@/lib/site";
+import {
+  absoluteSiteUrl,
+  siteName,
+  staticReaderStorageKey,
+  supportUrl,
+} from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description:
-    "Privacy policy for Pinyin Lyrics, including local lyric storage, logs, ads, cookies, localStorage, and AI-agent limits.",
+  description: `Privacy policy for ${siteName}, including local lyric storage, logs, ads, cookies, localStorage, and AI-agent limits.`,
   alternates: {
     canonical: "/privacy/",
   },
   openGraph: {
     title: "Privacy Policy",
-    description:
-      "Privacy policy for Pinyin Lyrics, including local lyric storage, logs, ads, cookies, localStorage, and AI-agent limits.",
+    description: `Privacy policy for ${siteName}, including local lyric storage, logs, ads, cookies, localStorage, and AI-agent limits.`,
     type: "website",
     url: absoluteSiteUrl("/privacy/"),
   },
@@ -23,7 +26,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       activeHref="/privacy"
-      description="This policy explains what the current static app stores, what it does not collect, and what must be true before analytics, ads, or account features are enabled."
+      description={`This policy explains what ${siteName} stores in your browser, what the public reader does not collect, and how future analytics, ads, or account features will be disclosed.`}
       title="Privacy Policy"
     >
       <section>
@@ -36,13 +39,13 @@ export default function PrivacyPage() {
         <p>
           The static reader processes pasted lyrics in your browser. The current
           public build does not send pasted lyric text or custom romanization
-          tracks to a Pinyin Lyrics server.
+          tracks to a {siteName} server.
         </p>
         <p>
           Reader settings and pasted text may be saved in your browser&apos;s
-          localStorage under the key <code>pinyin-lyrics:static-bafang:v1</code>
-          . You can clear that data with the in-app clear control where
-          available, or through your browser&apos;s site-data settings.
+          localStorage under the key <code>{staticReaderStorageKey}</code>. You
+          can clear that data with the in-app clear control where available, or
+          through your browser&apos;s site-data settings.
         </p>
       </section>
 
@@ -59,9 +62,9 @@ export default function PrivacyPage() {
             to that channel&apos;s settings.
           </li>
           <li>
-            Future account, save, export, analytics, advertising, and error
-            reporting features are blocked until they have privacy-safe logging,
-            retention, deletion, and disclosure rules.
+            If account, save, export, analytics, advertising, or error reporting
+            features are added, we will publish the relevant logging, retention,
+            deletion, and disclosure practices.
           </li>
         </ul>
       </section>
@@ -69,7 +72,7 @@ export default function PrivacyPage() {
       <section>
         <h2>Lyrics, Analytics, And Ads</h2>
         <p>
-          Pinyin Lyrics must not use session replay, analytics capture, ad
+          {siteName} does not use session replay, analytics capture, ad
           targeting, error reporting, logs, or AI agents to collect lyric
           textarea contents, custom romanization tracks, or private
           lyric-derived output.
@@ -78,7 +81,7 @@ export default function PrivacyPage() {
           If Google AdSense or other ad partners are enabled, third-party
           vendors may use cookies, web beacons, IP addresses, or other
           identifiers to serve or measure ads. Personalized ad choices and
-          opt-outs must be disclosed before live ad serving is enabled.
+          opt-outs will be disclosed before live ad serving is enabled.
         </p>
       </section>
 
@@ -113,10 +116,8 @@ export default function PrivacyPage() {
           </li>
           <li>
             Contact the project through{" "}
-            <Link href="https://github.com/ryanlaufsen/pinyin-lyrics/issues">
-              GitHub Issues
-            </Link>{" "}
-            for privacy requests about project-maintained data.
+            <Link href={supportUrl}>GitHub Issues</Link> for privacy requests
+            about project-maintained data.
           </li>
         </ul>
       </section>
@@ -124,7 +125,7 @@ export default function PrivacyPage() {
       <section>
         <h2>Children</h2>
         <p>
-          Pinyin Lyrics is not directed to children under 13. Do not use the
+          {siteName} is not directed to children under 13. Do not use the
           service to submit children&apos;s personal information.
         </p>
       </section>
@@ -132,8 +133,9 @@ export default function PrivacyPage() {
       <section>
         <h2>Changes</h2>
         <p>
-          Privacy disclosures must be updated before any new analytics, ads,
-          account, storage, sharing, export, or moderation feature is enabled.
+          We may update this policy as the product changes. When material
+          changes apply, the updated policy will be published with a current
+          effective date.
         </p>
       </section>
     </LegalPage>

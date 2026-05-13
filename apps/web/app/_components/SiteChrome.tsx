@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { siteName } from "@/lib/site";
+import { copyrightYear, siteName, siteTagline } from "@/lib/site";
 
 const primaryLinks = [
   { href: "/", label: "Workspace" },
@@ -19,7 +19,7 @@ export function SiteHeader({ activeHref }: SiteChromeProps) {
       <div className="site-header-inner">
         <Link className="site-brand" href="/">
           <span>{siteName}</span>
-          <strong>CJK lyric reader</strong>
+          <strong>{siteTagline}</strong>
         </Link>
         <nav aria-label="Main navigation" className="site-nav">
           {primaryLinks.map((link) => (
@@ -43,8 +43,8 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <p>
-          &copy; 2026 {siteName}. Public pages are lyric-practice shells; full
-          copyrighted lyrics are not bundled.
+          &copy; {copyrightYear} {siteName}. Public pages are lyric-practice
+          shells; full copyrighted lyrics are not bundled.
         </p>
         <nav aria-label="Footer navigation" className="site-footer-links">
           <Link href="/terms">Terms</Link>

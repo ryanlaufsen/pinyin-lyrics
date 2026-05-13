@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Languages, Search, Settings2, Upload } from "lucide-react";
+import { siteName } from "@/lib/site";
 import { SiteFooter, SiteHeader } from "./_components/SiteChrome";
 
 const demoLines = [
@@ -36,7 +37,7 @@ export default function Home() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase text-forest">
-                  Pinyin Lyrics
+                  {siteName}
                 </p>
                 <h1 className="text-xl font-semibold">Reader workspace</h1>
               </div>

@@ -1,23 +1,30 @@
 import { expect, test } from "@playwright/test";
 
 const forbiddenPublicLyricSnippets = ["万事如意"];
+const internalProcessPhrases = [
+  "blocked until",
+  "current static prototype",
+  "devlog",
+  "must include",
+  "production launch",
+];
 
 const legalRoutes = [
   {
     path: "/terms",
-    title: "Terms of Use | Pinyin Lyrics",
+    title: "Terms of Use | LyricBridge",
     heading: "Terms of Use",
     canonical: "https://ryanlaufsen.github.io/pinyin-lyrics/terms/",
   },
   {
     path: "/privacy",
-    title: "Privacy Policy | Pinyin Lyrics",
+    title: "Privacy Policy | LyricBridge",
     heading: "Privacy Policy",
     canonical: "https://ryanlaufsen.github.io/pinyin-lyrics/privacy/",
   },
   {
     path: "/copyright",
-    title: "Copyright Policy | Pinyin Lyrics",
+    title: "Copyright Policy | LyricBridge",
     heading: "Copyright Policy",
     canonical: "https://ryanlaufsen.github.io/pinyin-lyrics/copyright/",
   },
@@ -50,6 +57,10 @@ for (const route of legalRoutes) {
     const html = await page.content();
     for (const forbiddenSnippet of forbiddenPublicLyricSnippets) {
       expect(html).not.toContain(forbiddenSnippet);
+    }
+
+    for (const internalPhrase of internalProcessPhrases) {
+      expect(html.toLowerCase()).not.toContain(internalPhrase);
     }
   });
 }

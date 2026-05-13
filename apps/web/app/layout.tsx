@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import {
   absoluteSiteUrl,
+  legalEntityName,
   siteDescription,
   siteName,
   siteUrl,
@@ -15,9 +16,9 @@ export const metadata: Metadata = {
   },
   description: siteDescription,
   applicationName: siteName,
-  authors: [{ name: "Pinyin Lyrics" }],
-  creator: "Pinyin Lyrics",
-  publisher: "Pinyin Lyrics",
+  authors: [{ name: legalEntityName }],
+  creator: legalEntityName,
+  publisher: legalEntityName,
   keywords: [
     "pinyin lyrics",
     "CJK romanization",

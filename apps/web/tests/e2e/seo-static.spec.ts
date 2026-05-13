@@ -41,12 +41,12 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
   const manifest = await request.get("/manifest.webmanifest");
   await expect(manifest).toBeOK();
   const manifestJson = (await manifest.json()) as { name?: string };
-  expect(manifestJson.name).toBe("Pinyin Lyrics");
+  expect(manifestJson.name).toBe("LyricBridge");
 
   const llms = await request.get("/llms.txt");
   await expect(llms).toBeOK();
   const llmsText = await llms.text();
-  expect(llmsText).toContain("# Pinyin Lyrics");
+  expect(llmsText).toContain("# LyricBridge");
   expect(llmsText).toContain("Disallowed AI Use");
   expect(llmsText).toContain(
     "https://ryanlaufsen.github.io/pinyin-lyrics/privacy/",
@@ -87,7 +87,7 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
 
   await page.goto("/static/bafang-laicai");
   await expect(page).toHaveTitle(
-    "八方来财 Pinyin & Multilingual Lyric Practice | Pinyin Lyrics",
+    "八方来财 Romanization & Multilingual Lyric Practice | LyricBridge",
   );
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
@@ -95,7 +95,7 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
   );
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
     "content",
-    "八方来财 Pinyin & Multilingual Lyric Practice",
+    "八方来财 Romanization & Multilingual Lyric Practice",
   );
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
     "content",

@@ -1,4 +1,4 @@
-name: pinyin-lyrics
+name: lyricbridge
 
 services:
   web:
@@ -6,9 +6,17 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql://pinyin:pinyin@postgres:5432/pinyin_lyrics?schema=public
+      DATABASE_URL: postgresql://lyricbridge:lyricbridge@postgres:5432/lyricbridge?schema=public
       REDIS_URL: redis://redis:6379
-      NEXT_PUBLIC_APP_NAME: Pinyin Lyrics
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_NAME: LyricBridge
+      NEXT_PUBLIC_APP_SHORT_NAME: LyricBridge
+      NEXT_PUBLIC_APP_TAGLINE: CJK lyric reader
+      NEXT_PUBLIC_SITE_DESCRIPTION: A fast CJK song lyric reader for Chinese pinyin, Cantonese romanization, Japanese romaji, and Korean romanization.
+      NEXT_PUBLIC_LEGAL_NAME: LyricBridge
+      NEXT_PUBLIC_REPOSITORY_URL: https://github.com/ryanlaufsen/pinyin-lyrics
+      NEXT_PUBLIC_SUPPORT_URL: https://github.com/ryanlaufsen/pinyin-lyrics/issues
+      NEXT_PUBLIC_STORAGE_NAMESPACE: lyricbridge
       NEXT_TELEMETRY_DISABLED: "1"
     ports:
       - "3000:3000"
@@ -21,15 +29,15 @@ services:
   postgres:
     image: postgres:18-alpine
     environment:
-      POSTGRES_DB: pinyin_lyrics
-      POSTGRES_USER: pinyin
-      POSTGRES_PASSWORD: pinyin
+      POSTGRES_DB: lyricbridge
+      POSTGRES_USER: lyricbridge
+      POSTGRES_PASSWORD: lyricbridge
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pinyin -d pinyin_lyrics"]
+      test: ["CMD-SHELL", "pg_isready -U lyricbridge -d lyricbridge"]
       interval: 5s
       timeout: 5s
       retries: 10

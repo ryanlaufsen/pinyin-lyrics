@@ -1,4 +1,4 @@
-# Pinyin Lyrics
+# LyricBridge
 
 A polished, no-nonsense web app for reading Chinese, Japanese, and Korean song lyrics with pinyin, romaji, and Korean romanization support.
 
@@ -14,8 +14,8 @@ A polished, no-nonsense web app for reading Chinese, Japanese, and Korean song l
 
 ```bash
 pnpm install
-pnpm --filter @pinyin-lyrics/web dev
-pnpm --filter @pinyin-lyrics/web build:static
+pnpm --filter @lyricbridge/web dev
+pnpm --filter @lyricbridge/web build:static
 pnpm lint
 pnpm typecheck
 pnpm test

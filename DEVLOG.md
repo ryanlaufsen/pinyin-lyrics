@@ -2,6 +2,13 @@
 
 ## 2026-05-13
 
+- Renamed the customer-facing app from the narrower pinyin-centered name to `LyricBridge` while keeping the GitHub Pages repo slug/base path unchanged for deployment continuity.
+- Centralized app-facing config in `apps/web/lib/site.ts`: app name, short name, tagline, description, legal entity, copyright year, site URL, repository URL, support URL, storage namespace, static reader storage key, and legacy storage namespaces now flow through `NEXT_PUBLIC_*` variables.
+- Updated the manifest, metadata, site/static chrome, legal pages, AI policy routes, Docker/Compose env, workflow/package filters, README, and tests to use the `LyricBridge` brand and `@lyricbridge/web` package name.
+- Rewrote public Terms, Privacy, and Copyright copy to remove internal process wording and make current product limits customer-facing; legal e2e now guards against the old internal phrases.
+- Added separate `Romanization opacity` and `Character opacity` controls to the static reader, with minus/plus buttons, percent `aria-valuetext`, localStorage persistence, legacy namespace migration, and text-only opacity so pastel lyric boxes remain stable.
+- Expanded static e2e coverage for opacity bounds, computed opacity effects, reload/Clear persistence, and legacy `pinyin-lyrics:static-bafang:v1` migration to the new `lyricbridge:static-bafang:v1` namespace.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `static-bafang.spec.ts`, `legal.spec.ts`, `home.spec.ts`, and `seo-static.spec.ts`. The static route budget measured `691.3 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
 - Started the 5M monthly views readiness epic as `ORCH-003`, using parallel council tracks for Architecture/DevOps, Romanization/NLP, Product/Growth/UX, Security/Legal/Data, and Frontend/SEO/Performance.
 - Council conclusion: 5M monthly views is realistic only with a CDN-first static shell, reduced first-load JS, legal song-practice shells instead of copied lyrics, versioned romanization adapters, provenance/ACL/moderation before public lyric storage, production CI gates, observability, and load testing. GitHub Pages remains a prototype/demo host, not the growth architecture.
 - Added `docs/strategy/5m-monthly-views-plan.md` for target segments, legal growth loops, SEO/social strategy, retention metrics, and non-negotiables.
@@ -123,7 +130,7 @@
 - Commit `c69b748`: added the static pinyin practice mode, static export script/config, and targeted e2e coverage.
 - Commit `adee912`: recorded the static mode handoff; `main` was fast-forwarded to include it.
 - Added GitHub Pages Actions workflow to deploy the static export from `apps/web/out` with `PAGES_BASE_PATH=/pinyin-lyrics`.
-- Local Pages-base-path static export passed with `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static`; command still warns that the host Node is `v21.7.2`.
+- Local Pages-base-path static export passed with `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static`; command still warns that the host Node is `v21.7.2`.
 - Refreshed GitHub CLI auth with `workflow` scope after the first workflow push was rejected, then pushed commit `e31bc44` to `main`.
 - GitHub Pages was unavailable for the private repo on the current GitHub plan, so the repository was made public at user request.
 - Enabled GitHub Pages with GitHub Actions as the build source and deployed workflow run `25782293862` successfully.
