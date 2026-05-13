@@ -38,7 +38,8 @@
 - Deployment workflow run `25782293862` passed on 2026-05-13 UTC after the repo was made public at user request.
 - The current GitHub CLI token now has `workflow` scope.
 - Latest redeploy commit: `cad59d3` (`Add user-provided lyric line renderer`).
-- Latest redeploy workflow run `25783457361` passed on 2026-05-13 UTC.
+- Latest deployed code/docs commit: `18ded09` (`Record static Pages redeploy`).
+- Latest Pages workflow run `25783608072` passed on 2026-05-13 UTC.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
@@ -55,4 +56,5 @@
 - Docker Compose file has not been validated because `docker` is not available in this WSL distro.
 - GitHub publish complete: `origin` is `https://github.com/ryanlaufsen/pinyin-lyrics.git`, visibility is now public, default branch `main`.
 - GitHub Pages API reports `build_type: workflow`, `public: true`, and `html_url: https://ryanlaufsen.github.io/pinyin-lyrics/`.
+- Direct route smoke check for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200`.
 - Latest static-route verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. All commands still warn that the host Node is `v21.7.2`.
