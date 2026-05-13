@@ -98,6 +98,14 @@
 - No visible instructional filler in the UI. The interface should explain itself through layout, labels, states, and affordances.
 - Preserve user text. Lyric editing, romanization correction, and annotation workflows need explicit save/discard states and undo where practical.
 
+## AI Crawler And Agent Policy
+
+- Keep `/robots.txt`, `/llms.txt`, `/.well-known/ai-policy.json`, and `/license.xml` aligned whenever public route, copyright, privacy, or monetization policy changes.
+- Default stance: allow normal search, AI search, and user-requested agent fetches for public legal pages; disallow model training, fine-tuning, dataset construction, bulk scraping, and extraction of user-provided lyric text or custom romanization tracks.
+- Treat `llms.txt` as an agent-readable public map, not as an enforcement mechanism. Enforcement belongs in production WAF/bot controls, rate limits, verified bot IP handling, and lyric-safe logging.
+- Before adding public song pages, confirm the policy files do not expose or invite scraping of copyrighted lyrics or full romanized copyrighted lyrics.
+- E2E must cover AI policy routes and known copied-lyric leakage whenever crawler policy or public SEO surfaces change.
+
 ## E2E Coverage Standard
 
 - Before production, e2e coverage must be 100% by obligation, not by vibes. Every committed user-facing route, critical workflow, supported language mode, accessibility-critical interaction, and deployment smoke path must have an automated Playwright e2e test or a tracked explicit exception.

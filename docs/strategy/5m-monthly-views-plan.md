@@ -41,9 +41,10 @@ The scalable content moat is not copied lyrics. It is:
 ### Phase 0: Prototype To Crawlable Tool
 
 - Add canonical metadata, sitemap, robots, manifest, and route-specific metadata.
+- Add AI-agent discovery controls: allow public search/user-requested fetchers, disallow model-training crawlers, publish `/llms.txt`, machine-readable AI policy, and RSL license terms.
 - Keep GitHub Pages as demo hosting only.
 - Reduce first-load JS by lazy-loading romanization engines.
-- Add metadata and copyright-leak e2e checks.
+- Add metadata, AI-policy, performance-budget, and copyright-leak e2e checks.
 
 ### Phase 1: Legal Static Surface
 
@@ -56,6 +57,7 @@ The scalable content moat is not copied lyrics. It is:
   - `/tools/korean-lyrics-romanizer`
 - Generate song pages only from metadata and legally clean annotations.
 - Add Search Console, analytics, RUM, and route-level RPM/viewability tracking.
+- Track AI answer visibility, cited canonical URLs, and crawler logs after launch without permitting model training or lyric exfiltration.
 
 ### Phase 2: Accuracy Moat
 
@@ -96,5 +98,6 @@ Milestones:
 - No public indexed full copyrighted lyrics without rights.
 - No global lyric-derived caches without access control and provenance.
 - No analytics/session replay over lyric textareas.
+- No model training, dataset building, or AI-agent extraction over user-provided lyric text or custom romanization tracks.
 - No accuracy claims without fixture evidence.
 - No production launch without e2e coverage, load test baseline, and legal/security sign-off.

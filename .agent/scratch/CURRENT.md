@@ -25,10 +25,12 @@
 - Security/legal and accessibility gaps should be treated as blockers when they affect lyric ingestion, stored content, keyboard access, screen-reader naming, CJK readability, or mobile density.
 - 5M/month growth path is CDN-first static shell plus API/data/jobs later. GitHub Pages is prototype/demo hosting only because bandwidth and commercial-growth assumptions do not fit the target.
 - Public SEO growth must use legal song-practice shells and tools, not copied full lyrics or full romanized copyrighted lyrics.
+- AI-agent discovery policy allows public search and user-requested fetchers while disallowing model training, bulk scraping, dataset building, and user lyric/custom-track extraction.
 
 ## Next Useful Work
 
 - Continue `ORCH-003` 5M monthly views readiness epic. Highest-risk next cards: `SEC-002`, `DATA-002`, `RZN-001`, `RZN-002`, `ARCH-001`, `DEVOPS-002`, `DEVOPS-003`, `DEVOPS-005`, `SEO-001`, and `QA-004`.
+- Continue `SEC-004` after production host selection to enforce advisory AI crawler policy with WAF/rate limits, verified bot IP ranges, and lyric-safe logs.
 - Assign SEC-001/SEC-002, UXR-001, UID-001, and continue DEVOPS-001 before implementing server-side reader/import persistence.
 - Rerun install and quality gates with Node 22.12+ or Node 24+ and pnpm 10.33.4 active.
 - Replace the current home smoke test with route-contract e2e coverage.
@@ -95,4 +97,7 @@
 - Latest scale-readiness handoff commit: `8ced9e9` (`Plan 5M monthly views readiness epic`).
 - Latest Pages workflow run `25798023918` passed on 2026-05-13 UTC.
 - Latest smoke checks returned `HTTP/2 200` for the static reader, `/robots.txt`, `/sitemap.xml`, and `/manifest.webmanifest`.
-- Current branch state has only post-deploy ORCH-003 bookkeeping edits; commit with `[skip ci]` before final handoff.
+- Current AI policy work adds a custom `/robots.txt`, `/llms.txt`, `/.well-known/ai-policy.json`, `/license.xml`, SEO e2e coverage, and a static first-render bundle budget gate.
+- Latest implementation commit: `5962a7d` (`Add AI crawler policy files`).
+- SEO-002 local verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts`. Host Node warning remains `v21.7.2`.
+- Current branch state has active SEO-002 implementation and documentation edits; commit, push, deploy, and smoke before final handoff.

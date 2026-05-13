@@ -13,12 +13,12 @@ Status: planning baseline
 
 Estimated pageview rates:
 
-| Scenario | Pageviews/sec | Notes |
-| --- | ---: | --- |
-| Monthly average | 1.9 | Easy for CDN-static pages. |
-| Normal evening peak, 8x | 15.4 | Still CDN-friendly. |
-| Strong spike, 25x | 48 | Needs cache discipline and small bundles. |
-| Viral spike, 100x | 193 | CDN-first or trouble. |
+| Scenario                | Pageviews/sec | Notes                                     |
+| ----------------------- | ------------: | ----------------------------------------- |
+| Monthly average         |           1.9 | Easy for CDN-static pages.                |
+| Normal evening peak, 8x |          15.4 | Still CDN-friendly.                       |
+| Strong spike, 25x       |            48 | Needs cache discipline and small bundles. |
+| Viral spike, 100x       |           193 | CDN-first or trouble.                     |
 
 Bandwidth is the real first constraint. At 1 MB transferred per pageview, 5M monthly pageviews is roughly 5 TB/month. GitHub Pages' 100 GB/month soft bandwidth limit is not a realistic growth target.
 
@@ -30,6 +30,7 @@ Bandwidth is the real first constraint. At 1 MB transferred per pageview, 5M mon
 - Immutable caching for hashed `_next/static/*` assets.
 - Short-cache HTML with fast purge.
 - Custom domain, HTTPS, compression, security headers, and WAF/bot controls.
+- Public crawler policy files: `/robots.txt`, `/llms.txt`, `/.well-known/ai-policy.json`, and `/license.xml` for AI search, agentic browsing, and RSL usage signals.
 - Candidate hosts: Cloudflare Pages, Vercel, Netlify, S3/CloudFront/Fastly.
 
 ### API Service
@@ -56,11 +57,13 @@ Bandwidth is the real first constraint. At 1 MB transferred per pageview, 5M mon
 - Privacy-preserving analytics and RUM.
 - Error tracking with lyric text redacted.
 - Uptime checks for public routes.
-- Metrics: CDN TTFB, LCP, JS chunk weight, API p95, job queue delay, job completion p95, error rate, ad viewability/RPM.
+- Metrics: CDN TTFB, LCP, JS chunk weight, first-render asset budget, API p95, job queue delay, job completion p95, error rate, AI crawler class traffic, ad viewability/RPM.
+- Crawler logs must classify search/user-requested AI agents separately from training and bulk scraping agents without storing user lyric text.
 
 ## Required Gates
 
 - Bundle budget for static route first-load JS and largest chunk.
+- AI crawler policy smoke checks for robots, llms.txt, machine-readable policy, and RSL license availability.
 - CI gates: lint, typecheck, unit tests, e2e, static build, production build/start smoke, Docker build, compose smoke where available.
 - Load tests for CDN/static, API reads/writes, paste/edit storms, and romanization jobs.
 - Backup/restore drill before durable lyric persistence.

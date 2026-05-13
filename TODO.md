@@ -21,18 +21,18 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Manager Roster
 
-| Manager                           | Primary Responsibility                                                                          |
-| --------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Orchestrator                      | Board hygiene, sequencing, ownership boundaries, integration, final verification.               |
+| Manager                           | Primary Responsibility                                                                           |
+| --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Orchestrator                      | Board hygiene, sequencing, ownership boundaries, integration, final verification.                |
 | Architecture Manager              | CDN/API/data/job boundaries, scale assumptions, capacity tradeoffs, production topology.         |
-| UX Research Manager               | User needs, task flows, research plans, reading-comfort validation, learner workflow evidence.  |
-| UI Design Manager                 | Interface structure, interaction patterns, CJK typography, visual density, design QA.           |
-| Frontend Manager                  | Next.js/React implementation, client/server component boundaries, UI state, keyboard workflows. |
-| Romanization/NLP Manager          | Language adapters, fixture accuracy, override dictionaries, reproducible romanization outputs.  |
-| Data Manager                      | Prisma schema, migrations, persistence rules, canonical lyric/annotation separation.            |
-| DevOps/System Engineering Manager | Docker, local services, dependency install, CI-style checks, environment gaps.                  |
-| QA/Accessibility Manager          | Test strategy, Playwright/Vitest coverage, keyboard/screen-reader checks, responsive QA.        |
-| Security/Legal Manager            | Copyright handling, input safety, data retention, permissions, threat modeling.                 |
+| UX Research Manager               | User needs, task flows, research plans, reading-comfort validation, learner workflow evidence.   |
+| UI Design Manager                 | Interface structure, interaction patterns, CJK typography, visual density, design QA.            |
+| Frontend Manager                  | Next.js/React implementation, client/server component boundaries, UI state, keyboard workflows.  |
+| Romanization/NLP Manager          | Language adapters, fixture accuracy, override dictionaries, reproducible romanization outputs.   |
+| Data Manager                      | Prisma schema, migrations, persistence rules, canonical lyric/annotation separation.             |
+| DevOps/System Engineering Manager | Docker, local services, dependency install, CI-style checks, environment gaps.                   |
+| QA/Accessibility Manager          | Test strategy, Playwright/Vitest coverage, keyboard/screen-reader checks, responsive QA.         |
+| Security/Legal Manager            | Copyright handling, input safety, data retention, permissions, threat modeling.                  |
 | SEO/Growth Manager                | Crawlable legal surfaces, metadata, acquisition loops, Search Console, helpful-content strategy. |
 | Revenue/Monetization Manager      | Ad policy, route-level ad eligibility, RPM/viewability tracking, monetization experiments.       |
 
@@ -84,6 +84,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Commit `8ced9e9` recorded the epic plan and board.
   - GitHub Pages workflow run `25798023918` completed successfully.
   - Direct smoke checks returned `HTTP/2 200` for the static reader, robots, sitemap, and manifest routes.
+  - SEO-002 added AI crawler/agent policy files, RSL license discovery, copyright-leak e2e assertions, and a static-route bundle budget gate.
 
 ## Done
 
@@ -265,7 +266,37 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Commit `a491aaf` lazy-loaded static romanization engines.
   - Pages-base static export passed after lazy-loading engines.
   - Targeted e2e suite passed for home, static reader, and SEO metadata routes.
-  - Static export first-render chunk scan showed about `659 KB` of referenced chunks for `/static/bafang-laicai/` after the change; broader bundle budget automation remains needed.
+  - Static export first-render chunk scan showed about `659 KB` of referenced chunks for `/static/bafang-laicai/` after the change; SEO-002 added an executable budget check.
+
+### SEO-002: Add AI Crawler And Agent Policy
+
+- Status: `Done`
+- Priority: `P0`
+- Primary Manager: SEO/Growth Manager
+- Supporting Managers: Security/Legal Manager, DevOps/System Engineering Manager, QA/Accessibility Manager, UX Research Manager
+- Goal: Publish robots.txt-style controls for AI crawlers, chatbots, and agentic browsers while preserving search discovery for legal public pages.
+- Acceptance Criteria:
+  - `/robots.txt` distinguishes AI search/user-requested fetch agents from model-training and bulk-crawling agents.
+  - `/llms.txt` gives AI assistants a concise public-site map, attribution preference, copyright boundary, and user-privacy rules.
+  - `/.well-known/ai-policy.json` publishes machine-readable allowed and disallowed AI use.
+  - `/license.xml` publishes an RSL policy that permits public search/user-requested AI input with attribution and prohibits AI training.
+  - SEO e2e coverage verifies all policy routes and checks public metadata routes/pages for known copied-lyric leakage.
+  - Static route first-render chunk budget is automated so the growth path has an executable performance guard.
+- Blockers/Dependencies:
+  - Robots, llms.txt, ai-policy JSON, and RSL are advisory signals; production enforcement still depends on DEVOPS-002, SEC-003, and future WAF/bot controls.
+  - RSL monetized licensing is a future business decision; current license uses attribution, not pay-per-crawl.
+- Evidence Required:
+  - Research reviewed OpenAI crawler docs, Anthropic crawler docs, Google Google-Extended docs, Perplexity crawler docs, Applebot docs, llms.txt proposal, and RSL 1.0 docs on 2026-05-13.
+  - `apps/web/app/robots.txt/route.ts`, `apps/web/public/llms.txt`, `apps/web/public/.well-known/ai-policy.json`, and `apps/web/public/license.xml`.
+  - `apps/web/tests/e2e/seo-static.spec.ts` covers the policy files and copyright-leak checks.
+  - `apps/web/scripts/check-static-budget.mjs` enforces the `/static/bafang-laicai/` first-render static asset budget.
+  - Commit `5962a7d` added the AI crawler policy files, tests, and static budget gate.
+  - `git diff --check` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed with and without `PAGES_BASE_PATH=/pinyin-lyrics`.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web budget:static` passed against the GitHub Pages export: `680.7 KiB` first render total and `222.2 KiB` largest referenced asset.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/home.spec.ts tests/e2e/static-bafang.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
 
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 
@@ -662,6 +693,24 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Blocks observability and server-side persistence.
 - Evidence Required:
   - Threat model document and test checklist.
+
+### SEC-004: Enforce AI Bot And Agent Controls Beyond Advisory Files
+
+- Status: `Ready`
+- Priority: `P1`
+- Primary Manager: Security/Legal Manager
+- Supporting Managers: DevOps/System Engineering Manager, SEO/Growth Manager, Architecture Manager
+- Goal: Turn advisory crawler policy into enforceable production controls before large-scale traffic or public UGC launch.
+- Acceptance Criteria:
+  - Production host supports WAF rules for verified search/user-requested AI bots and rate limits suspicious bulk scraping.
+  - Bot allow/block rules combine user-agent, published IP ranges where available, request rate, and path sensitivity.
+  - User lyric textareas, private document APIs, and future exports are excluded from analytics/session replay and protected from automated exfiltration.
+  - Logs and dashboards track major AI crawler traffic without storing lyric text.
+  - Incident playbook covers abusive crawlers, takedown requests, and emergency route blocking.
+- Blockers/Dependencies:
+  - Depends on DEVOPS-002 production host selection and SEC-003 lyric/privacy threat model.
+- Evidence Required:
+  - WAF/bot-management config, log screenshots or query examples, and abuse-response runbook.
 
 ### DATA-002: Add Provenance, Ownership, Visibility, And Moderation Schema
 
