@@ -7,22 +7,22 @@ export default defineConfig({
   reporter: [["html", { open: "never" }], ["list"]],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000",
-    trace: "on-first-retry"
+    trace: "on-first-retry",
   },
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] }
+      use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "mobile-chrome",
-      use: { ...devices["Pixel 7"] }
-    }
+      use: { ...devices["Pixel 7"] },
+    },
   ],
   webServer: {
-    command: "pnpm dev",
+    command: "corepack pnpm@10.33.4 --config.engine-strict=false dev",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120000
-  }
+    timeout: 120000,
+  },
 });

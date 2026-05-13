@@ -11,6 +11,7 @@
     "package-manager": "corepack pnpm@10.33.4 --version",
     "dev": "pnpm --filter @pinyin-lyrics/web dev",
     "build": "pnpm --filter @pinyin-lyrics/web build",
+    "build:static": "pnpm --filter @pinyin-lyrics/web build:static",
     "start": "pnpm --filter @pinyin-lyrics/web start",
     "lint": "pnpm --recursive lint",
     "typecheck": "pnpm --recursive typecheck",

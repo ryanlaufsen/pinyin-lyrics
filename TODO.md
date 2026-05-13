@@ -21,17 +21,17 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Manager Roster
 
-| Manager | Primary Responsibility |
-| --- | --- |
-| Orchestrator | Board hygiene, sequencing, ownership boundaries, integration, final verification. |
-| UX Research Manager | User needs, task flows, research plans, reading-comfort validation, learner workflow evidence. |
-| UI Design Manager | Interface structure, interaction patterns, CJK typography, visual density, design QA. |
-| Frontend Manager | Next.js/React implementation, client/server component boundaries, UI state, keyboard workflows. |
-| Romanization/NLP Manager | Language adapters, fixture accuracy, override dictionaries, reproducible romanization outputs. |
-| Data Manager | Prisma schema, migrations, persistence rules, canonical lyric/annotation separation. |
-| DevOps/System Engineering Manager | Docker, local services, dependency install, CI-style checks, environment gaps. |
-| QA/Accessibility Manager | Test strategy, Playwright/Vitest coverage, keyboard/screen-reader checks, responsive QA. |
-| Security/Legal Manager | Copyright handling, input safety, data retention, permissions, threat modeling. |
+| Manager                           | Primary Responsibility                                                                          |
+| --------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Orchestrator                      | Board hygiene, sequencing, ownership boundaries, integration, final verification.               |
+| UX Research Manager               | User needs, task flows, research plans, reading-comfort validation, learner workflow evidence.  |
+| UI Design Manager                 | Interface structure, interaction patterns, CJK typography, visual density, design QA.           |
+| Frontend Manager                  | Next.js/React implementation, client/server component boundaries, UI state, keyboard workflows. |
+| Romanization/NLP Manager          | Language adapters, fixture accuracy, override dictionaries, reproducible romanization outputs.  |
+| Data Manager                      | Prisma schema, migrations, persistence rules, canonical lyric/annotation separation.            |
+| DevOps/System Engineering Manager | Docker, local services, dependency install, CI-style checks, environment gaps.                  |
+| QA/Accessibility Manager          | Test strategy, Playwright/Vitest coverage, keyboard/screen-reader checks, responsive QA.        |
+| Security/Legal Manager            | Copyright handling, input safety, data retention, permissions, threat modeling.                 |
 
 ## In Progress
 
@@ -76,6 +76,31 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Changed files listed in final handoff.
   - `git diff --check` passed on 2026-05-12.
   - Commit hash recorded in final handoff if committed.
+
+### FE-002: Add Static 八方来财 Pinyin Practice Mode
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, QA/Accessibility Manager, Security/Legal Manager
+- Goal: Add a static-export-friendly pinyin practice view for `八方来财` by Skai without bundling copyrighted lyrics.
+- Acceptance Criteria:
+  - Static route renders title/artist metadata and title-character practice content only.
+  - Pinyin is monospace, uses tone marks, and each pinyin container matches the width of its Chinese character box.
+  - Chinese characters sit inside pastel boxes.
+  - A very light eight-quadrant dashed writing guide overlays each character box and can be toggled on/off.
+  - Route works with the repo's static export mode.
+  - E2E coverage exists for route rendering and guide toggle behavior.
+- Blockers/Dependencies:
+  - Actual song lyrics remain excluded unless user provides licensed or user-owned text.
+- Evidence Required:
+  - `apps/web/app/static/bafang-laicai/page.tsx`
+  - `apps/web/app/static/bafang-laicai/StaticPinyinPractice.tsx`
+  - `apps/web/tests/e2e/static-bafang.spec.ts`
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ## Ready
 

@@ -10,6 +10,7 @@
 - Active branch: `main`.
 - `main` has been fast-forwarded to include `chore/agent-board-dependency-sync`; both refs point at `679d51c` before this bookkeeping update.
 - Active card: `DEVOPS-001` is in progress; dependency install/lockfile generation succeeded with Corepack pnpm 10.33.4, but quality gates still need the correct host Node/pnpm environment.
+- Completed card: `FE-002` adds static `八方来财` pinyin practice mode. It excludes copyrighted lyrics and uses only title/artist metadata plus title-character practice content.
 - Production blocker cards: `QA-001`, `QA-002`, and `QA-003` define the 100% e2e coverage standard and matrix.
 - Latest research pass happened on 2026-05-12 and covered Codex AGENTS.md, Codex subagents, Anthropic Claude Code subagents/best practices, Gemini CLI context files and commands, GitHub Copilot/VS Code custom instructions, OpenHands skills, SWE-agent trajectories, and current web stack docs.
 
@@ -28,6 +29,7 @@
 - Assign SEC-001, UXR-001, UID-001, and continue DEVOPS-001 before implementing the reader/import workspace.
 - Rerun install and quality gates with Node 22.12+ or Node 24+ and pnpm 10.33.4 active.
 - Replace the current home smoke test with route-contract e2e coverage.
+- Full release gates still need Node 22.12+ or 24+, but targeted static mode checks passed with Corepack pnpm 10.33.4.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
