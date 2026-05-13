@@ -22,6 +22,8 @@
 - Installed Playwright Chromium browser cache to run the new e2e spec.
 - Commit `c69b748`: added the static pinyin practice mode, static export script/config, and targeted e2e coverage.
 - Commit `adee912`: recorded the static mode handoff; `main` was fast-forwarded to include it.
+- Added GitHub Pages Actions workflow to deploy the static export from `apps/web/out` with `PAGES_BASE_PATH=/pinyin-lyrics`.
+- Local Pages-base-path static export passed with `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static`; command still warns that the host Node is `v21.7.2`.
 - Initialized repository on `main`.
 - Researched current agentic coding harness guidance across Codex, Claude Code, Gemini CLI, GitHub Copilot/VS Code, OpenHands, and SWE-agent.
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
@@ -46,6 +48,7 @@
 - Review romanization dependency versions before committing product logic; the adapter boundary is in place but actual engines are not wired yet.
 - To publish, provide an existing private GitHub repository URL or install/authenticate GitHub CLI or provide a token-based publishing path.
 - Re-run full quality gates under Node 22.12+ or 24+ before production release despite the targeted static-mode checks passing under the current host.
+- Watch the GitHub Pages workflow and record the deployed URL once GitHub completes the deployment.
 
 ### Research Sources
 

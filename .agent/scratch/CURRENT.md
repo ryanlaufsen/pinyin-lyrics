@@ -32,6 +32,7 @@
 - Full release gates still need Node 22.12+ or 24+, but targeted static mode checks passed with Corepack pnpm 10.33.4.
 - Commit `c69b748` contains the static mode implementation and tests.
 - `main` was fast-forwarded to `adee912` after the static mode handoff commit.
+- GitHub Pages workflow is being added for static export deployment to `https://ryanlaufsen.github.io/pinyin-lyrics/`.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
