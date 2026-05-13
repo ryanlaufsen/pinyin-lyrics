@@ -388,8 +388,93 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   expect(missingTokenReading).toBe("\u00a0");
   await expect(customLine).not.toContainText("na");
 
+  const persistedLyrics = [
+    "[zh] 發財識",
+    "[ja] かな",
+    "[ko] 사랑",
+    "[auto] 春かな",
+  ].join("\n");
+  const persistedCustomTrack = "cue1 cue2 cue3 cue4";
+
+  await lyricsInput.fill(persistedLyrics);
+  await sizeSlider.fill("130");
+  await expect(sizeSlider).toHaveValue("130");
+  await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
+  await oledThemeButton.click();
+  await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(lightThemeButton).toHaveAttribute("aria-pressed", "false");
+  await traditionalScript.click();
+  await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
+  await expect(sourceScript).toHaveAttribute("aria-pressed", "false");
+  await cantoneseModeButton.click();
+  await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(jyutpingModeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
+  await useCustomTrackCheckbox.check();
+  await expect(useCustomTrackCheckbox).toBeChecked();
+  await customTrackTextarea.fill(persistedCustomTrack);
+
+  await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
+  await expect(page.getByTestId("pinyin-line-2")).toContainText("か");
+  await expect(page.getByTestId("pinyin-line-2")).toContainText("な");
+  await expect(page.getByTestId("pinyin-line-3")).toContainText("사");
+  await expect(page.getByTestId("pinyin-line-1")).toContainText("財");
+  await expect(page.getByTestId("pinyin-line-4")).toHaveAttribute(
+    "aria-label",
+    "Line 4: 春かな",
+  );
+  await expect(page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(0)).toHaveText(
+    "cue1",
+  );
+  await expect(page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(1)).toHaveText(
+    "cue2",
+  );
+  await expect(page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(2)).toHaveText(
+    "cue3",
+  );
+  await expect(page.locator(".writing-guide")).toHaveCount(0);
+
+  await page.reload();
+  await expect(lyricsInput).toHaveValue(persistedLyrics);
+  await expect(useCustomTrackCheckbox).toBeChecked();
+  await expect(customTrackTextarea).toHaveValue(persistedCustomTrack);
+  await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(readerPage).toHaveAttribute("data-reader-theme", "oled");
+  await expect(readerRoot).toHaveAttribute("data-theme", "oled");
+  await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
+  await expect(sourceScript).toHaveAttribute("aria-pressed", "false");
+  await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(sizeSlider).toHaveValue("130");
+  await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
+  await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator(".writing-guide")).toHaveCount(0);
+  await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
+  await expect(page.getByTestId("pinyin-line-1")).not.toContainText("发");
+  await expect(page.getByTestId("pinyin-line-1")).toContainText("cue1");
+  await expect(page.getByTestId("pinyin-line-1")).toContainText("cue2");
+  await expect(page.getByTestId("pinyin-line-1")).toContainText("cue3");
+
   await page.getByRole("button", { name: "Clear lyrics input" }).click();
   await expect(lyricsInput).toHaveValue("");
+  await expect(useCustomTrackCheckbox).toBeChecked();
+  await expect(customTrackTextarea).toHaveValue(persistedCustomTrack);
+  await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
+  await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(sizeSlider).toHaveValue("130");
+  await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
+  await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator(".writing-guide")).toHaveCount(0);
+
+  await page.reload();
+  await expect(lyricsInput).toHaveValue("");
+  await expect(useCustomTrackCheckbox).toBeChecked();
+  await expect(customTrackTextarea).toHaveValue(persistedCustomTrack);
+  await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
+  await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(sizeSlider).toHaveValue("130");
+  await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
 
   await expect(page.getByRole("link", { name: "Workspace" })).toBeVisible();
   expect(errors).toEqual([]);

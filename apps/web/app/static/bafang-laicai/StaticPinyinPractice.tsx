@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ArrowLeft, Eraser, Grid3X3, Minus, Plus } from "lucide-react";
 import { clsx } from "clsx";
@@ -155,6 +155,29 @@ const chineseRomanizationModes = [
   "jyutping",
   "cantonese",
 ] as const satisfies readonly ChineseRomanizationMode[];
+const storageKey = "pinyin-lyrics:static-bafang:v1";
+
+type StaticReaderSettings = {
+  guidesVisible: boolean;
+  lyricsText: string;
+  customRomanizationText: string;
+  useCustomTrack: boolean;
+  theme: ThemeMode;
+  chineseScript: ChineseScript;
+  chineseRomanizationMode: ChineseRomanizationMode;
+  lyricTextSize: number;
+};
+
+const defaultStaticReaderSettings: StaticReaderSettings = {
+  guidesVisible: true,
+  lyricsText: "",
+  customRomanizationText: "",
+  useCustomTrack: false,
+  theme: "light",
+  chineseScript: "source",
+  chineseRomanizationMode: "pinyin",
+  lyricTextSize: 100,
+};
 
 function parseLanguageTag(line: string): {
   content: string;
@@ -490,21 +513,227 @@ function getTokenLanguageHint(line: LyricLine): LanguageHint {
   return line.languageHint;
 }
 
+function isThemeMode(value: string): value is ThemeMode {
+  return themeModes.includes(value as ThemeMode);
+}
+
+function isChineseScript(value: string): value is ChineseScript {
+  return value === "source" || value === "simplified" || value === "traditional";
+}
+
+function isChineseRomanizationMode(
+  value: string,
+): value is ChineseRomanizationMode {
+  return chineseRomanizationModes.includes(value as ChineseRomanizationMode);
+}
+
+function clampPersistedTextSize(value: number) {
+  if (Number.isNaN(value)) {
+    return null;
+  }
+
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  return clampTextSize(Math.round(value));
+}
+
+function readStoredStaticReaderSettings() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(storageKey);
+    if (raw === null) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return null;
+    }
+
+    const next: Partial<StaticReaderSettings> = {};
+
+    if (typeof parsed.guidesVisible === "boolean") {
+      next.guidesVisible = parsed.guidesVisible;
+    }
+
+    if (typeof parsed.lyricsText === "string") {
+      next.lyricsText = parsed.lyricsText;
+    }
+
+    if (typeof parsed.customRomanizationText === "string") {
+      next.customRomanizationText = parsed.customRomanizationText;
+    }
+
+    if (typeof parsed.useCustomTrack === "boolean") {
+      next.useCustomTrack = parsed.useCustomTrack;
+    }
+
+    if (typeof parsed.theme === "string" && isThemeMode(parsed.theme)) {
+      next.theme = parsed.theme;
+    }
+
+    if (
+      typeof parsed.chineseScript === "string" &&
+      isChineseScript(parsed.chineseScript)
+    ) {
+      next.chineseScript = parsed.chineseScript;
+    }
+
+    if (
+      typeof parsed.chineseRomanizationMode === "string" &&
+      isChineseRomanizationMode(parsed.chineseRomanizationMode)
+    ) {
+      next.chineseRomanizationMode = parsed.chineseRomanizationMode;
+    }
+
+    const maybeTextSize = clampPersistedTextSize(parsed.lyricTextSize);
+    if (maybeTextSize !== null) {
+      next.lyricTextSize = maybeTextSize;
+    }
+
+    return next;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredStaticReaderSettings(settings: StaticReaderSettings) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(settings));
+  } catch {
+    // Ignore write failures (e.g., private mode / quota issues).
+  }
+}
+
 export function StaticPinyinPractice() {
-  const [guidesVisible, setGuidesVisible] = useState(true);
-  const [lyricsText, setLyricsText] = useState("");
-  const [chineseRomanizationMode, setChineseRomanizationMode] =
-    useState<ChineseRomanizationMode>("pinyin");
-  const [useCustomTrack, setUseCustomTrack] = useState(false);
-  const [customRomanizationText, setCustomRomanizationText] = useState("");
-  const [chineseScript, setChineseScript] = useState<ChineseScript>("source");
-  const [theme, setTheme] = useState<ThemeMode>("light");
-  const [lyricTextSize, setLyricTextSize] = useState(100);
+  const [guidesVisible, setGuidesVisible] = useState(
+    defaultStaticReaderSettings.guidesVisible,
+  );
+  const [lyricsText, setLyricsText] = useState(
+    defaultStaticReaderSettings.lyricsText,
+  );
+  const [chineseRomanizationMode, setChineseRomanizationMode] = useState(
+    defaultStaticReaderSettings.chineseRomanizationMode,
+  );
+  const [useCustomTrack, setUseCustomTrack] = useState(
+    defaultStaticReaderSettings.useCustomTrack,
+  );
+  const [customRomanizationText, setCustomRomanizationText] = useState(
+    defaultStaticReaderSettings.customRomanizationText,
+  );
+  const [chineseScript, setChineseScript] = useState(
+    defaultStaticReaderSettings.chineseScript,
+  );
+  const [theme, setTheme] = useState(defaultStaticReaderSettings.theme);
+  const [lyricTextSize, setLyricTextSize] = useState(
+    defaultStaticReaderSettings.lyricTextSize,
+  );
+  const [isHydratedFromStorage, setIsHydratedFromStorage] = useState(false);
+  const skipPersistRef = useRef(false);
   const isInteractive = useSyncExternalStore(
     subscribeHydration,
     getClientHydrationSnapshot,
     getServerHydrationSnapshot,
   );
+
+  useEffect(() => {
+    if (!isInteractive || isHydratedFromStorage) {
+      return;
+    }
+
+    skipPersistRef.current = true;
+
+    const storedSettings = readStoredStaticReaderSettings();
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+
+      if (storedSettings !== null) {
+        if (storedSettings.guidesVisible !== undefined) {
+          setGuidesVisible(storedSettings.guidesVisible);
+        }
+
+        if (storedSettings.lyricsText !== undefined) {
+          setLyricsText(storedSettings.lyricsText);
+        }
+
+        if (storedSettings.customRomanizationText !== undefined) {
+          setCustomRomanizationText(storedSettings.customRomanizationText);
+        }
+
+        if (storedSettings.useCustomTrack !== undefined) {
+          setUseCustomTrack(storedSettings.useCustomTrack);
+        }
+
+        if (storedSettings.theme !== undefined) {
+          setTheme(storedSettings.theme);
+        }
+
+        if (storedSettings.chineseScript !== undefined) {
+          setChineseScript(storedSettings.chineseScript);
+        }
+
+        if (storedSettings.chineseRomanizationMode !== undefined) {
+          setChineseRomanizationMode(storedSettings.chineseRomanizationMode);
+        }
+
+        if (storedSettings.lyricTextSize !== undefined) {
+          setLyricTextSize(storedSettings.lyricTextSize);
+        }
+      }
+
+      setIsHydratedFromStorage(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isInteractive, isHydratedFromStorage]);
+
+  useEffect(() => {
+    if (!isHydratedFromStorage) {
+      return;
+    }
+
+    if (skipPersistRef.current) {
+      skipPersistRef.current = false;
+      return;
+    }
+
+    writeStoredStaticReaderSettings({
+      guidesVisible,
+      lyricsText,
+      customRomanizationText,
+      useCustomTrack,
+      theme,
+      chineseScript,
+      chineseRomanizationMode,
+      lyricTextSize,
+    });
+  }, [
+    chineseRomanizationMode,
+    chineseScript,
+    customRomanizationText,
+    guidesVisible,
+    isHydratedFromStorage,
+    lyricTextSize,
+    lyricsText,
+    theme,
+    useCustomTrack,
+  ]);
   const lyricLines = useMemo(() => {
     if (lyricsText.length === 0) {
       return [];
