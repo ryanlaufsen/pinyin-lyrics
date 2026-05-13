@@ -124,8 +124,10 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Direct public URL smoke probing with `curl` was blocked by the command approval layer.
 - Evidence Required:
   - Commit `e31bc44` pushed `.github/workflows/pages.yml` to `main`.
+  - Commit `cad59d3` pushed the user-provided lyric line renderer update to `main`.
   - GitHub Pages API reports `build_type: workflow`, `public: true`, and `html_url: https://ryanlaufsen.github.io/pinyin-lyrics/`.
   - Workflow run `25782293862` completed successfully with passing build and deploy jobs.
+  - Redeploy workflow run `25783457361` completed successfully with passing build and deploy jobs.
   - Static practice route: `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
 
 ## Ready

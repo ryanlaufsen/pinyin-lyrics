@@ -37,7 +37,8 @@
 - Static practice route: `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
 - Deployment workflow run `25782293862` passed on 2026-05-13 UTC after the repo was made public at user request.
 - The current GitHub CLI token now has `workflow` scope.
-- Pending redeploy: commit and push the user-provided line renderer update, then rerun the GitHub Pages workflow and record the new run ID.
+- Latest redeploy commit: `cad59d3` (`Add user-provided lyric line renderer`).
+- Latest redeploy workflow run `25783457361` passed on 2026-05-13 UTC.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.

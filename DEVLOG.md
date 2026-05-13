@@ -34,6 +34,7 @@
 - Published Pages URL: https://ryanlaufsen.github.io/pinyin-lyrics/
 - Static practice route: https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/
 - Direct `curl` smoke probing of the public URL was blocked by the command approval layer; deployment evidence is the successful GitHub Actions run and Pages API metadata.
+- Redeployed the user-provided line renderer in commit `cad59d3`; GitHub Pages workflow run `25783457361` completed successfully with passing build and deploy jobs.
 - Initialized repository on `main`.
 - Researched current agentic coding harness guidance across Codex, Claude Code, Gemini CLI, GitHub Copilot/VS Code, OpenHands, and SWE-agent.
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
