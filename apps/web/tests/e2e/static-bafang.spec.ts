@@ -209,6 +209,7 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     name: "Custom romanization track",
   });
   const adSpace = page.getByTestId("static-ad-space");
+  const adSlot = page.getByTestId("static-ad-slot");
 
   await expect(themeGroup).toBeVisible();
   await expect(lightThemeButton).toHaveAttribute("aria-pressed", "true");
@@ -236,6 +237,7 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   );
   await assertElementTextContrast(adSpace, "Dark theme ad space");
   await assertElementBorderContrast(adSpace, "Dark theme ad space");
+  await assertElementBorderContrast(adSlot, "Dark theme responsive ad slot");
   await assertTileHasReadableColors(samplePinyinBox, "Dark theme pinyin");
   await assertTileHasReadableColors(sampleHanziBox, "Dark theme Hanzi");
 
@@ -259,6 +261,7 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   );
   await assertElementTextContrast(adSpace, "OLED theme ad space");
   await assertElementBorderContrast(adSpace, "OLED theme ad space");
+  await assertElementBorderContrast(adSlot, "OLED theme responsive ad slot");
   await assertTileHasReadableColors(samplePinyinBox, "OLED theme pinyin");
   await assertTileHasReadableColors(sampleHanziBox, "OLED theme Hanzi");
 
@@ -267,16 +270,20 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(readerRoot).toHaveAttribute("data-theme", "light");
 
   await expect(adSpace).toBeVisible();
-  await expect(adSpace).toHaveText("Advertisement");
+  await expect(adSpace).toHaveAccessibleName("Advertisements");
+  await expect(adSpace).toHaveText("Advertisements");
+  await expect(adSlot).toBeVisible();
 
   const lyricsLayoutBox = await lyricsLayout.boundingBox();
   const lyricsFieldsBox = await lyricsFields.boundingBox();
   const adSpaceBox = await adSpace.boundingBox();
+  const adSlotBox = await adSlot.boundingBox();
 
   if (
     lyricsLayoutBox === null ||
     lyricsFieldsBox === null ||
-    adSpaceBox === null
+    adSpaceBox === null ||
+    adSlotBox === null
   ) {
     throw new Error("Static lyrics workspace should be measurable");
   }
@@ -288,10 +295,14 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     ).toBeLessThanOrEqual(8);
     expect(lyricsFieldsBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.42);
     expect(adSpaceBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.42);
+    expect(adSlotBox.width).toBeGreaterThanOrEqual(300);
+    expect(adSlotBox.height).toBeGreaterThanOrEqual(250);
   } else {
     expect(adSpaceBox.y).toBeGreaterThan(lyricsFieldsBox.y);
     expect(lyricsFieldsBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.94);
     expect(adSpaceBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.94);
+    expect(adSlotBox.width).toBeGreaterThanOrEqual(300);
+    expect(adSlotBox.height).toBeGreaterThanOrEqual(240);
   }
 
   const sizeSlider = page.getByRole("slider", { name: /Lyric text size/ });

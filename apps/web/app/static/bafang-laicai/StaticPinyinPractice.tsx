@@ -1245,11 +1245,18 @@ export function StaticPinyinPractice() {
                   </div>
                 </div>
                 <aside
-                  aria-label="AdSense advertisement space"
+                  aria-label="Advertisements"
                   className="static-ad-space"
                   data-testid="static-ad-space"
                 >
-                  <span>Advertisement</span>
+                  <span className="static-ad-label">Advertisements</span>
+                  <div
+                    aria-hidden="true"
+                    className="static-ad-slot"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"
+                    data-testid="static-ad-slot"
+                  />
                 </aside>
               </div>
               <p className="static-lyrics-note">

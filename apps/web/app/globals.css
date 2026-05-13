@@ -477,7 +477,7 @@ textarea {
 
 .static-lyrics-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 1fr);
   gap: 1rem;
   align-items: stretch;
 }
@@ -541,8 +541,10 @@ textarea {
 
 .static-ad-space {
   display: grid;
-  min-height: 100%;
-  place-items: center;
+  min-height: max(100%, 19rem);
+  align-content: start;
+  justify-items: center;
+  gap: 0.65rem;
   border: 1px dashed var(--static-control-border);
   background: color-mix(
     in srgb,
@@ -550,11 +552,27 @@ textarea {
     var(--color-panel)
   );
   color: var(--color-muted);
+  padding: 0.75rem;
+}
+
+.static-ad-label {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.2;
   text-transform: uppercase;
+}
+
+.static-ad-slot {
+  display: block;
+  width: min(100%, 21rem);
+  min-height: 17.5rem;
+  border: 1px solid var(--static-control-border);
+  background: color-mix(
+    in srgb,
+    var(--static-input-bg) 62%,
+    var(--color-panel)
+  );
 }
 
 .static-lyrics-note {
@@ -693,7 +711,12 @@ textarea {
   }
 
   .static-ad-space {
-    min-height: 6rem;
+    min-height: 17.5rem;
+  }
+
+  .static-ad-slot {
+    width: min(100%, 20rem);
+    min-height: 15.625rem;
   }
 
   .static-segmented-control,
@@ -717,5 +740,16 @@ textarea {
 
   .static-line-label {
     width: 1.5rem;
+  }
+}
+
+@media (min-width: 900px) and (min-height: 840px) {
+  .static-ad-space {
+    min-height: 37.5rem;
+  }
+
+  .static-ad-slot {
+    width: min(100%, 18.75rem);
+    min-height: 37.5rem;
   }
 }
