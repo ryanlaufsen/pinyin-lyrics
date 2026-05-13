@@ -114,6 +114,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed at `691.3 KiB` first-render total and `222.2 KiB` largest referenced asset.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/legal.spec.ts tests/e2e/home.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
+  - Commit `75008db` recorded the implementation.
 
 ### FE-003: Add Dark And OLED Static Reader Themes
 

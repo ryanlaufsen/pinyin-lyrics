@@ -49,13 +49,13 @@
 - Latest Pages workflow run `25783608072` passed on 2026-05-13 UTC.
 - Latest feature commit: `0ba55bf` (`Add multilingual static lyric controls`).
 - Latest Pages workflow run `25784999603` passed on 2026-05-13 UTC.
-- Static route now has mixed-language rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls.
+- Static route now has mixed-language rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, lyric text-size controls, and separate romanization/character opacity controls.
 - Completed local work: `FE-003` dark/OLED static reader themes, `FE-004` custom/Cantonese romanization tracks, `FE-005` local static-reader persistence, `FE-006` independent lyric-box text sizing, `FE-007` dark/OLED accessibility plus lyric workspace layout, `REV-001` static reader ad slot geometry, and `FE-008` static first-load reduction are verified locally.
 - Dark/OLED, romanization, persistence, box sizing, and accessibility/layout subagents were closed after completion. No stale subagent ownership remains.
-- Static reader now has page-level Light/Dark/OLED theme state, measured dark/OLED contrast tokens, restrained OLED surfaces, visible focus rings, a Chinese romanization switch (`Pinyin`, `Jyutping`, `Cantonese`), a line-aligned custom romanization track, independent romanization/character text-size scales inside lyric boxes, and a half-width desktop lyric editing column paired with a policy-labeled responsive ad slot.
-- Static reader persists pasted lyrics, custom romanization track, custom-track state, theme, Chinese script, Chinese romanization mode, lyric text size, romanization text size, character text size, and writing guide visibility to localStorage key `pinyin-lyrics:static-bafang:v1`.
+- Static reader now has page-level Light/Dark/OLED theme state, measured dark/OLED contrast tokens, restrained OLED surfaces, visible focus rings, a Chinese romanization switch (`Pinyin`, `Jyutping`, `Cantonese`), a line-aligned custom romanization track, independent romanization/character text-size and opacity controls inside lyric boxes, and a half-width desktop lyric editing column paired with a policy-labeled responsive ad slot.
+- Static reader persists pasted lyrics, custom romanization track, custom-track state, theme, Chinese script, Chinese romanization mode, lyric text size, romanization text size, character text size, romanization opacity, character opacity, and writing guide visibility to localStorage key `lyricbridge:static-bafang:v1`; the legacy `pinyin-lyrics:static-bafang:v1` key is read and copied forward for migration.
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
-- Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and targeted e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts` passed with Corepack pnpm 10.33.4. Commands still warn that host Node is `v21.7.2`.
+- Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and targeted e2e for `static-bafang.spec.ts`, `legal.spec.ts`, `home.spec.ts`, and `seo-static.spec.ts` passed with Corepack pnpm 10.33.4. Commands still warn that host Node is `v21.7.2`.
 - SEO/static foundation now includes root/static route metadata, canonical URLs, sitemap, robots, manifest, SVG icon, and e2e metadata route coverage.
 - Static reader now lazy-loads `pinyin-pro`, `to-jyutping`, `opencc-js`, and `wanakana` after user input/settings require them; first-render static route chunk scan found about `659 KB` of referenced chunks after the change.
 - Cantonese/Jyutping missing readings now preserve source-character slots; e2e covers a blank-in-the-middle regression.
@@ -72,7 +72,7 @@
 - These are below the scaffold targets: Node 22.12+ or Node 24+ and pnpm 10.33.4+.
 - `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false` succeeded and generated `pnpm-lock.yaml`.
 - DevOps manager reported full dependency materialization with Corepack pnpm 10.33.4 succeeded.
-- Build/test/lint commands have not passed yet in this host shell because plain scripts resolve to the wrong pnpm/Node environment.
+- Corepack pnpm 10.33.4 quality gates pass in this host shell, but commands still warn that host Node is `v21.7.2`; plain scripts may still resolve to the wrong pnpm/Node environment.
 - Docker Compose file has not been validated because `docker` is not available in this WSL distro.
 - GitHub publish complete: `origin` is `https://github.com/ryanlaufsen/pinyin-lyrics.git`, visibility is now public, default branch `main`.
 - GitHub Pages API reports `build_type: workflow`, `public: true`, and `html_url: https://ryanlaufsen.github.io/pinyin-lyrics/`.
@@ -108,4 +108,8 @@
 - Current local verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `static-bafang.spec.ts`, `home.spec.ts`, `legal.spec.ts`, and `seo-static.spec.ts`. Host Node warning remains `v21.7.2`.
 - Latest handoff commit: `7cc2d6b` (`Record legal chrome handoff`).
 - GitHub Pages workflow run `25801865548` completed successfully. Live smoke returned `HTTP/2 200` for the workspace, static reader, `/terms/`, `/privacy/`, and `/copyright/`; fetched sitemap, `/license.xml`, and `/llms.txt` include the legal route and Terms references.
-- Current branch state has post-deploy legal/chrome bookkeeping edits; commit with `[skip ci]` before final handoff.
+- Latest implementation commit: `75008db` (`Rename app and add opacity controls`).
+- App-facing brand is now `LyricBridge`, while the repo slug and GitHub Pages base path remain `/pinyin-lyrics`.
+- Configurable site variables now live in `apps/web/lib/site.ts` and `.env.example`: app name, short name, tagline, description, legal entity, copyright year, site URL, repository URL, support URL, and storage namespace.
+- Legal pages are customer-facing and tested against internal process phrases; policy routes (`/llms.txt`, `/.well-known/ai-policy.json`, `/license.xml`) are generated from config rather than static public files.
+- Latest local verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `static-bafang.spec.ts`, `legal.spec.ts`, `home.spec.ts`, and `seo-static.spec.ts`. Static budget: `691.3 KiB` first-render total, `222.2 KiB` largest referenced asset. Host Node warning remains `v21.7.2`.
