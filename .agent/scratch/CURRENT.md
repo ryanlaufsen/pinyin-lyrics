@@ -106,4 +106,6 @@
 - Workflow run `25799936251` completed successfully, and final live smoke returned `HTTP/2 200` for the static reader, `/robots.txt`, and `/.well-known/ai-policy.json`.
 - Latest implementation commit: `fa741f0` (`Add site legal chrome and policies`).
 - Current local verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `static-bafang.spec.ts`, `home.spec.ts`, `legal.spec.ts`, and `seo-static.spec.ts`. Host Node warning remains `v21.7.2`.
-- Current branch state has post-implementation legal/chrome bookkeeping edits; commit, push, deploy, and smoke before final handoff.
+- Latest handoff commit: `7cc2d6b` (`Record legal chrome handoff`).
+- GitHub Pages workflow run `25801865548` completed successfully. Live smoke returned `HTTP/2 200` for the workspace, static reader, `/terms/`, `/privacy/`, and `/copyright/`; fetched sitemap, `/license.xml`, and `/llms.txt` include the legal route and Terms references.
+- Current branch state has post-deploy legal/chrome bookkeeping edits; commit with `[skip ci]` before final handoff.

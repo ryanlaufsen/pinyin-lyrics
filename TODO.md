@@ -319,6 +319,9 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Full workspace route-contract coverage remains broader QA work; this card covers chrome and the static spacing bug.
 - Evidence Required:
   - Commit `fa741f0` added shared site chrome, static themed nav/footer, spacing normalization, and e2e coverage.
+  - Commit `7cc2d6b` recorded the FE-009/SEC-005 handoff docs.
+  - GitHub Pages workflow run `25801865548` completed successfully.
+  - Live smoke returned `HTTP/2 200` for the workspace and static reader.
   - `apps/web/app/_components/SiteChrome.tsx`
   - `apps/web/tests/e2e/home.spec.ts`
   - `apps/web/tests/e2e/static-bafang.spec.ts`
@@ -343,6 +346,9 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Evidence Required:
   - Research reviewed FTC privacy policy patterns, California privacy notice structure, U.S. Copyright Office DMCA/Section 512 guidance, and Google AdSense privacy disclosure requirements on 2026-05-13.
   - Commit `fa741f0` added `/terms/`, `/privacy/`, `/copyright/`, sitemap/legal policy alignment, and e2e coverage.
+  - Commit `7cc2d6b` recorded the FE-009/SEC-005 handoff docs.
+  - GitHub Pages workflow run `25801865548` completed successfully.
+  - Live smoke returned `HTTP/2 200` for `/terms/`, `/privacy/`, and `/copyright/`; fetched sitemap, `/license.xml`, and `/llms.txt` include legal route references.
   - `apps/web/tests/e2e/legal.spec.ts` covers legal pages on desktop and mobile Chromium.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed with the existing host Node warning.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed with the existing host Node warning.
