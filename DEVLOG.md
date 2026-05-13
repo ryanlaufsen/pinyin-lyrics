@@ -11,6 +11,8 @@
 - Integrated DevOps/System Engineering dependency fixes for `DEVOPS-001`: Node engine now requires `^22.12.0 || >=24.0.0`, ESLint is pinned to the Next-compatible 9.x line, `@testing-library/dom` is explicit for strict peers, Dockerfile prepares pnpm 10.33.4, and Next standalone tracing root is set for the monorepo.
 - Generated `pnpm-lock.yaml` using `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false`; command succeeded with the expected host Node warning because the shell is still Node `v21.7.2`.
 - DevOps manager reported `corepack pnpm@10.33.4 install --ignore-scripts --config.engine-strict=false` succeeded, but plain root scripts still resolve to host `pnpm 8.6.12`.
+- Fast-forwarded `main` to include `chore/agent-board-dependency-sync`; latest project commit before publish attempt was `679d51c`.
+- Publish attempt blocked: no Git remote is configured, GitHub CLI is not installed in WSL or Windows host, and no `GITHUB_TOKEN`/`GH_TOKEN` environment variable is present. The available GitHub connector can write to existing repos but does not expose private repository creation.
 - Initialized repository on `main`.
 - Researched current agentic coding harness guidance across Codex, Claude Code, Gemini CLI, GitHub Copilot/VS Code, OpenHands, and SWE-agent.
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
@@ -33,6 +35,7 @@
 - Run `pnpm lint`, `pnpm typecheck`, and `pnpm test` after install.
 - Run `docker compose config` and then `docker compose build` once Docker is available.
 - Review romanization dependency versions before committing product logic; the adapter boundary is in place but actual engines are not wired yet.
+- To publish, provide an existing private GitHub repository URL or install/authenticate GitHub CLI or provide a token-based publishing path.
 
 ### Research Sources
 

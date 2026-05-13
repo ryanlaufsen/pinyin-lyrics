@@ -7,7 +7,8 @@
 - Commit `30edc37` added agent operating docs.
 - Commit `f0c3fbc` added the dockerized app scaffold.
 - Last completed card: `ORCH-001` established the product/UX TODO board and coordination discipline.
-- Active branch: `chore/agent-board-dependency-sync`.
+- Active branch: `main`.
+- `main` has been fast-forwarded to include `chore/agent-board-dependency-sync`; both refs point at `679d51c` before this bookkeeping update.
 - Active card: `DEVOPS-001` is in progress; dependency install/lockfile generation succeeded with Corepack pnpm 10.33.4, but quality gates still need the correct host Node/pnpm environment.
 - Production blocker cards: `QA-001`, `QA-002`, and `QA-003` define the 100% e2e coverage standard and matrix.
 - Latest research pass happened on 2026-05-12 and covered Codex AGENTS.md, Codex subagents, Anthropic Claude Code subagents/best practices, Gemini CLI context files and commands, GitHub Copilot/VS Code custom instructions, OpenHands skills, SWE-agent trajectories, and current web stack docs.
@@ -41,3 +42,4 @@
 - DevOps manager reported full dependency materialization with Corepack pnpm 10.33.4 succeeded.
 - Build/test/lint commands have not passed yet in this host shell because plain scripts resolve to the wrong pnpm/Node environment.
 - Docker Compose file has not been validated because `docker` is not available in this WSL distro.
+- GitHub publish is blocked until a private repo remote/auth path exists. Current environment has no Git remote, no `gh` CLI, and no `GITHUB_TOKEN`/`GH_TOKEN`.
