@@ -347,13 +347,11 @@ function getChineseSyllables(
 
   const jyutping = getJyutpingList(line).map(normalizeJyutpingReading);
 
-  const filtered = jyutping.filter((syllable) => syllable.length > 0);
-
   if (chineseRomanizationMode === "jyutping") {
-    return filtered;
+    return jyutping;
   }
 
-  return filtered.map(toCantonesePinyin);
+  return jyutping.map(toCantonesePinyin);
 }
 
 function buildLineTokens(

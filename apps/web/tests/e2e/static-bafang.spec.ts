@@ -613,6 +613,16 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(chineseModeLine).toContainText("coi4");
   await expect(chineseModeLine).toContainText("sik7");
 
+  await lyricsInput.fill("[zh] 發䶶財");
+  await jyutpingModeButton.click();
+  const unknownChineseLine = page.getByTestId("pinyin-line-1");
+  const unknownChineseReadings =
+    unknownChineseLine.locator(".static-pinyin-box");
+  await expect(unknownChineseReadings).toHaveCount(3);
+  await expect(unknownChineseReadings.nth(0)).toHaveText("faat3");
+  await expect(unknownChineseReadings.nth(1)).toHaveText("\u00a0");
+  await expect(unknownChineseReadings.nth(2)).toHaveText("coi4");
+
   const useCustomTrackCheckbox = page.getByRole("checkbox", {
     name: "Use custom track",
   });
