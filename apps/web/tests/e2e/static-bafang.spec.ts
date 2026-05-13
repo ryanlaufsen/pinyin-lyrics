@@ -63,9 +63,7 @@ const getRelativeLuminance = ([red, green, blue]: readonly [
   const [r = 0, g = 0, b = 0] = [red, green, blue].map((channel) => {
     const value = channel / 255;
 
-    return value <= 0.03928
-      ? value / 12.92
-      : ((value + 0.055) / 1.055) ** 2.4;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   });
 
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
@@ -95,14 +93,13 @@ const getFontSizePx = async (locator: Locator) => {
   return Number.parseFloat(value);
 };
 
-const assertTileHasReadableColors = async (
-  locator: Locator,
-  label: string,
-) => {
+const assertTileHasReadableColors = async (locator: Locator, label: string) => {
   const backgroundColor = await locator.evaluate(
     (element) => getComputedStyle(element).backgroundColor,
   );
-  const color = await locator.evaluate((element) => getComputedStyle(element).color);
+  const color = await locator.evaluate(
+    (element) => getComputedStyle(element).color,
+  );
 
   expect
     .soft(
@@ -124,6 +121,48 @@ const assertTileHasReadableColors = async (
       `${label}: tile contrast should meet readable text contrast`,
     )
     .toBeGreaterThanOrEqual(4.5);
+};
+
+const assertElementTextContrast = async (
+  locator: Locator,
+  label: string,
+  minimumRatio = 4.5,
+) => {
+  const backgroundColor = await locator.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  const color = await locator.evaluate(
+    (element) => getComputedStyle(element).color,
+  );
+  const contrastRatio = getContrastRatio(color, backgroundColor);
+
+  expect
+    .soft(
+      contrastRatio,
+      `${label}: text contrast should be at least ${minimumRatio}:1`,
+    )
+    .toBeGreaterThanOrEqual(minimumRatio);
+};
+
+const assertElementBorderContrast = async (
+  locator: Locator,
+  label: string,
+  minimumRatio = 3,
+) => {
+  const backgroundColor = await locator.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  const borderColor = await locator.evaluate(
+    (element) => getComputedStyle(element).borderTopColor,
+  );
+  const contrastRatio = getContrastRatio(borderColor, backgroundColor);
+
+  expect
+    .soft(
+      contrastRatio,
+      `${label}: component boundary contrast should be at least ${minimumRatio}:1`,
+    )
+    .toBeGreaterThanOrEqual(minimumRatio);
 };
 
 test("renders the static 八方来财 pinyin practice mode", async ({ page }) => {
@@ -161,6 +200,15 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   const lyricOutputHanzi = page.locator(
     '[aria-label="Rendered romanized lyrics"] .static-hanzi',
   );
+  const lyricsLayout = page.locator(".static-lyrics-layout");
+  const lyricsFields = page.locator(".static-lyrics-fields");
+  const lyricsInput = page.getByRole("textbox", {
+    name: "User-provided lyrics",
+  });
+  const customTrackTextarea = page.getByRole("textbox", {
+    name: "Custom romanization track",
+  });
+  const adSpace = page.getByTestId("static-ad-space");
 
   await expect(themeGroup).toBeVisible();
   await expect(lightThemeButton).toHaveAttribute("aria-pressed", "true");
@@ -174,6 +222,20 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(readerRoot).toHaveAttribute("data-theme", "dark");
   await expect(darkThemeButton).toHaveAttribute("aria-pressed", "true");
   await expect(lightThemeButton).toHaveAttribute("aria-pressed", "false");
+  await assertElementTextContrast(readerRoot, "Dark theme reader panel");
+  await assertElementBorderContrast(readerRoot, "Dark theme reader panel");
+  await assertElementTextContrast(lyricsInput, "Dark theme lyrics input");
+  await assertElementBorderContrast(lyricsInput, "Dark theme lyrics input");
+  await assertElementTextContrast(
+    customTrackTextarea,
+    "Dark theme custom romanization input",
+  );
+  await assertElementBorderContrast(
+    customTrackTextarea,
+    "Dark theme custom romanization input",
+  );
+  await assertElementTextContrast(adSpace, "Dark theme ad space");
+  await assertElementBorderContrast(adSpace, "Dark theme ad space");
   await assertTileHasReadableColors(samplePinyinBox, "Dark theme pinyin");
   await assertTileHasReadableColors(sampleHanziBox, "Dark theme Hanzi");
 
@@ -183,12 +245,54 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
   await expect(darkThemeButton).toHaveAttribute("aria-pressed", "false");
   await expect(readerPage).toHaveCSS("background-color", "rgb(0, 0, 0)");
+  await assertElementTextContrast(readerRoot, "OLED theme reader panel");
+  await assertElementBorderContrast(readerRoot, "OLED theme reader panel");
+  await assertElementTextContrast(lyricsInput, "OLED theme lyrics input");
+  await assertElementBorderContrast(lyricsInput, "OLED theme lyrics input");
+  await assertElementTextContrast(
+    customTrackTextarea,
+    "OLED theme custom romanization input",
+  );
+  await assertElementBorderContrast(
+    customTrackTextarea,
+    "OLED theme custom romanization input",
+  );
+  await assertElementTextContrast(adSpace, "OLED theme ad space");
+  await assertElementBorderContrast(adSpace, "OLED theme ad space");
   await assertTileHasReadableColors(samplePinyinBox, "OLED theme pinyin");
   await assertTileHasReadableColors(sampleHanziBox, "OLED theme Hanzi");
 
   await lightThemeButton.click();
   await expect(readerPage).toHaveAttribute("data-reader-theme", "light");
   await expect(readerRoot).toHaveAttribute("data-theme", "light");
+
+  await expect(adSpace).toBeVisible();
+  await expect(adSpace).toHaveText("Advertisement");
+
+  const lyricsLayoutBox = await lyricsLayout.boundingBox();
+  const lyricsFieldsBox = await lyricsFields.boundingBox();
+  const adSpaceBox = await adSpace.boundingBox();
+
+  if (
+    lyricsLayoutBox === null ||
+    lyricsFieldsBox === null ||
+    adSpaceBox === null
+  ) {
+    throw new Error("Static lyrics workspace should be measurable");
+  }
+
+  if ((page.viewportSize()?.width ?? 0) > 760) {
+    expect(lyricsFieldsBox.x).toBeLessThan(adSpaceBox.x);
+    expect(
+      Math.abs(lyricsFieldsBox.width - adSpaceBox.width),
+    ).toBeLessThanOrEqual(8);
+    expect(lyricsFieldsBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.42);
+    expect(adSpaceBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.42);
+  } else {
+    expect(adSpaceBox.y).toBeGreaterThan(lyricsFieldsBox.y);
+    expect(lyricsFieldsBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.94);
+    expect(adSpaceBox.width / lyricsLayoutBox.width).toBeGreaterThan(0.94);
+  }
 
   const sizeSlider = page.getByRole("slider", { name: /Lyric text size/ });
   await expect(sizeSlider).toHaveValue("100");
@@ -205,17 +309,23 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await sizeSlider.fill("150");
   await expect(sizeSlider).toHaveValue("150");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "150%");
-  await expect(
-    sizeSliderIncrease,
-  ).toBeDisabled();
+  await expect(sizeSliderIncrease).toBeDisabled();
   await sizeSlider.fill("80");
   await expect(sizeSlider).toHaveValue("80");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "80%");
-  await expect(
-    sizeSliderDecrease,
-  ).toBeDisabled();
+  await expect(sizeSliderDecrease).toBeDisabled();
   await sizeSlider.fill("100");
   await expect(sizeSlider).toHaveValue("100");
+
+  const sizeControlGap = await page
+    .locator(".static-control-group", { hasText: /Lyric text size/ })
+    .evaluate((element) => getComputedStyle(element).rowGap);
+  const inputFieldGap = await page
+    .locator(".static-form-field")
+    .first()
+    .evaluate((element) => getComputedStyle(element).rowGap);
+
+  expect(inputFieldGap).toBe(sizeControlGap);
 
   const romanizationSizeSlider = page.getByRole("slider", {
     name: /Romanization size/i,
@@ -245,12 +355,16 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     .getByRole("button", {
       name: /Increase character (?:text )?size/i,
     })
-    .or(page.getByRole("button", { name: /Character (?:text )?size.*Increase/i }));
+    .or(
+      page.getByRole("button", { name: /Character (?:text )?size.*Increase/i }),
+    );
   const characterSizeDecrease = page
     .getByRole("button", {
       name: /Decrease character (?:text )?size/i,
     })
-    .or(page.getByRole("button", { name: /Character (?:text )?size.*Decrease/i }));
+    .or(
+      page.getByRole("button", { name: /Character (?:text )?size.*Decrease/i }),
+    );
 
   await expect(romanizationSizeSlider).toBeVisible();
   await expect(romanizationSizeSlider).toHaveValue("100");
@@ -314,9 +428,6 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(characterSizeDecrease).toBeEnabled();
   await expect(characterSizeIncrease).toBeEnabled();
 
-  const lyricsInput = page.getByRole("textbox", {
-    name: "User-provided lyrics",
-  });
   await expect(lyricsInput).toBeEnabled();
   await lyricsInput.fill(
     [
@@ -344,7 +455,9 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   expect(romanizedPinyinPx).toBeGreaterThan(lyricScaledPinyinPx);
   expect(romanizedHanziPx).toBeCloseTo(lyricScaledHanziPx, 1);
 
-  await characterSizeSlider.fill(clampSetting(120, characterSizeMin, characterSizeMax));
+  await characterSizeSlider.fill(
+    clampSetting(120, characterSizeMin, characterSizeMax),
+  );
   const characterPinyinPx = await getFontSizePx(lyricOutputPinyinBox.first());
   const characterHanziPx = await getFontSizePx(lyricOutputHanzi.first());
   expect(characterPinyinPx).toBeCloseTo(romanizedPinyinPx, 1);
@@ -451,7 +564,9 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await sourceScript.click();
   await expect(sourceScript).toHaveAttribute("aria-pressed", "true");
 
-  const romanizationGroup = page.getByRole("group", { name: "Chinese romanization" });
+  const romanizationGroup = page.getByRole("group", {
+    name: "Chinese romanization",
+  });
   const pinyinModeButton = romanizationGroup.getByRole("button", {
     name: "Pinyin",
   });
@@ -490,9 +605,6 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   const useCustomTrackCheckbox = page.getByRole("checkbox", {
     name: "Use custom track",
   });
-  const customTrackTextarea = page.getByRole("textbox", {
-    name: "Custom romanization track",
-  });
   await expect(useCustomTrackCheckbox).toBeEnabled();
   await expect(customTrackTextarea).toBeEnabled();
 
@@ -508,20 +620,22 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     ".static-character-stack:not(.static-space-token):not(.static-inline-token)",
   );
   await expect(customLineGuideTokens).toHaveCount(7);
-  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(0)).toHaveText(
-    "cue1",
-  );
-  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(1)).toHaveText(
-    "cue2",
-  );
-  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(2)).toHaveText(
-    "cue3",
-  );
-  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(3)).toHaveText(
-    "cue4",
-  );
+  await expect(
+    customLineGuideTokens.locator(".static-pinyin-box").nth(0),
+  ).toHaveText("cue1");
+  await expect(
+    customLineGuideTokens.locator(".static-pinyin-box").nth(1),
+  ).toHaveText("cue2");
+  await expect(
+    customLineGuideTokens.locator(".static-pinyin-box").nth(2),
+  ).toHaveText("cue3");
+  await expect(
+    customLineGuideTokens.locator(".static-pinyin-box").nth(3),
+  ).toHaveText("cue4");
 
-  await expect(customLine.locator(".static-text-token")).toHaveText(["Latin-7"]);
+  await expect(customLine.locator(".static-text-token")).toHaveText([
+    "Latin-7",
+  ]);
 
   const missingTokenReading = await customLine
     .locator(".static-pinyin-box")
@@ -570,7 +684,9 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(useCustomTrackCheckbox).toBeChecked();
   await customTrackTextarea.fill(persistedCustomTrack);
 
-  const persistedPinyinFontPx = await getFontSizePx(lyricOutputPinyinBox.first());
+  const persistedPinyinFontPx = await getFontSizePx(
+    lyricOutputPinyinBox.first(),
+  );
   const persistedHanziFontPx = await getFontSizePx(lyricOutputHanzi.first());
 
   await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
@@ -582,15 +698,15 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     "aria-label",
     "Line 4: 春かな",
   );
-  await expect(page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(0)).toHaveText(
-    "cue1",
-  );
-  await expect(page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(1)).toHaveText(
-    "cue2",
-  );
-  await expect(page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(2)).toHaveText(
-    "cue3",
-  );
+  await expect(
+    page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(0),
+  ).toHaveText("cue1");
+  await expect(
+    page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(1),
+  ).toHaveText("cue2");
+  await expect(
+    page.getByTestId("pinyin-line-1").locator(".static-pinyin-box").nth(2),
+  ).toHaveText("cue3");
   await expect(page.locator(".writing-guide")).toHaveCount(0);
 
   await page.reload();
@@ -607,10 +723,9 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
   await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
-  await expect(getFontSizePx(lyricOutputPinyinBox.first())).resolves.toBeCloseTo(
-    persistedPinyinFontPx,
-    1,
-  );
+  await expect(
+    getFontSizePx(lyricOutputPinyinBox.first()),
+  ).resolves.toBeCloseTo(persistedPinyinFontPx, 1);
   await expect(getFontSizePx(lyricOutputHanzi.first())).resolves.toBeCloseTo(
     persistedHanziFontPx,
     1,
