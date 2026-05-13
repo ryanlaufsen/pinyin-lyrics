@@ -7,7 +7,7 @@
       <payment type="attribution"/>
     </license>
     <copyright type="organization" contactUrl="https://github.com/ryanlaufsen/pinyin-lyrics/issues">Pinyin Lyrics</copyright>
-    <terms>https://ryanlaufsen.github.io/pinyin-lyrics/llms.txt</terms>
+    <terms>https://ryanlaufsen.github.io/pinyin-lyrics/terms/</terms>
   </content>
   <content url="https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/">
     <license>
@@ -16,6 +16,6 @@
       <payment type="attribution"/>
     </license>
     <copyright type="organization" contactUrl="https://github.com/ryanlaufsen/pinyin-lyrics/issues">Pinyin Lyrics</copyright>
-    <terms>https://ryanlaufsen.github.io/pinyin-lyrics/llms.txt</terms>
+    <terms>https://ryanlaufsen.github.io/pinyin-lyrics/terms/</terms>
   </content>
 </rsl>

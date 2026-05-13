@@ -93,6 +93,19 @@ const getFontSizePx = async (locator: Locator) => {
   return Number.parseFloat(value);
 };
 
+const getVerticalGapPx = async (label: Locator, control: Locator) => {
+  const [labelBox, controlBox] = await Promise.all([
+    label.boundingBox(),
+    control.boundingBox(),
+  ]);
+
+  if (!labelBox || !controlBox) {
+    throw new Error("Expected label and control boxes to be measurable");
+  }
+
+  return Math.round(controlBox.y - (labelBox.y + labelBox.height));
+};
+
 const assertTileHasReadableColors = async (locator: Locator, label: string) => {
   const backgroundColor = await locator.evaluate(
     (element) => getComputedStyle(element).backgroundColor,
@@ -217,6 +230,36 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(oledThemeButton).toHaveAttribute("aria-pressed", "false");
   await expect(readerPage).toHaveAttribute("data-reader-theme", "light");
   await expect(readerRoot).toHaveAttribute("data-theme", "light");
+
+  const scriptGroup = page.getByRole("group", { name: "Chinese script" });
+  const romanizationGroup = page.getByRole("group", {
+    name: "Chinese romanization",
+  });
+  const sizeControlGroup = page.locator(".static-control-group", {
+    has: page.locator("#lyric-text-size"),
+  });
+  const lyricLabelGap = await getVerticalGapPx(
+    sizeControlGroup.locator("label"),
+    sizeControlGroup.locator(".static-size-control"),
+  );
+
+  for (const [label, group] of [
+    ["Theme", themeGroup],
+    ["Chinese script", scriptGroup],
+    ["Chinese romanization", romanizationGroup],
+  ] as const) {
+    const segmentedGap = await getVerticalGapPx(
+      group.locator("legend"),
+      group.locator(".static-segmented-control"),
+    );
+
+    expect
+      .soft(
+        segmentedGap,
+        `${label} heading gap should match Lyric text size heading gap`,
+      )
+      .toBe(lyricLabelGap);
+  }
 
   await darkThemeButton.click();
   await expect(readerPage).toHaveAttribute("data-reader-theme", "dark");
@@ -575,9 +618,6 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await sourceScript.click();
   await expect(sourceScript).toHaveAttribute("aria-pressed", "true");
 
-  const romanizationGroup = page.getByRole("group", {
-    name: "Chinese romanization",
-  });
   const pinyinModeButton = romanizationGroup.getByRole("button", {
     name: "Pinyin",
   });
@@ -786,5 +826,14 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
 
   await expect(page.getByRole("link", { name: "Workspace" })).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Main navigation" }),
+  ).toContainText("Terms");
+  await expect(
+    page.getByRole("contentinfo").getByRole("link", { name: "Privacy" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("contentinfo").getByRole("link", { name: "Copyright" }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });

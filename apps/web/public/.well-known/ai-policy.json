@@ -5,6 +5,9 @@
   "robots": "https://ryanlaufsen.github.io/pinyin-lyrics/robots.txt",
   "llms": "https://ryanlaufsen.github.io/pinyin-lyrics/llms.txt",
   "rsl": "https://ryanlaufsen.github.io/pinyin-lyrics/license.xml",
+  "terms": "https://ryanlaufsen.github.io/pinyin-lyrics/terms/",
+  "privacy": "https://ryanlaufsen.github.io/pinyin-lyrics/privacy/",
+  "copyright": "https://ryanlaufsen.github.io/pinyin-lyrics/copyright/",
   "policy": {
     "public_pages": "allow_search_and_user_requested_agent_access",
     "search_indexing": "allow_with_attribution",

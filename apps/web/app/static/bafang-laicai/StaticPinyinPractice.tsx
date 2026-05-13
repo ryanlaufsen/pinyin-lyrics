@@ -973,7 +973,7 @@ export function StaticPinyinPractice() {
   };
 
   return (
-    <main
+    <div
       className="static-reader-page"
       data-theme={theme}
       data-reader-theme={theme}
@@ -986,14 +986,25 @@ export function StaticPinyinPractice() {
             </p>
             <h1 className="text-xl font-semibold">Static reader</h1>
           </div>
-          <Link className="static-workspace-link" href="/">
-            <ArrowLeft size={16} />
-            Workspace
-          </Link>
+          <nav aria-label="Main navigation" className="static-reader-page-nav">
+            <Link className="static-workspace-link" href="/">
+              <ArrowLeft size={16} />
+              Workspace
+            </Link>
+            <Link className="static-workspace-link" href="/terms">
+              Terms
+            </Link>
+            <Link className="static-workspace-link" href="/privacy">
+              Privacy
+            </Link>
+            <Link className="static-workspace-link" href="/copyright">
+              Copyright
+            </Link>
+          </nav>
         </div>
       </header>
 
-      <div className="static-reader-shell">
+      <main className="static-reader-shell">
         <section
           className="static-reader-panel"
           data-theme={theme}
@@ -1476,8 +1487,25 @@ export function StaticPinyinPractice() {
             ) : null}
           </div>
         </section>
-      </div>
-    </main>
+      </main>
+      <footer className="static-reader-page-footer">
+        <div className="static-reader-page-footer-inner">
+          <p>
+            &copy; 2026 Pinyin Lyrics. User-provided lyrics stay local in this
+            static reader.
+          </p>
+          <nav
+            aria-label="Footer navigation"
+            className="static-reader-page-nav"
+          >
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/copyright">Copyright</Link>
+            <Link href="/llms.txt">AI policy</Link>
+          </nav>
+        </div>
+      </footer>
+    </div>
   );
 }
 

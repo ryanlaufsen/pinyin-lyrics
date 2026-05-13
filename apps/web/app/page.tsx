@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Languages, Search, Settings2, Upload } from "lucide-react";
+import { SiteFooter, SiteHeader } from "./_components/SiteChrome";
 
 const demoLines = [
   {
@@ -26,40 +27,42 @@ const modes = ["Original", "Romanized", "Split", "Study"];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-paper text-ink">
-      <header className="border-b border-line bg-panel">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <div>
-            <p className="text-xs font-semibold uppercase text-forest">
-              Pinyin Lyrics
-            </p>
-            <h1 className="text-xl font-semibold">Reader workspace</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              className="inline-flex size-10 items-center justify-center rounded border border-line bg-panel text-muted hover:text-ink"
-              aria-label="Search lyrics"
-            >
-              <Search size={18} />
-            </button>
-            <button
-              className="inline-flex size-10 items-center justify-center rounded border border-line bg-panel text-muted hover:text-ink"
-              aria-label="Language settings"
-            >
-              <Languages size={18} />
-            </button>
-            <button
-              className="inline-flex size-10 items-center justify-center rounded border border-line bg-panel text-muted hover:text-ink"
-              aria-label="Reader settings"
-            >
-              <Settings2 size={18} />
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="site-shell">
+      <SiteHeader activeHref="/" />
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_1fr]">
+      <main className="site-main mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_1fr]">
         <aside className="space-y-4">
+          <section className="border border-line bg-panel p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase text-forest">
+                  Pinyin Lyrics
+                </p>
+                <h1 className="text-xl font-semibold">Reader workspace</h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className="inline-flex size-10 items-center justify-center rounded border border-line bg-panel text-muted hover:text-ink"
+                  aria-label="Search lyrics"
+                >
+                  <Search size={18} />
+                </button>
+                <button
+                  className="inline-flex size-10 items-center justify-center rounded border border-line bg-panel text-muted hover:text-ink"
+                  aria-label="Language settings"
+                >
+                  <Languages size={18} />
+                </button>
+                <button
+                  className="inline-flex size-10 items-center justify-center rounded border border-line bg-panel text-muted hover:text-ink"
+                  aria-label="Reader settings"
+                >
+                  <Settings2 size={18} />
+                </button>
+              </div>
+            </div>
+          </section>
+
           <section className="border border-line bg-panel p-4">
             <h2 className="text-sm font-semibold">Import</h2>
             <button className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded bg-forest px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-soft">
@@ -150,7 +153,8 @@ export default function Home() {
             ))}
           </div>
         </section>
-      </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }

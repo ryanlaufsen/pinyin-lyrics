@@ -12,6 +12,18 @@ const staticRoutes = [
     path: "/static/bafang-laicai/",
     priority: 0.8,
   },
+  {
+    path: "/terms/",
+    priority: 0.4,
+  },
+  {
+    path: "/privacy/",
+    priority: 0.4,
+  },
+  {
+    path: "/copyright/",
+    priority: 0.4,
+  },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

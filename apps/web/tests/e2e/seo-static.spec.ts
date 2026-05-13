@@ -28,6 +28,15 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
   expect(sitemapXml).toContain(
     "https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/",
   );
+  expect(sitemapXml).toContain(
+    "https://ryanlaufsen.github.io/pinyin-lyrics/terms/",
+  );
+  expect(sitemapXml).toContain(
+    "https://ryanlaufsen.github.io/pinyin-lyrics/privacy/",
+  );
+  expect(sitemapXml).toContain(
+    "https://ryanlaufsen.github.io/pinyin-lyrics/copyright/",
+  );
 
   const manifest = await request.get("/manifest.webmanifest");
   await expect(manifest).toBeOK();
@@ -40,17 +49,24 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
   expect(llmsText).toContain("# Pinyin Lyrics");
   expect(llmsText).toContain("Disallowed AI Use");
   expect(llmsText).toContain(
+    "https://ryanlaufsen.github.io/pinyin-lyrics/privacy/",
+  );
+  expect(llmsText).toContain(
     "Do not collect, store, transmit, or republish user-provided lyric text",
   );
 
   const aiPolicy = await request.get("/.well-known/ai-policy.json");
   await expect(aiPolicy).toBeOK();
   const aiPolicyJson = (await aiPolicy.json()) as {
+    terms?: string;
     policy?: {
       model_training?: string;
       user_provided_lyrics?: string;
     };
   };
+  expect(aiPolicyJson.terms).toBe(
+    "https://ryanlaufsen.github.io/pinyin-lyrics/terms/",
+  );
   expect(aiPolicyJson.policy?.model_training).toBe("disallow");
   expect(aiPolicyJson.policy?.user_provided_lyrics).toBe(
     "private_local_only_do_not_collect",
@@ -64,6 +80,9 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
   );
   expect(rslLicenseXml).toContain(
     '<prohibits type="usage">ai-train</prohibits>',
+  );
+  expect(rslLicenseXml).toContain(
+    "<terms>https://ryanlaufsen.github.io/pinyin-lyrics/terms/</terms>",
   );
 
   await page.goto("/static/bafang-laicai");
