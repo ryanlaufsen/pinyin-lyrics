@@ -86,12 +86,16 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Goal: Add a static-export-friendly pinyin practice view for `八方来财` by Skai without bundling copyrighted lyrics.
 - Acceptance Criteria:
   - Static route renders title/artist metadata and title-character practice content without bundling full song lyrics.
-  - Static route accepts user-provided Chinese lyric lines in a browser-local input and preserves submitted line breaks, including blank lines.
-  - Pinyin is monospace, uses tone marks, and each pinyin container matches the width of its Chinese character box.
-  - Chinese characters sit inside pastel boxes.
+  - Static route accepts user-provided Chinese, Japanese, Korean, and English/Latin lyric lines in a browser-local input and preserves submitted line breaks, including blank lines.
+  - Static route supports mixed-language songs through auto-detection and optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line hints.
+  - Chinese pinyin is monospace, uses tone marks, and each pinyin container matches the width of its Chinese character box.
+  - Japanese kana romaji and Korean Hangul romanization render in matching study boxes; Japanese kanji is preserved as readable text in static mode until a dictionary-backed adapter is added.
+  - English/Latin runs render as plain inline text tokens, not per-letter boxes.
+  - Chinese characters sit inside pastel boxes and can flip between source, Simplified, and Traditional display.
+  - Lyric text size can be adjusted with a slider and plus/minus icon buttons.
   - A very light eight-quadrant dashed writing guide overlays each character box and can be toggled on/off.
   - Route works with the repo's static export mode.
-  - E2E coverage exists for route rendering, user-provided line rendering, line segmentation, and guide toggle behavior.
+  - E2E coverage exists for route rendering, mixed-language rendering, English plain text rendering, script flipping, text sizing, line segmentation, and guide toggle behavior.
 - Blockers/Dependencies:
   - Actual song lyrics remain excluded unless user provides licensed or user-owned text.
 - Evidence Required:
@@ -100,6 +104,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `apps/web/tests/e2e/static-bafang.spec.ts`
   - Artist metadata corrected to `SKAI ISYOURGOD`.
   - Web-searched/full song lyrics are not bundled in source, tests, build output, or the public static bundle.
+  - `opencc-js@1.0.5` added for browser-side Chinese script conversion.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.

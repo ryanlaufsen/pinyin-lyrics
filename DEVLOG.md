@@ -1,5 +1,17 @@
 # Devlog
 
+## 2026-05-13
+
+- Added static mixed-language rendering for user-provided Chinese, Japanese, Korean, and English/Latin text in the same pasted song.
+- Added optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line prefixes for explicit language hints while keeping auto-detection for normal pasted lines.
+- Added browser-side Simplified/Traditional Chinese conversion with `opencc-js` and a segmented `Source`/`简`/`繁` control.
+- Added lyric text-size controls: an accessible range slider with plus/minus icon buttons from 80% to 150%.
+- Changed English/Latin runs to render as plain inline text tokens instead of per-letter study boxes.
+- Added Japanese kana romaji via `wanakana`, Korean Hangul syllable romanization via a small browser-safe static renderer, and guardrails so Japanese kanji is preserved as readable text rather than mislabeled with Chinese pinyin.
+- Expanded `apps/web/tests/e2e/static-bafang.spec.ts` to cover mixed-language lines, English plain text tokens, text sizing, Chinese script flipping, guide toggling, and clear behavior on desktop and mobile Chromium.
+- Added `opencc-js@1.0.5` for static client-side Chinese script conversion.
+- Verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
+
 ## 2026-05-12
 
 - Added `TODO.md` as the Jira-style board with card IDs, manager assignments, statuses, priorities, acceptance criteria, blockers/dependencies, evidence requirements, and TODO/devlog/git sync rules.

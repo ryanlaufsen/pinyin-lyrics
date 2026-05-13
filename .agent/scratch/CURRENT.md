@@ -10,7 +10,7 @@
 - Active branch: `main`.
 - `main` has been fast-forwarded to include `chore/agent-board-dependency-sync`; both refs point at `679d51c` before this bookkeeping update.
 - Active card: `DEVOPS-001` is in progress; dependency install/lockfile generation succeeded with Corepack pnpm 10.33.4, but quality gates still need the correct host Node/pnpm environment.
-- Completed card: `FE-002` adds static `八方来财` pinyin practice mode. It excludes bundled copyrighted lyrics, uses title/artist metadata plus title-character practice content, and now supports browser-local user-provided Chinese lines with preserved segmentation.
+- Completed card: `FE-002` adds static `八方来财` practice mode. It excludes bundled copyrighted lyrics, uses title/artist metadata plus title-character practice content, and supports browser-local user-provided Chinese/Japanese/Korean/English lines with preserved segmentation.
 - Production blocker cards: `QA-001`, `QA-002`, and `QA-003` define the 100% e2e coverage standard and matrix.
 - Latest research pass happened on 2026-05-12 and covered Codex AGENTS.md, Codex subagents, Anthropic Claude Code subagents/best practices, Gemini CLI context files and commands, GitHub Copilot/VS Code custom instructions, OpenHands skills, SWE-agent trajectories, and current web stack docs.
 
@@ -40,6 +40,7 @@
 - Latest redeploy commit: `cad59d3` (`Add user-provided lyric line renderer`).
 - Latest deployed code/docs commit: `18ded09` (`Record static Pages redeploy`).
 - Latest Pages workflow run `25783608072` passed on 2026-05-13 UTC.
+- Current undeployed work adds mixed-language static rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls. Verify and redeploy before handoff.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
@@ -58,3 +59,4 @@
 - GitHub Pages API reports `build_type: workflow`, `public: true`, and `html_url: https://ryanlaufsen.github.io/pinyin-lyrics/`.
 - Direct route smoke check for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200`.
 - Latest static-route verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. All commands still warn that the host Node is `v21.7.2`.
+- Static Japanese support note: kana gets romaji; Japanese kanji is preserved as readable text in static mode to avoid false Chinese pinyin until a dictionary-backed adapter is added.

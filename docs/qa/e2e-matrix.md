@@ -18,7 +18,7 @@ Before production, every committed user-facing route, critical workflow, support
 | Surface                                        | Desktop   | Mobile    | Status            | Owner                    | Evidence                                                                              |
 | ---------------------------------------------- | --------- | --------- | ----------------- | ------------------------ | ------------------------------------------------------------------------------------- |
 | `/` reader workspace                           | Required  | Required  | Blocked Exception | QA/Accessibility Manager | Current `home.spec.ts` is smoke-only and must be replaced by route-contract coverage. |
-| `/static/bafang-laicai` static pinyin practice | Automated | Automated | Automated         | QA/Accessibility Manager | `apps/web/tests/e2e/static-bafang.spec.ts` passed in desktop and mobile Chromium, including user-provided line rendering. |
+| `/static/bafang-laicai` static pinyin practice | Automated | Automated | Automated         | QA/Accessibility Manager | `apps/web/tests/e2e/static-bafang.spec.ts` passed in desktop and mobile Chromium, including mixed-language user-provided line rendering. |
 
 ## Critical Workflows
 
@@ -26,6 +26,8 @@ Before production, every committed user-facing route, critical workflow, support
 | --------------------------------------------- | ----------------- | ------------------------ | ----------------------------------------- |
 | Paste/import user-owned lyric text            | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001 and SEC-001.            |
 | Static user-provided Chinese line rendering   | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers paste input, blank-line preservation, pinyin output, clear control, and guide toggle. |
+| Static mixed-language lyric rendering         | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers Chinese, Japanese kana, Korean Hangul, English/Latin plain text, and mixed-script pasted lines. |
+| Static Chinese script flipping                | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers source, Simplified, and Traditional controls using synthetic fixtures. |
 | Original/Romanized/Split/Study mode switching | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001.                        |
 | Language settings                             | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001 and RZN-001.            |
 | Reader settings and typography density        | Not Yet Committed | QA/Accessibility Manager | Depends on UID-001 and FE-001.            |
@@ -38,9 +40,10 @@ Before production, every committed user-facing route, critical workflow, support
 | Mode                           | Status            | Owner                    | Evidence                                                                                                                                         |
 | ------------------------------ | ----------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Chinese pinyin                 | Automated         | Romanization/NLP Manager | Static title-character and user-provided Chinese line pinyin with tone marks are covered by `static-bafang.spec.ts`; broader adapter coverage is not committed yet. |
-| Japanese romaji                | Not Yet Committed | Romanization/NLP Manager | Needs legally clean fixture and adapter tests.                                                                                                   |
-| Korean romanization            | Not Yet Committed | Romanization/NLP Manager | Needs legally clean fixture and adapter tests.                                                                                                   |
-| Mixed CJK punctuation/wrapping | Not Yet Committed | UI Design Manager        | Needs typography matrix and Playwright assertions.                                                                                               |
+| Japanese romaji                | Automated         | Romanization/NLP Manager | Static kana romaji is covered by `static-bafang.spec.ts`; Japanese kanji readings remain unclaimed until dictionary-backed adapter coverage lands. |
+| Korean romanization            | Automated         | Romanization/NLP Manager | Static Hangul syllable romanization is covered by `static-bafang.spec.ts`; broader adapter coverage is not committed yet. |
+| English/Latin lyric text       | Automated         | UI Design Manager        | Static Latin runs render as plain inline text tokens and are covered by `static-bafang.spec.ts`. |
+| Mixed CJK punctuation/wrapping | Automated         | UI Design Manager        | Mixed Chinese/Japanese/Korean/Latin wrapping is covered by `static-bafang.spec.ts`; full typography matrix remains future work. |
 
 ## Accessibility-Critical Interactions
 
@@ -48,6 +51,7 @@ Before production, every committed user-facing route, critical workflow, support
 | ---------------------------------------- | ----------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Keyboard navigation and focus visibility | Automated         | QA/Accessibility Manager | Static route verifies accessible link/button controls; broader workspace route contract remains under QA-002.                        |
 | Control names, roles, and states         | Automated         | QA/Accessibility Manager | Static route asserts guide toggle role/name/state in `static-bafang.spec.ts`; broader workspace route contract remains under QA-002. |
+| Lyric text-size controls                 | Automated         | QA/Accessibility Manager | Static route asserts slider value, `aria-valuetext`, plus/minus buttons, and disabled bounds in `static-bafang.spec.ts`. |
 | Dialog/menu escape behavior              | Not Yet Committed | QA/Accessibility Manager | Applies when settings/search become interactive.                                                                                     |
 | Touch target viability                   | Blocked Exception | UI Design Manager        | Mobile route coverage required.                                                                                                      |
 | Zoom/reflow and mobile density           | Blocked Exception | UX Research Manager      | Needs learner-task evidence.                                                                                                         |
