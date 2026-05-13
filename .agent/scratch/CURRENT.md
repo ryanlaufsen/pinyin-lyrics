@@ -67,4 +67,8 @@
 - Direct route smoke check for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200`.
 - Latest static-route verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. All commands still warn that the host Node is `v21.7.2`.
 - Static Japanese support note: kana gets romaji; Japanese kanji is preserved as readable text in static mode to avoid false Chinese pinyin until a dictionary-backed adapter is added.
-- Current branch state is uncommitted on `main` and not deployed yet. Resume by committing FE-003/FE-004, pushing, watching GitHub Pages, smoking the static route, then recording the deployment commit/run.
+- Latest implementation commit: `989732d` (`Add themed custom romanization controls`).
+- Latest handoff commit: `aed7d36` (`Record romanization feature handoff`).
+- Latest Pages workflow run `25791752513` passed on 2026-05-13 UTC.
+- Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
+- Current branch state has only post-deploy bookkeeping edits; commit with `[skip ci]` before final handoff.

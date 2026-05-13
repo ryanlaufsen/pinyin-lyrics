@@ -14,6 +14,9 @@
 - Expanded `apps/web/tests/e2e/static-bafang.spec.ts` with Pinyin/Jyutping/Cantonese switching, Cantonese entering-tone examples, custom track line alignment, mixed Chinese/Japanese/Korean/Latin custom overrides, and mismatch blanks.
 - Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
 - Commit `989732d` added the themed static-reader UI, custom romanization track, Chinese romanization switch, `to-jyutping` dependency, and expanded e2e coverage.
+- Commit `aed7d36` recorded the FE-003/FE-004 board, devlog, scratch, and e2e matrix handoff.
+- GitHub Pages workflow run `25791752513` completed successfully with passing build and deploy jobs for the romanization/theme deployment.
+- Direct smoke check of `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200` after the romanization/theme deployment.
 - Added static mixed-language rendering for user-provided Chinese, Japanese, Korean, and English/Latin text in the same pasted song.
 - Added optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line prefixes for explicit language hints while keeping auto-detection for normal pasted lines.
 - Added browser-side Simplified/Traditional Chinese conversion with `opencc-js` and a segmented `Source`/`简`/`繁` control.
