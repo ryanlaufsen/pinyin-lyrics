@@ -115,6 +115,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed at `695.5 KiB` first-render total and `222.2 KiB` largest referenced asset.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/home.spec.ts tests/e2e/legal.spec.ts` passed for desktop and mobile Chromium.
+  - Commit `fcc9e66` genericized the static reader, added shared preview rendering, added character styles, and updated e2e/docs.
 
 ### FE-010: Rename App And Add Static Text Opacity Controls
 

@@ -57,6 +57,7 @@
 - Static reader now uses generic multilingual-reader public copy. The route slug remains `/static/bafang-laicai/`, but the visible title/metadata no longer present `八方来财` as the page title.
 - The colored `八方来财` sample is now a normal shared-renderer preview line with line number/language badge and reacts to lyric scale, romanization scale, character scale, opacity, writing guide, script, and Chinese romanization settings.
 - Static reader persists `characterBrushStyle` with `Modern`, `Brush`, and `Cartoon` modes; CSS applies language-specific font stacks for Chinese, Japanese, Korean, and Latin/other tokens.
+- Latest implementation commit: `fcc9e66` (`Genericize static reader preview`).
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
 - Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, focused e2e for `static-bafang.spec.ts`/`seo-static.spec.ts`, and e2e for `home.spec.ts`/`legal.spec.ts` passed with Corepack pnpm 10.33.4. Static budget is `695.5 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
 - SEO/static foundation now includes root/static route metadata, canonical URLs, sitemap, robots, manifest, SVG icon, and e2e metadata route coverage.
