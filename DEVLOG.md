@@ -19,6 +19,7 @@
 - Added `apps/web/tests/e2e/static-bafang.spec.ts` and updated `docs/qa/e2e-matrix.md`.
 - Static mode verification passed on 2026-05-12 using Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts` all passed. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
 - Installed Playwright Chromium browser cache to run the new e2e spec.
+- Commit `c69b748`: added the static pinyin practice mode, static export script/config, and targeted e2e coverage.
 - Initialized repository on `main`.
 - Researched current agentic coding harness guidance across Codex, Claude Code, Gemini CLI, GitHub Copilot/VS Code, OpenHands, and SWE-agent.
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
