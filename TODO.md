@@ -1,6 +1,6 @@
 # TODO Board
 
-Last reviewed: 2026-05-12  
+Last reviewed: 2026-05-13
 Board owner: Orchestrator  
 Operating mode: Jira-style source of truth for planned work, active ownership, evidence, blockers, and handoff discipline.
 
@@ -57,6 +57,57 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Quality gates still need rerun under Node 22.12+ or 24+ with pnpm 10.33.4.
 
 ## Done
+
+### FE-003: Add Dark And OLED Static Reader Themes
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, UX Research Manager, QA/Accessibility Manager, DevOps/System Engineering Manager
+- Goal: Add Light, Dark, and OLED themes to the static `八方来财` reader without losing CJK reading comfort or control clarity.
+- Acceptance Criteria:
+  - Static reader exposes a segmented `Light`/`Dark`/`OLED` theme control with accessible pressed states.
+  - Theme state applies to the full static route shell, including the header and page background.
+  - OLED mode uses true black only for the outer page background while keeping panels, inputs, labels, and tiles separated with near-black surfaces.
+  - Pinyin, Hanzi, punctuation, line labels, input text, and controls remain readable in Dark and OLED modes.
+  - Theme colors use dedicated semantic tokens for pinyin text, Hanzi text, guide lines, tile mixes, borders, focus rings, page background, and panel surfaces.
+  - Focus-visible states are present for theme/script buttons, icon buttons, action buttons, range input, textarea, and the Workspace link.
+  - E2E coverage asserts theme switching, full-page theme state, OLED page black, and readable pinyin/Hanzi tile contrast on desktop and mobile.
+- Blockers/Dependencies:
+  - None for the static route. Full production release still depends on DEVOPS-001 clearing the host Node/Docker gaps.
+- Evidence Required:
+  - UX/UI council review completed on 2026-05-13 and required page-level theming, dedicated pinyin/Hanzi/focus/border tokens, restrained OLED surfaces, and desktop/mobile visual QA.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed, including the production TypeScript phase.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+
+### FE-004: Add Custom And Cantonese Romanization Tracks
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: Romanization/NLP Manager, UI Design Manager, UX Research Manager, QA/Accessibility Manager
+- Goal: Let static-reader users paste a custom romanization track aligned to pasted lyrics, and switch Chinese generated readings between Mandarin Pinyin, Jyutping, and Cantonese Pinyin-style output.
+- Acceptance Criteria:
+  - Static reader exposes a compact `Chinese romanization` control with `Pinyin`, `Jyutping`, and `Cantonese` options for Chinese lyric boxes.
+  - Jyutping generation uses a real dictionary-backed Cantonese converter rather than hand-authored fixture mappings.
+  - Cantonese Pinyin-style output is deterministic and test-covered, with entering-tone syllables ending in `p`, `t`, or `k` using `7`, `8`, or `9` where Jyutping uses `1`, `3`, or `6`.
+  - Static reader exposes a custom romanization track input aligned line-by-line with the lyrics input.
+  - When custom track mode is enabled, matching custom syllables override generated readings for CJK boxed tokens in order; missing custom syllables remain visibly blank instead of silently falling back.
+  - Latin/English text remains inline text and is not split into per-letter boxes.
+  - E2E coverage asserts Pinyin/Jyutping/Cantonese switching, custom track alignment, mismatch blanks, and preservation of existing multilingual behavior.
+- Blockers/Dependencies:
+  - None for the static route. Host Node still warns as `v21.7.2`, below the repo target, so DEVOPS-001 remains open for environment parity.
+- Evidence Required:
+  - `to-jyutping@3.1.1` installed as the Cantonese converter dependency.
+  - Static reader component and e2e spec diffs.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 

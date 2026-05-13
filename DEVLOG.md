@@ -2,6 +2,18 @@
 
 ## 2026-05-13
 
+- Added Light, Dark, and OLED theme modes to the static `八方来财` reader, with the theme applied to the full static route shell instead of only the inner panel.
+- UX/UI council review pushed the final theme direction: page-level theming, dedicated pinyin/Hanzi/focus/border tokens, restrained OLED surfaces, readable dark study tiles, and visible focus states across controls.
+- Added semantic static-reader tokens for page/header/panel surfaces, tiered borders, pinyin text, Hanzi text, tile color mixes, guide lines, focus rings, and active segmented controls.
+- OLED mode now keeps the outer page background true black while panels, inputs, labels, and lyric boxes use separated near-black surfaces.
+- Expanded `apps/web/tests/e2e/static-bafang.spec.ts` with Light/Dark/OLED theme switching, full-page theme state, OLED black-background assertion, and pinyin/Hanzi contrast checks.
+- Added a Chinese romanization mode switch for pasted Chinese lyric boxes: Mandarin Pinyin, Jyutping, and Cantonese Pinyin-style output.
+- Installed `to-jyutping@3.1.1` for dictionary-backed Cantonese Jyutping generation. Cantonese Pinyin-style mode deterministically maps Jyutping entering tones ending in `p`, `t`, or `k` from `1/3/6` to `7/8/9`.
+- Added a custom romanization track textarea and `Use custom track` checkbox. Custom lines align to pasted lyric lines, whitespace-separated custom syllables override generated CJK boxed readings, and missing custom syllables render as visibly blank boxes instead of silently falling back.
+- Fixed a custom-track edge case where missing Japanese kana custom syllables were becoming inline text; kana and Korean now stay boxed with blank readings, while Japanese kanji remains plain text unless a dictionary-backed adapter is added.
+- Expanded `apps/web/tests/e2e/static-bafang.spec.ts` with Pinyin/Jyutping/Cantonese switching, Cantonese entering-tone examples, custom track line alignment, mixed Chinese/Japanese/Korean/Latin custom overrides, and mismatch blanks.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
+- Commit `989732d` added the themed static-reader UI, custom romanization track, Chinese romanization switch, `to-jyutping` dependency, and expanded e2e coverage.
 - Added static mixed-language rendering for user-provided Chinese, Japanese, Korean, and English/Latin text in the same pasted song.
 - Added optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line prefixes for explicit language hints while keeping auto-detection for normal pasted lines.
 - Added browser-side Simplified/Traditional Chinese conversion with `opencc-js` and a segmented `Source`/`简`/`繁` control.

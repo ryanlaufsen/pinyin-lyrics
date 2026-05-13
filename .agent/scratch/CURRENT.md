@@ -43,6 +43,11 @@
 - Latest feature commit: `0ba55bf` (`Add multilingual static lyric controls`).
 - Latest Pages workflow run `25784999603` passed on 2026-05-13 UTC.
 - Static route now has mixed-language rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls.
+- Completed local work: `FE-003` dark/OLED static reader themes and `FE-004` custom/Cantonese romanization tracks are verified locally and ready to commit/deploy.
+- Dark/OLED and romanization subagents were closed after completion. No stale subagent ownership remains.
+- Static reader now has page-level Light/Dark/OLED theme state, dedicated dark/OLED palette tokens, restrained OLED surfaces, visible focus rings, a Chinese romanization switch (`Pinyin`, `Jyutping`, `Cantonese`), and a line-aligned custom romanization track.
+- `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
+- Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts` passed with Corepack pnpm 10.33.4. Commands still warn that host Node is `v21.7.2`.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
@@ -62,3 +67,4 @@
 - Direct route smoke check for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200`.
 - Latest static-route verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. All commands still warn that the host Node is `v21.7.2`.
 - Static Japanese support note: kana gets romaji; Japanese kanji is preserved as readable text in static mode to avoid false Chinese pinyin until a dictionary-backed adapter is added.
+- Current branch state is uncommitted on `main` and not deployed yet. Resume by committing FE-003/FE-004, pushing, watching GitHub Pages, smoking the static route, then recording the deployment commit/run.
