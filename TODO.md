@@ -81,6 +81,9 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `docs/architecture/5m-production-architecture.md` created.
   - Council reports summarized in `DEVLOG.md`.
   - Implementation commits for SEO foundation, Jyutping alignment guard, and lazy-loaded romanization engines.
+  - Commit `8ced9e9` recorded the epic plan and board.
+  - GitHub Pages workflow run `25798023918` completed successfully.
+  - Direct smoke checks returned `HTTP/2 200` for the static reader, robots, sitemap, and manifest routes.
 
 ## Done
 

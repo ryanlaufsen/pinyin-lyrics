@@ -14,6 +14,9 @@
 - Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and targeted e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts`. Commands still warn that host Node is `v21.7.2`.
 - Commit `c0367a2` added SEO foundation, metadata routes, manifest/icon, SEO e2e, and the Jyutping alignment guard.
 - Commit `a491aaf` lazy-loaded static romanization engines.
+- Commit `8ced9e9` recorded the ORCH-003 5M monthly views epic, production architecture plan, strategy plan, board cards, scratch handoff, and QA matrix updates.
+- GitHub Pages workflow run `25798023918` completed successfully with passing build and deploy jobs for the 5M-readiness deployment.
+- Direct smoke checks returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`, `/robots.txt`, `/sitemap.xml`, and `/manifest.webmanifest`.
 - Added Light, Dark, and OLED theme modes to the static `八方来财` reader, with the theme applied to the full static route shell instead of only the inner panel.
 - UX/UI council review pushed the final theme direction: page-level theming, dedicated pinyin/Hanzi/focus/border tokens, restrained OLED surfaces, readable dark study tiles, and visible focus states across controls.
 - Added semantic static-reader tokens for page/header/panel surfaces, tiered borders, pinyin text, Hanzi text, tile color mixes, guide lines, focus rings, and active segmented controls.

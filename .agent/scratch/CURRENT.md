@@ -92,4 +92,7 @@
 - Latest Pages workflow run `25796125840` passed on 2026-05-13 UTC.
 - Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
 - Latest scale-readiness implementation commits: `c0367a2` (`Add SEO foundation and Jyutping alignment guard`) and `a491aaf` (`Lazy-load static romanization engines`).
-- Current branch state has uncommitted ORCH-003 docs/board/devlog/e2e matrix updates; commit, push, watch Pages, smoke the static route and metadata routes, then record deployment bookkeeping with `[skip ci]`.
+- Latest scale-readiness handoff commit: `8ced9e9` (`Plan 5M monthly views readiness epic`).
+- Latest Pages workflow run `25798023918` passed on 2026-05-13 UTC.
+- Latest smoke checks returned `HTTP/2 200` for the static reader, `/robots.txt`, `/sitemap.xml`, and `/manifest.webmanifest`.
+- Current branch state has only post-deploy ORCH-003 bookkeeping edits; commit with `[skip ci]` before final handoff.
