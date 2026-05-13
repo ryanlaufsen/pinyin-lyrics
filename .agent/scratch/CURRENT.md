@@ -72,4 +72,8 @@
 - Latest handoff commit: `aed7d36` (`Record romanization feature handoff`).
 - Latest Pages workflow run `25791752513` passed on 2026-05-13 UTC.
 - Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
-- Current branch state has uncommitted FE-005 persistence implementation and docs. Resume by committing, pushing, watching GitHub Pages, smoking the static route, and recording deployment notes.
+- Latest persistence implementation commit: `dca60e7` (`Persist static reader state locally`).
+- Latest persistence handoff commit: `d87d4b6` (`Record persistence feature handoff`).
+- Latest Pages workflow run `25793216226` passed on 2026-05-13 UTC.
+- Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
+- Current branch state has only post-deploy bookkeeping edits; commit with `[skip ci]` before final handoff.
