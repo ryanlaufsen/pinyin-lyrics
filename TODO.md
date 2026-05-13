@@ -298,6 +298,9 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web budget:static` passed against the GitHub Pages export: `680.7 KiB` first render total and `222.2 KiB` largest referenced asset.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/home.spec.ts tests/e2e/static-bafang.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
   - Initial live smoke after workflow run `25799805866` found `/.well-known/ai-policy.json` was excluded from the Pages artifact; `.github/workflows/pages.yml` now sets `include-hidden-files: true`.
+  - Commit `d5cdf84` added the Pages hidden-file artifact fix.
+  - GitHub Pages workflow run `25799936251` completed successfully.
+  - Final live smoke returned `HTTP/2 200` for the static reader, `/robots.txt`, and `/.well-known/ai-policy.json`, and fetched robots/policy contents matched the expected AI rules.
 
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 

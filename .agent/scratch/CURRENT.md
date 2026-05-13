@@ -100,5 +100,6 @@
 - Current AI policy work adds a custom `/robots.txt`, `/llms.txt`, `/.well-known/ai-policy.json`, `/license.xml`, SEO e2e coverage, and a static first-render bundle budget gate.
 - Latest implementation commit: `5962a7d` (`Add AI crawler policy files`).
 - SEO-002 local verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts`. Host Node warning remains `v21.7.2`.
-- Live smoke after workflow run `25799805866` found `/.well-known/ai-policy.json` returned `404` because the Pages artifact excluded hidden files. `.github/workflows/pages.yml` now uses `include-hidden-files: true`; redeploy and smoke are pending.
-- Current branch state has active SEO-002 implementation and documentation edits; commit, push, deploy, and smoke before final handoff.
+- Live smoke after workflow run `25799805866` found `/.well-known/ai-policy.json` returned `404` because the Pages artifact excluded hidden files. Commit `d5cdf84` updated `.github/workflows/pages.yml` with `include-hidden-files: true`.
+- Workflow run `25799936251` completed successfully, and final live smoke returned `HTTP/2 200` for the static reader, `/robots.txt`, and `/.well-known/ai-policy.json`.
+- Current branch state has post-deploy SEO-002 bookkeeping edits; commit with `[skip ci]` before final handoff.

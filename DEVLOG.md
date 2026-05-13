@@ -24,6 +24,9 @@
 - Commit `5962a7d` added the custom AI crawler policy route, `/llms.txt`, machine-readable AI policy, RSL license, SEO e2e coverage, and static route budget gate.
 - GitHub Pages workflow run `25799805866` deployed commit `481ce42`; live smoke returned `HTTP/2 200` for the static reader, `/robots.txt`, `/llms.txt`, and `/license.xml`, but `/.well-known/ai-policy.json` returned `HTTP/2 404` because `actions/upload-pages-artifact@v5` excludes hidden files by default.
 - Updated `.github/workflows/pages.yml` to set `include-hidden-files: true` so `.well-known` policy files and `.nojekyll` are included in the Pages artifact.
+- Commit `d5cdf84` deployed the Pages artifact hidden-file fix.
+- GitHub Pages workflow run `25799936251` completed successfully with passing build and deploy jobs.
+- Final live smoke checks returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`, `/robots.txt`, `/.well-known/ai-policy.json`, and the fetched live robots/policy contents contained the expected AI policy.
 - Added Light, Dark, and OLED theme modes to the static `八方来财` reader, with the theme applied to the full static route shell instead of only the inner panel.
 - UX/UI council review pushed the final theme direction: page-level theming, dedicated pinyin/Hanzi/focus/border tokens, restrained OLED surfaces, readable dark study tiles, and visible focus states across controls.
 - Added semantic static-reader tokens for page/header/panel surfaces, tiered borders, pinyin text, Hanzi text, tile color mixes, guide lines, focus rings, and active segmented controls.
