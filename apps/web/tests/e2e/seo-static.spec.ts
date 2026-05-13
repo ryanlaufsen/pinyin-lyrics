@@ -87,7 +87,7 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
 
   await page.goto("/static/bafang-laicai");
   await expect(page).toHaveTitle(
-    "八方来财 Romanization & Multilingual Lyric Practice | LyricBridge",
+    "Static Multilingual Lyric Reader | LyricBridge",
   );
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
@@ -95,7 +95,7 @@ test("serves crawlable metadata routes", async ({ page, request }) => {
   );
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
     "content",
-    "八方来财 Romanization & Multilingual Lyric Practice",
+    "Static Multilingual Lyric Reader",
   );
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
     "content",

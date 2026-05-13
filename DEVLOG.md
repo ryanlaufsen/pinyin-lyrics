@@ -2,6 +2,11 @@
 
 ## 2026-05-13
 
+- Genericized the static reader so customer-facing metadata, the page title, the home-page static link, and `/llms.txt` present it as a reusable multilingual lyric reader instead of a `八方来财` title page. The route slug remains `/static/bafang-laicai/` for continuity.
+- Replaced the hard-coded title-practice widget with a shared lyric renderer. The colored `八方来财` sample now renders as a normal preview line with line number/language badge and reacts to the same lyric scale, romanization scale, character scale, opacity, guide, script, and Chinese romanization settings as pasted lyrics.
+- Added a persisted `Character style` control with `Modern`, `Brush`, and `Cartoon` modes. CSS applies language-specific font stacks/treatments for Chinese, Japanese, Korean, and Latin/other tokens.
+- Expanded static e2e coverage for generic metadata, preview parity, character-style pressed state, language-specific computed font families, reload persistence, and legacy storage migration.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, focused e2e for `static-bafang.spec.ts`/`seo-static.spec.ts`, and e2e for `home.spec.ts`/`legal.spec.ts`. The static route budget measured `695.5 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
 - Renamed the customer-facing app from the narrower pinyin-centered name to `LyricBridge` while keeping the GitHub Pages repo slug/base path unchanged for deployment continuity.
 - Centralized app-facing config in `apps/web/lib/site.ts`: app name, short name, tagline, description, legal entity, copyright year, site URL, repository URL, support URL, storage namespace, static reader storage key, and legacy storage namespaces now flow through `NEXT_PUBLIC_*` variables.
 - Updated the manifest, metadata, site/static chrome, legal pages, AI policy routes, Docker/Compose env, workflow/package filters, README, and tests to use the `LyricBridge` brand and `@lyricbridge/web` package name.
@@ -18,7 +23,7 @@
 - Added SEO/static discovery foundation: root metadata defaults, route-specific static reader metadata, canonical URLs, robots, sitemap, manifest, and a legally clean SVG icon.
 - Added `apps/web/tests/e2e/seo-static.spec.ts` and expanded home/static e2e coverage for metadata routes, canonical tags, OG/Twitter tags, manifest, and absence of known copyrighted lyric text.
 - Fixed a Cantonese/Jyutping alignment bug where blank Jyutping readings could shift later readings onto the wrong Hanzi; missing readings now preserve their slot and e2e covers a blank-in-the-middle regression.
-- Lazy-loaded heavy static romanization engines (`pinyin-pro`, `to-jyutping`, `opencc-js`, `wanakana`) so the static shell and title practice do not load dictionaries/converters before pasted lyrics or script/romanization settings need them.
+- Lazy-loaded heavy static romanization engines (`pinyin-pro`, `to-jyutping`, `opencc-js`, `wanakana`) so large dictionaries/converters stay out of the first-render static HTML and load on the client when the preview, pasted lyrics, or script/romanization settings need them.
 - Static export first-render chunk scan after lazy loading found about `659 KB` of referenced chunks for `/static/bafang-laicai/`; automated budget checks remain a DEVOPS-003 follow-up.
 - Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and targeted e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts`. Commands still warn that host Node is `v21.7.2`.
 - Commit `c0367a2` added SEO foundation, metadata routes, manifest/icon, SEO e2e, and the Jyutping alignment guard.
@@ -70,7 +75,7 @@
 - GitHub Pages workflow run `25793216226` completed successfully with passing build and deploy jobs for the persistence deployment.
 - Direct smoke check of `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200` after the persistence deployment.
 - Added separate lyric-output box text-size controls for `Romanization size` and `Character size`, each with slider plus minus/plus icon buttons, disabled bounds, and percent `aria-valuetext`.
-- The existing `Lyric text size` remains the base scale. Romanization and character scales multiply on top via `--romanization-scale` and `--character-scale` in `.static-lyric-output`; the title practice row remains unaffected.
+- The existing `Lyric text size` remains the base scale. Romanization and character scales multiply on top via `--romanization-scale` and `--character-scale` in `.static-lyric-output`; FE-011 later moved the sample preview into that same output renderer.
 - Persisted `romanizationTextSize` and `characterTextSize` in the static-reader localStorage payload with validation/clamping and defaults.
 - Expanded `apps/web/tests/e2e/static-bafang.spec.ts` with slider presence, plus/minus bounds, computed font-size assertions for romanization and Hanzi, combined scaling, and reload persistence.
 - Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.

@@ -35,7 +35,7 @@ export default function TermsPage() {
           {`${siteName} provides tools for reading and practicing Chinese,
           Japanese, and Korean song lyrics with romanization support.`}{" "}
           Public song pages are practice shells that may include metadata,
-          title-character practice, settings, romanization notes, and a
+          sample preview lines, settings, romanization notes, and a
           browser-local paste workspace.
         </p>
         <p>

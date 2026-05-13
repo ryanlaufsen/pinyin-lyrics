@@ -18,12 +18,7 @@ import {
   staticReaderStorageKey,
 } from "@/lib/site";
 
-const titleTiles = [
-  { character: "八", pinyin: "bā", color: "#f9d7da" },
-  { character: "方", pinyin: "fāng", color: "#d8ead8" },
-  { character: "来", pinyin: "lái", color: "#d8e6fb" },
-  { character: "财", pinyin: "cái", color: "#f6e6b8" },
-];
+const previewLineText = "八方来财";
 
 const tileColors = [
   "#f9d7da",
@@ -143,6 +138,7 @@ type ChineseScript = "source" | "simplified" | "traditional";
 type ChineseRomanizationMode = "pinyin" | "jyutping" | "cantonese";
 type LanguageHint = "auto" | "zh" | "ja" | "ko";
 type ThemeMode = "light" | "dark" | "oled";
+type CharacterBrushStyle = "modern" | "brush" | "cartoon";
 type LineLanguage = "zh" | "ja" | "ko" | "mixed" | "text";
 type TokenLanguage = "zh" | "ja" | "ko" | "text";
 
@@ -181,6 +177,7 @@ type RomanizationEngines = {
 };
 
 const themeModes = ["light", "dark", "oled"] as const;
+const characterBrushStyles = ["modern", "brush", "cartoon"] as const;
 const chineseRomanizationModes = [
   "pinyin",
   "jyutping",
@@ -194,6 +191,7 @@ type StaticReaderSettings = {
   customRomanizationText: string;
   useCustomTrack: boolean;
   theme: ThemeMode;
+  characterBrushStyle: CharacterBrushStyle;
   chineseScript: ChineseScript;
   chineseRomanizationMode: ChineseRomanizationMode;
   lyricTextSize: number;
@@ -209,6 +207,7 @@ const defaultStaticReaderSettings: StaticReaderSettings = {
   customRomanizationText: "",
   useCustomTrack: false,
   theme: "light",
+  characterBrushStyle: "modern",
   chineseScript: "source",
   chineseRomanizationMode: "pinyin",
   lyricTextSize: 100,
@@ -614,6 +613,18 @@ function getLineLanguageLabel(language: LineLanguage) {
   return "Text";
 }
 
+function getCharacterBrushStyleLabel(style: CharacterBrushStyle) {
+  if (style === "brush") {
+    return "Brush";
+  }
+
+  if (style === "cartoon") {
+    return "Cartoon";
+  }
+
+  return "Modern";
+}
+
 function getTokenLanguageHint(line: LyricLine): LanguageHint {
   if (
     line.language === "zh" ||
@@ -628,6 +639,10 @@ function getTokenLanguageHint(line: LyricLine): LanguageHint {
 
 function isThemeMode(value: string): value is ThemeMode {
   return themeModes.includes(value as ThemeMode);
+}
+
+function isCharacterBrushStyle(value: string): value is CharacterBrushStyle {
+  return characterBrushStyles.includes(value as CharacterBrushStyle);
 }
 
 function isChineseScript(value: string): value is ChineseScript {
@@ -690,6 +705,32 @@ function clampPersistedTextOpacity(value: number) {
   return clampTextOpacity(Math.round(value));
 }
 
+function buildLyricLine(
+  rawLine: string,
+  chineseScript: ChineseScript,
+  romanizationEngines: RomanizationEngines | null,
+): LyricLine {
+  const parsedLine = parseLanguageTag(rawLine);
+  const language = detectLineLanguage(
+    parsedLine.content,
+    parsedLine.languageHint,
+  );
+  const shouldConvertChinese =
+    chineseScript !== "source" && (language === "zh" || language === "mixed");
+
+  return {
+    ...parsedLine,
+    displayContent: shouldConvertChinese
+      ? convertChineseScript(
+          parsedLine.content,
+          chineseScript,
+          romanizationEngines,
+        )
+      : parsedLine.content,
+    language,
+  };
+}
+
 function readStoredStaticReaderSettings() {
   if (typeof window === "undefined") {
     return null;
@@ -744,6 +785,13 @@ function readStoredStaticReaderSettings() {
 
     if (typeof parsed.theme === "string" && isThemeMode(parsed.theme)) {
       next.theme = parsed.theme;
+    }
+
+    if (
+      typeof parsed.characterBrushStyle === "string" &&
+      isCharacterBrushStyle(parsed.characterBrushStyle)
+    ) {
+      next.characterBrushStyle = parsed.characterBrushStyle;
     }
 
     if (
@@ -835,6 +883,9 @@ export function StaticPinyinPractice() {
     defaultStaticReaderSettings.chineseScript,
   );
   const [theme, setTheme] = useState(defaultStaticReaderSettings.theme);
+  const [characterBrushStyle, setCharacterBrushStyle] = useState(
+    defaultStaticReaderSettings.characterBrushStyle,
+  );
   const [lyricTextSize, setLyricTextSize] = useState(
     defaultStaticReaderSettings.lyricTextSize,
   );
@@ -896,6 +947,10 @@ export function StaticPinyinPractice() {
           setTheme(storedSettings.theme);
         }
 
+        if (storedSettings.characterBrushStyle !== undefined) {
+          setCharacterBrushStyle(storedSettings.characterBrushStyle);
+        }
+
         if (storedSettings.chineseScript !== undefined) {
           setChineseScript(storedSettings.chineseScript);
         }
@@ -949,6 +1004,7 @@ export function StaticPinyinPractice() {
       customRomanizationText,
       useCustomTrack,
       theme,
+      characterBrushStyle,
       chineseScript,
       chineseRomanizationMode,
       lyricTextSize,
@@ -959,6 +1015,7 @@ export function StaticPinyinPractice() {
     });
   }, [
     characterTextOpacity,
+    characterBrushStyle,
     chineseRomanizationMode,
     chineseScript,
     customRomanizationText,
@@ -975,7 +1032,8 @@ export function StaticPinyinPractice() {
   useEffect(() => {
     const shouldLoadRomanizationEngines =
       isInteractive &&
-      (lyricsText.length > 0 ||
+      (previewLineText.length > 0 ||
+        lyricsText.length > 0 ||
         customRomanizationText.length > 0 ||
         chineseScript !== "source" ||
         chineseRomanizationMode !== "pinyin");
@@ -1009,29 +1067,20 @@ export function StaticPinyinPractice() {
       return [];
     }
 
-    return lyricsText.split(/\r\n|\r|\n/).map<LyricLine>((line) => {
-      const parsedLine = parseLanguageTag(line);
-      const language = detectLineLanguage(
-        parsedLine.content,
-        parsedLine.languageHint,
-      );
-      const shouldConvertChinese =
-        chineseScript !== "source" &&
-        (language === "zh" || language === "mixed");
-
-      return {
-        ...parsedLine,
-        displayContent: shouldConvertChinese
-          ? convertChineseScript(
-              parsedLine.content,
-              chineseScript,
-              romanizationEngines,
-            )
-          : parsedLine.content,
-        language,
-      };
-    });
+    return lyricsText
+      .split(/\r\n|\r|\n/)
+      .map((line) => buildLyricLine(line, chineseScript, romanizationEngines));
   }, [chineseScript, lyricsText, romanizationEngines]);
+  const previewLines = useMemo(
+    () => [
+      buildLyricLine(
+        `[zh] ${previewLineText}`,
+        chineseScript,
+        romanizationEngines,
+      ),
+    ],
+    [chineseScript, romanizationEngines],
+  );
   const customRomanizationLines = useMemo(
     () => splitIntoLines(customRomanizationText),
     [customRomanizationText],
@@ -1100,9 +1149,11 @@ export function StaticPinyinPractice() {
                 Static mode
               </p>
               <h2 id="static-reader-title" className="text-lg font-semibold">
-                八方来财
+                Multilingual lyric practice
               </h2>
-              <p className="mt-1 text-sm text-muted">SKAI ISYOURGOD</p>
+              <p className="mt-1 text-sm text-muted">
+                Browser-local romanization workspace
+              </p>
             </div>
             <div className="static-reader-actions">
               <button
@@ -1193,6 +1244,23 @@ export function StaticPinyinPractice() {
                         : mode === "jyutping"
                           ? "Jyutping"
                           : "Cantonese"}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset className="static-control-group">
+                <legend>Character style</legend>
+                <div className="static-segmented-control">
+                  {characterBrushStyles.map((style) => (
+                    <button
+                      aria-pressed={characterBrushStyle === style}
+                      className="static-segment"
+                      disabled={!isInteractive}
+                      key={style}
+                      onClick={() => setCharacterBrushStyle(style)}
+                      type="button"
+                    >
+                      {getCharacterBrushStyleLabel(style)}
                     </button>
                   ))}
                 </div>
@@ -1452,35 +1520,26 @@ export function StaticPinyinPractice() {
               </div>
             </div>
 
-            <ol
-              className="static-pinyin-row static-title-practice"
-              aria-label="Romanized title practice"
-            >
-              {titleTiles.map((tile) => (
-                <li
-                  className="static-character-stack"
-                  key={tile.character}
-                  style={{ "--tile-color": tile.color } as CSSProperties}
-                >
-                  <span className="static-pinyin-box font-mono">
-                    {tile.pinyin}
-                  </span>
-                  <span
-                    className={clsx(
-                      "static-hanzi-box",
-                      guidesVisible && "show-guide",
-                    )}
-                  >
-                    {guidesVisible ? (
-                      <span className="writing-guide" aria-hidden="true">
-                        <GuideLines />
-                      </span>
-                    ) : null}
-                    <span className="static-hanzi cjk">{tile.character}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <div className="static-preview-block">
+              <p className="static-preview-label">Preview</p>
+              <LyricOutput
+                ariaLabel="Settings preview"
+                characterBrushStyle={characterBrushStyle}
+                characterTextOpacity={characterTextOpacity}
+                characterTextSize={characterTextSize}
+                chineseRomanizationMode={chineseRomanizationMode}
+                chineseScript={chineseScript}
+                customRomanizationLines={[]}
+                guidesVisible={guidesVisible}
+                lines={previewLines}
+                lyricTextSize={lyricTextSize}
+                romanizationEngines={romanizationEngines}
+                romanizationTextOpacity={romanizationTextOpacity}
+                romanizationTextSize={romanizationTextSize}
+                testIdPrefix="preview-line"
+                useCustomTrack={false}
+              />
+            </div>
 
             <div className="static-lyrics-form">
               <div className="static-lyrics-layout">
@@ -1561,121 +1620,23 @@ export function StaticPinyinPractice() {
             </div>
 
             {lyricLines.length > 0 ? (
-              <div
-                className="static-lyric-output"
-                aria-label="Rendered romanized lyrics"
-                style={
-                  {
-                    "--lyric-scale": lyricTextSize / 100,
-                    "--romanization-scale": romanizationTextSize / 100,
-                    "--character-scale": characterTextSize / 100,
-                    "--romanization-opacity": romanizationTextOpacity / 100,
-                    "--character-opacity": characterTextOpacity / 100,
-                  } as CSSProperties
-                }
-              >
-                {lyricLines.map((line, lineIndex) => {
-                  const lineNumber = lineIndex + 1;
-
-                  if (line.content.length === 0) {
-                    return (
-                      <div
-                        aria-label={`Line ${lineNumber}: blank`}
-                        className="static-empty-line"
-                        data-testid="pinyin-line-empty"
-                        key={`line-${lineIndex}`}
-                      />
-                    );
-                  }
-
-                  return (
-                    <div
-                      aria-label={`Line ${lineNumber}: ${line.displayContent}`}
-                      data-language={line.language}
-                      className="static-lyric-line"
-                      data-testid={`pinyin-line-${lineNumber}`}
-                      key={`line-${lineIndex}`}
-                    >
-                      <span className="static-line-label">
-                        <span aria-hidden="true">{lineNumber}</span>
-                        <span className="static-line-language">
-                          {getLineLanguageLabel(line.language)}
-                        </span>
-                      </span>
-                      <ol className="static-pinyin-row">
-                        {buildLineTokens(
-                          line.displayContent,
-                          getTokenLanguageHint(line),
-                          chineseScript,
-                          chineseRomanizationMode,
-                          splitLineIntoSyllables(
-                            customRomanizationLines[lineIndex] ?? "",
-                          ),
-                          useCustomTrack,
-                          romanizationEngines,
-                        ).map((token, tokenIndex) => (
-                          <li
-                            className={clsx(
-                              "static-character-stack",
-                              token.isWhitespace && "static-space-token",
-                              token.displayAsText && "static-inline-token",
-                            )}
-                            key={`${lineIndex}-${tokenIndex}-${token.character}`}
-                            data-language={token.language}
-                            style={
-                              { "--tile-color": token.color } as CSSProperties
-                            }
-                          >
-                            {token.isWhitespace ? (
-                              <span aria-hidden="true">&nbsp;</span>
-                            ) : token.displayAsText ? (
-                              <span className="static-text-token">
-                                {token.character}
-                              </span>
-                            ) : (
-                              <>
-                                <span
-                                  className={clsx(
-                                    "static-pinyin-box font-mono",
-                                    !token.isHanzi && "static-pinyin-empty",
-                                  )}
-                                >
-                                  <span className="static-romanization-text">
-                                    {token.pinyin || "\u00a0"}
-                                  </span>
-                                </span>
-                                <span
-                                  className={clsx(
-                                    "static-hanzi-box",
-                                    !token.isHanzi && "static-punctuation-box",
-                                    guidesVisible &&
-                                      token.isGuideEligible &&
-                                      "show-guide",
-                                  )}
-                                >
-                                  {guidesVisible && token.isGuideEligible ? (
-                                    <span
-                                      className="writing-guide"
-                                      aria-hidden="true"
-                                    >
-                                      <GuideLines />
-                                    </span>
-                                  ) : null}
-                                  <span className="static-hanzi cjk">
-                                    <span className="static-character-text">
-                                      {token.character}
-                                    </span>
-                                  </span>
-                                </span>
-                              </>
-                            )}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  );
-                })}
-              </div>
+              <LyricOutput
+                ariaLabel="Rendered romanized lyrics"
+                characterBrushStyle={characterBrushStyle}
+                characterTextOpacity={characterTextOpacity}
+                characterTextSize={characterTextSize}
+                chineseRomanizationMode={chineseRomanizationMode}
+                chineseScript={chineseScript}
+                customRomanizationLines={customRomanizationLines}
+                guidesVisible={guidesVisible}
+                lines={lyricLines}
+                lyricTextSize={lyricTextSize}
+                romanizationEngines={romanizationEngines}
+                romanizationTextOpacity={romanizationTextOpacity}
+                romanizationTextSize={romanizationTextSize}
+                testIdPrefix="pinyin-line"
+                useCustomTrack={useCustomTrack}
+              />
             ) : null}
           </div>
         </section>
@@ -1698,6 +1659,161 @@ export function StaticPinyinPractice() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function LyricOutput({
+  ariaLabel,
+  characterBrushStyle,
+  characterTextOpacity,
+  characterTextSize,
+  chineseRomanizationMode,
+  chineseScript,
+  customRomanizationLines,
+  guidesVisible,
+  lines,
+  lyricTextSize,
+  romanizationEngines,
+  romanizationTextOpacity,
+  romanizationTextSize,
+  testIdPrefix,
+  useCustomTrack,
+}: {
+  ariaLabel: string;
+  characterBrushStyle: CharacterBrushStyle;
+  characterTextOpacity: number;
+  characterTextSize: number;
+  chineseRomanizationMode: ChineseRomanizationMode;
+  chineseScript: ChineseScript;
+  customRomanizationLines: string[];
+  guidesVisible: boolean;
+  lines: LyricLine[];
+  lyricTextSize: number;
+  romanizationEngines: RomanizationEngines | null;
+  romanizationTextOpacity: number;
+  romanizationTextSize: number;
+  testIdPrefix: string;
+  useCustomTrack: boolean;
+}) {
+  return (
+    <div
+      aria-label={ariaLabel}
+      className="static-lyric-output"
+      data-character-style={characterBrushStyle}
+      style={
+        {
+          "--lyric-scale": lyricTextSize / 100,
+          "--romanization-scale": romanizationTextSize / 100,
+          "--character-scale": characterTextSize / 100,
+          "--romanization-opacity": romanizationTextOpacity / 100,
+          "--character-opacity": characterTextOpacity / 100,
+        } as CSSProperties
+      }
+    >
+      {lines.map((line, lineIndex) => {
+        const lineNumber = lineIndex + 1;
+
+        if (line.content.length === 0) {
+          return (
+            <div
+              aria-label={`Line ${lineNumber}: blank`}
+              className="static-empty-line"
+              data-testid={`${testIdPrefix}-empty`}
+              key={`line-${lineIndex}`}
+            />
+          );
+        }
+
+        return (
+          <div
+            aria-label={`Line ${lineNumber}: ${line.displayContent}`}
+            className="static-lyric-line"
+            data-language={line.language}
+            data-testid={`${testIdPrefix}-${lineNumber}`}
+            key={`line-${lineIndex}`}
+          >
+            <span className="static-line-label">
+              <span aria-hidden="true">{lineNumber}</span>
+              <span className="static-line-language">
+                {getLineLanguageLabel(line.language)}
+              </span>
+            </span>
+            <ol className="static-pinyin-row">
+              {buildLineTokens(
+                line.displayContent,
+                getTokenLanguageHint(line),
+                chineseScript,
+                chineseRomanizationMode,
+                splitLineIntoSyllables(customRomanizationLines[lineIndex] ?? ""),
+                useCustomTrack,
+                romanizationEngines,
+              ).map((token, tokenIndex) => (
+                <LyricTokenView
+                  guidesVisible={guidesVisible}
+                  key={`${lineIndex}-${tokenIndex}-${token.character}`}
+                  token={token}
+                />
+              ))}
+            </ol>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function LyricTokenView({
+  guidesVisible,
+  token,
+}: {
+  guidesVisible: boolean;
+  token: RenderToken;
+}) {
+  return (
+    <li
+      className={clsx(
+        "static-character-stack",
+        token.isWhitespace && "static-space-token",
+        token.displayAsText && "static-inline-token",
+      )}
+      data-language={token.language}
+      style={{ "--tile-color": token.color } as CSSProperties}
+    >
+      {token.isWhitespace ? (
+        <span aria-hidden="true">&nbsp;</span>
+      ) : token.displayAsText ? (
+        <span className="static-text-token">{token.character}</span>
+      ) : (
+        <>
+          <span
+            className={clsx(
+              "static-pinyin-box font-mono",
+              !token.isHanzi && "static-pinyin-empty",
+            )}
+          >
+            <span className="static-romanization-text">
+              {token.pinyin || "\u00a0"}
+            </span>
+          </span>
+          <span
+            className={clsx(
+              "static-hanzi-box",
+              !token.isHanzi && "static-punctuation-box",
+              guidesVisible && token.isGuideEligible && "show-guide",
+            )}
+          >
+            {guidesVisible && token.isGuideEligible ? (
+              <span className="writing-guide" aria-hidden="true">
+                <GuideLines />
+              </span>
+            ) : null}
+            <span className="static-hanzi cjk">
+              <span className="static-character-text">{token.character}</span>
+            </span>
+          </span>
+        </>
+      )}
+    </li>
   );
 }
 

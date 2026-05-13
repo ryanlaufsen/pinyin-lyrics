@@ -92,7 +92,7 @@ export default function Home() {
               className="mt-3 inline-flex w-full items-center justify-center rounded border border-forest px-3 py-2 text-sm font-semibold text-forest hover:bg-forest hover:text-white"
               href="/static/bafang-laicai"
             >
-              八方来财
+              Static reader
             </Link>
           </section>
 

@@ -88,6 +88,34 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Done
 
+### FE-011: Genericize Static Reader Preview And Character Styles
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, UX Research Manager, Romanization/NLP Manager, QA/Accessibility Manager, Orchestrator
+- Goal: Make the static reader route feel like a reusable multilingual lyric practice workspace instead of a single-song title page, while preserving the colored `八方来财` sample as a settings preview.
+- Acceptance Criteria:
+  - Static reader page metadata, visible title, home link, and AI policy label use generic multilingual lyric-reader copy instead of presenting `八方来财` as the page title.
+  - The colored `八方来财` sample renders through the same lyric-line component as pasted lyrics, including line number, language badge, tile sizing, romanization sizing, character sizing, opacity, writing-guide visibility, script conversion, and Chinese romanization mode.
+  - Static reader exposes a `Character style` segmented control with `Modern`, `Brush`, and `Cartoon` options.
+  - Character style is applied through language-scoped CSS so Chinese, Japanese, Korean, and Latin/other text use distinct font stacks/treatments.
+  - Character style persists in localStorage and valid legacy migrated settings restore safely.
+  - E2E covers preview parity, generic metadata, character-style state, language-specific style application, persistence, and legacy migration on desktop and mobile.
+- Blockers/Dependencies:
+  - Route slug and storage key remain `/static/bafang-laicai` / `lyricbridge:static-bafang:v1` for deployment and user-data continuity.
+  - Browser font availability varies by platform; CSS provides ordered language-specific fallback stacks and e2e asserts configured computed stacks rather than installed glyph shapes.
+- Evidence Required:
+  - Carver explorer audit completed for static reader code paths, renderer reuse, brush-style state, CSS scope, and test coverage.
+  - `git diff --check` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed at `695.5 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/home.spec.ts tests/e2e/legal.spec.ts` passed for desktop and mobile Chromium.
+
 ### FE-010: Rename App And Add Static Text Opacity Controls
 
 - Status: `Done`
@@ -410,7 +438,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Supporting Managers: UI Design Manager, QA/Accessibility Manager, Security/Legal Manager
 - Goal: Add a static-export-friendly pinyin practice view for `八方来财` by Skai without bundling copyrighted lyrics.
 - Acceptance Criteria:
-  - Static route renders title/artist metadata and title-character practice content without bundling full song lyrics.
+  - Static route renders legally safe sample practice content without bundling full song lyrics. FE-011 later genericized the page title and moved the `八方来财` content into a settings preview line.
   - Static route accepts user-provided Chinese, Japanese, Korean, and English/Latin lyric lines in a browser-local input and preserves submitted line breaks, including blank lines.
   - Static route supports mixed-language songs through auto-detection and optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line hints.
   - Chinese pinyin is monospace, uses tone marks, and each pinyin container matches the width of its Chinese character box.
@@ -427,7 +455,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `apps/web/app/static/bafang-laicai/page.tsx`
   - `apps/web/app/static/bafang-laicai/StaticPinyinPractice.tsx`
   - `apps/web/tests/e2e/static-bafang.spec.ts`
-  - Artist metadata corrected to `SKAI ISYOURGOD`.
+  - Artist metadata was corrected to `SKAI ISYOURGOD` during the original single-song shell; FE-011 later removed artist copy from the customer-facing generic static reader.
   - Web-searched/full song lyrics are not bundled in source, tests, build output, or the public static bundle.
   - `opencc-js@1.0.5` added for browser-side Chinese script conversion.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed.
