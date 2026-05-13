@@ -11,10 +11,6 @@ import {
 import Link from "next/link";
 import { ArrowLeft, Eraser, Grid3X3, Minus, Plus } from "lucide-react";
 import { clsx } from "clsx";
-import { pinyin } from "pinyin-pro";
-import { isKana, toRomaji } from "wanakana";
-import * as OpenCC from "opencc-js";
-import { getJyutpingList } from "to-jyutping";
 
 const titleTiles = [
   { character: "八", pinyin: "bā", color: "#f9d7da" },
@@ -37,12 +33,10 @@ const fallbackTileColor = tileColors[0] ?? "#f9d7da";
 
 const hanziPattern = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/u;
 const hangulPattern = /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/u;
+const kanaPattern = /[\u3040-\u30ff\uff66-\uff9f]/u;
 const latinPattern = /[\p{Script=Latin}\p{Number}'’-]/u;
 const whitespacePattern = /\s/u;
 const languageTagPattern = /^\s*\[(zh|ja|ko|auto)\]\s*/i;
-
-const chineseToTraditional = OpenCC.Converter({ from: "cn", to: "tw" });
-const chineseToSimplified = OpenCC.Converter({ from: "tw", to: "cn" });
 
 const lyricTextSizeMin = 80;
 const lyricTextSizeMax = 150;
@@ -161,6 +155,22 @@ type LyricLine = {
   languageHint: LanguageHint;
 };
 
+type RomanizationEngines = {
+  chineseToSimplified: (value: string) => string;
+  chineseToTraditional: (value: string) => string;
+  getJyutpingList: (value: string) => unknown[];
+  pinyin: (
+    value: string,
+    options: {
+      nonZh: "removed";
+      toneType: "symbol";
+      traditional: boolean;
+      type: "array";
+    },
+  ) => string[];
+  toRomaji: (value: string) => string;
+};
+
 const themeModes = ["light", "dark", "oled"] as const;
 const chineseRomanizationModes = [
   "pinyin",
@@ -195,6 +205,29 @@ const defaultStaticReaderSettings: StaticReaderSettings = {
   characterTextSize: 100,
 };
 
+let romanizationEnginesPromise: Promise<RomanizationEngines> | null = null;
+
+function isKanaCharacter(character: string) {
+  return kanaPattern.test(character);
+}
+
+function loadRomanizationEngines() {
+  romanizationEnginesPromise ??= Promise.all([
+    import("pinyin-pro"),
+    import("wanakana"),
+    import("opencc-js"),
+    import("to-jyutping"),
+  ]).then(([pinyinModule, wanakanaModule, openccModule, jyutpingModule]) => ({
+    chineseToSimplified: openccModule.Converter({ from: "tw", to: "cn" }),
+    chineseToTraditional: openccModule.Converter({ from: "cn", to: "tw" }),
+    getJyutpingList: jyutpingModule.getJyutpingList,
+    pinyin: pinyinModule.pinyin,
+    toRomaji: wanakanaModule.toRomaji,
+  }));
+
+  return romanizationEnginesPromise;
+}
+
 function parseLanguageTag(line: string): {
   content: string;
   languageHint: LanguageHint;
@@ -221,7 +254,7 @@ function detectLineLanguage(content: string, languageHint: LanguageHint) {
   let hasHangul = false;
 
   for (const character of Array.from(content)) {
-    if (isKana(character)) {
+    if (isKanaCharacter(character)) {
       hasKana = true;
     }
 
@@ -263,7 +296,7 @@ function detectTokenLanguage(
     return "ko";
   }
 
-  if (isKana(character)) {
+  if (isKanaCharacter(character)) {
     return "ja";
   }
 
@@ -274,13 +307,21 @@ function detectTokenLanguage(
   return "text";
 }
 
-function convertChineseScript(content: string, script: ChineseScript) {
+function convertChineseScript(
+  content: string,
+  script: ChineseScript,
+  romanizationEngines: RomanizationEngines | null,
+) {
+  if (romanizationEngines === null) {
+    return content;
+  }
+
   if (script === "traditional") {
-    return chineseToTraditional(content);
+    return romanizationEngines.chineseToTraditional(content);
   }
 
   if (script === "simplified") {
-    return chineseToSimplified(content);
+    return romanizationEngines.chineseToSimplified(content);
   }
 
   return content;
@@ -335,9 +376,14 @@ function getChineseSyllables(
   line: string,
   chineseRomanizationMode: ChineseRomanizationMode,
   chineseScript: ChineseScript,
+  romanizationEngines: RomanizationEngines | null,
 ) {
+  if (romanizationEngines === null) {
+    return [];
+  }
+
   if (chineseRomanizationMode === "pinyin") {
-    return pinyin(line, {
+    return romanizationEngines.pinyin(line, {
       nonZh: "removed",
       toneType: "symbol",
       traditional: chineseScript === "traditional",
@@ -345,7 +391,9 @@ function getChineseSyllables(
     });
   }
 
-  const jyutping = getJyutpingList(line).map(normalizeJyutpingReading);
+  const jyutping = romanizationEngines
+    .getJyutpingList(line)
+    .map(normalizeJyutpingReading);
 
   if (chineseRomanizationMode === "jyutping") {
     return jyutping;
@@ -361,12 +409,18 @@ function buildLineTokens(
   chineseRomanizationMode: ChineseRomanizationMode,
   customRomanizationSyllables: string[],
   useCustomTrack: boolean,
+  romanizationEngines: RomanizationEngines | null,
 ): RenderToken[] {
-  const convertedLine = convertChineseScript(line, chineseScript);
+  const convertedLine = convertChineseScript(
+    line,
+    chineseScript,
+    romanizationEngines,
+  );
   const defaultSyllables = getChineseSyllables(
     convertedLine,
     chineseRomanizationMode,
     chineseScript,
+    romanizationEngines,
   );
   let syllableIndex = 0;
   let customIndex = 0;
@@ -375,7 +429,7 @@ function buildLineTokens(
     const language = detectTokenLanguage(character, languageHint);
     const isHanzi = language === "zh";
     const isWhitespace = whitespacePattern.test(character);
-    const isKanaToken = language === "ja" && isKana(character);
+    const isKanaToken = language === "ja" && isKanaCharacter(character);
     const isReadingToken =
       !isWhitespace && (language === "zh" || language === "ko" || isKanaToken);
     const generatedReading = getTokenReading(
@@ -383,6 +437,7 @@ function buildLineTokens(
       language,
       defaultSyllables,
       syllableIndex,
+      romanizationEngines,
     );
     const reading =
       useCustomTrack && isReadingToken
@@ -457,13 +512,20 @@ function getTokenReading(
   language: TokenLanguage,
   chineseSyllables: string[],
   syllableIndex: number,
+  romanizationEngines: RomanizationEngines | null,
 ) {
   if (language === "zh") {
     return chineseSyllables[syllableIndex] ?? "";
   }
 
   if (language === "ja") {
-    return isKana(character) ? toRomaji(character) : "";
+    if (romanizationEngines === null) {
+      return "";
+    }
+
+    return isKanaCharacter(character)
+      ? romanizationEngines.toRomaji(character)
+      : "";
   }
 
   if (language === "ko") {
@@ -722,6 +784,8 @@ export function StaticPinyinPractice() {
   const [characterTextSize, setCharacterTextSize] = useState(
     defaultStaticReaderSettings.characterTextSize,
   );
+  const [romanizationEngines, setRomanizationEngines] =
+    useState<RomanizationEngines | null>(null);
   const [isHydratedFromStorage, setIsHydratedFromStorage] = useState(false);
   const skipPersistRef = useRef(false);
   const isInteractive = useSyncExternalStore(
@@ -830,6 +894,38 @@ export function StaticPinyinPractice() {
     theme,
     useCustomTrack,
   ]);
+  useEffect(() => {
+    const shouldLoadRomanizationEngines =
+      isInteractive &&
+      (lyricsText.length > 0 ||
+        customRomanizationText.length > 0 ||
+        chineseScript !== "source" ||
+        chineseRomanizationMode !== "pinyin");
+
+    if (!shouldLoadRomanizationEngines || romanizationEngines !== null) {
+      return;
+    }
+
+    let cancelled = false;
+
+    loadRomanizationEngines().then((loadedEngines) => {
+      if (!cancelled) {
+        setRomanizationEngines(loadedEngines);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    chineseRomanizationMode,
+    chineseScript,
+    customRomanizationText.length,
+    isInteractive,
+    lyricsText.length,
+    romanizationEngines,
+  ]);
+
   const lyricLines = useMemo(() => {
     if (lyricsText.length === 0) {
       return [];
@@ -848,12 +944,16 @@ export function StaticPinyinPractice() {
       return {
         ...parsedLine,
         displayContent: shouldConvertChinese
-          ? convertChineseScript(parsedLine.content, chineseScript)
+          ? convertChineseScript(
+              parsedLine.content,
+              chineseScript,
+              romanizationEngines,
+            )
           : parsedLine.content,
         language,
       };
     });
-  }, [chineseScript, lyricsText]);
+  }, [chineseScript, lyricsText, romanizationEngines]);
   const customRomanizationLines = useMemo(
     () => splitIntoLines(customRomanizationText),
     [customRomanizationText],
@@ -1313,6 +1413,7 @@ export function StaticPinyinPractice() {
                             customRomanizationLines[lineIndex] ?? "",
                           ),
                           useCustomTrack,
+                          romanizationEngines,
                         ).map((token, tokenIndex) => (
                           <li
                             className={clsx(
