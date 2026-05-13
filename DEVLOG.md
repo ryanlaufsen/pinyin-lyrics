@@ -26,6 +26,19 @@
 - Commit `d87d4b6` recorded the FE-005 board, devlog, scratch, and e2e matrix handoff.
 - GitHub Pages workflow run `25793216226` completed successfully with passing build and deploy jobs for the persistence deployment.
 - Direct smoke check of `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200` after the persistence deployment.
+- Added separate lyric-output box text-size controls for `Romanization size` and `Character size`, each with slider plus minus/plus icon buttons, disabled bounds, and percent `aria-valuetext`.
+- The existing `Lyric text size` remains the base scale. Romanization and character scales multiply on top via `--romanization-scale` and `--character-scale` in `.static-lyric-output`; the title practice row remains unaffected.
+- Persisted `romanizationTextSize` and `characterTextSize` in the static-reader localStorage payload with validation/clamping and defaults.
+- Expanded `apps/web/tests/e2e/static-bafang.spec.ts` with slider presence, plus/minus bounds, computed font-size assertions for romanization and Hanzi, combined scaling, and reload persistence.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
+- Commit `fbe32cd` added independent lyric-box romanization and character text-size controls.
+- Reworked the Dark and OLED static-reader palettes after UX/accessibility audit: text remains AA readable while panel/control/input boundaries now target WCAG non-text contrast around 3:1 instead of the previous muddy 1.3-1.6:1 range.
+- Current measured token ratios include dark panel/control/input boundaries at `3.17:1`, `3.23:1`, and `3.28:1`; OLED panel/control/input boundaries at `3.19:1`, `3.54:1`, and `3.54:1`; dark/OLED panel text at `12.28:1` and `12.85:1`.
+- Changed the lyric editing workspace to reserve half the desktop container for user-provided lyrics plus custom romanization inputs and half for an unobtrusive AdSense placeholder. Mobile collapses the ad slot below the input column.
+- Normalized the lyric input/custom romanization label spacing to the same control gap used by `Lyric text size`, fixing cramped heading-to-control spacing.
+- Expanded `apps/web/tests/e2e/static-bafang.spec.ts` with in-browser Dark/OLED text and component-boundary contrast assertions, desktop/mobile lyric workspace layout assertions, ad-slot coverage, and label spacing checks.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
+- Commit `6f5ccbb` improved Dark/OLED accessibility metrics, lyric input/ad layout, heading spacing, and e2e coverage.
 - Added static mixed-language rendering for user-provided Chinese, Japanese, Korean, and English/Latin text in the same pasted song.
 - Added optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line prefixes for explicit language hints while keeping auto-detection for normal pasted lines.
 - Added browser-side Simplified/Traditional Chinese conversion with `opencc-js` and a segmented `Source`/`简`/`繁` control.

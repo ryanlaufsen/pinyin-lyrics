@@ -43,12 +43,13 @@
 - Latest feature commit: `0ba55bf` (`Add multilingual static lyric controls`).
 - Latest Pages workflow run `25784999603` passed on 2026-05-13 UTC.
 - Static route now has mixed-language rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls.
-- Completed local work: `FE-003` dark/OLED static reader themes, `FE-004` custom/Cantonese romanization tracks, and `FE-005` local static-reader persistence are verified locally.
-- Dark/OLED, romanization, and persistence subagents were closed after completion. No stale subagent ownership remains.
-- Static reader now has page-level Light/Dark/OLED theme state, dedicated dark/OLED palette tokens, restrained OLED surfaces, visible focus rings, a Chinese romanization switch (`Pinyin`, `Jyutping`, `Cantonese`), and a line-aligned custom romanization track.
-- Static reader persists pasted lyrics, custom romanization track, custom-track state, theme, Chinese script, Chinese romanization mode, lyric text size, and writing guide visibility to localStorage key `pinyin-lyrics:static-bafang:v1`.
+- Completed local work: `FE-003` dark/OLED static reader themes, `FE-004` custom/Cantonese romanization tracks, `FE-005` local static-reader persistence, `FE-006` independent lyric-box text sizing, and `FE-007` dark/OLED accessibility plus lyric workspace layout are verified locally.
+- Dark/OLED, romanization, persistence, box sizing, and accessibility/layout subagents were closed after completion. No stale subagent ownership remains.
+- Static reader now has page-level Light/Dark/OLED theme state, measured dark/OLED contrast tokens, restrained OLED surfaces, visible focus rings, a Chinese romanization switch (`Pinyin`, `Jyutping`, `Cantonese`), a line-aligned custom romanization track, independent romanization/character text-size scales inside lyric boxes, and a half-width desktop lyric editing column paired with an unobtrusive ad placeholder.
+- Static reader persists pasted lyrics, custom romanization track, custom-track state, theme, Chinese script, Chinese romanization mode, lyric text size, romanization text size, character text size, and writing guide visibility to localStorage key `pinyin-lyrics:static-bafang:v1`.
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
 - Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts` passed with Corepack pnpm 10.33.4. Commands still warn that host Node is `v21.7.2`.
+- Latest local accessibility metrics: dark panel/control/input boundaries are `3.17:1`, `3.23:1`, and `3.28:1`; OLED panel/control/input boundaries are `3.19:1`, `3.54:1`, and `3.54:1`; dark/OLED panel text is `12.28:1` and `12.85:1`.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.
@@ -76,4 +77,5 @@
 - Latest persistence handoff commit: `d87d4b6` (`Record persistence feature handoff`).
 - Latest Pages workflow run `25793216226` passed on 2026-05-13 UTC.
 - Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
-- Current branch state has only post-deploy bookkeeping edits; commit with `[skip ci]` before final handoff.
+- Latest implementation commits: `fbe32cd` (`Add lyric box text size controls`) and `6f5ccbb` (`Improve static reader dark layout accessibility`).
+- Current branch state has uncommitted FE-006/FE-007 coordination docs; commit, push, watch Pages, smoke the static route, then record deployment bookkeeping with `[skip ci]`.

@@ -135,6 +135,56 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
+### FE-006: Add Box Text Size Controls
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, QA/Accessibility Manager, UX Research Manager
+- Goal: Let users independently adjust romanization text and character text inside lyric boxes while keeping the overall lyric text size as the base scale.
+- Acceptance Criteria:
+  - Static reader exposes `Romanization size` and `Character size` sliders with minus/plus icon buttons and percent value displays.
+  - Existing `Lyric text size` remains the overall base scale.
+  - Romanization box text size multiplies the overall lyric scale by the romanization scale.
+  - Character box text size multiplies the overall lyric scale by the character scale.
+  - Title practice boxes are unaffected by lyric-output box-size controls.
+  - New size settings persist in localStorage with validation and defaults.
+  - E2E coverage verifies slider controls, button bounds, computed font-size effects, and reload persistence.
+- Blockers/Dependencies:
+  - Host Node still warns as `v21.7.2`, below the repo target, so DEVOPS-001 remains open for environment parity.
+- Evidence Required:
+  - Commit `fbe32cd` added the lyric box text-size controls.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+
+### FE-007: Improve Dark/OLED Accessibility And Lyric Workspace Layout
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: UI Design Manager
+- Supporting Managers: UX Research Manager, QA/Accessibility Manager, Frontend Manager
+- Goal: Make Dark and OLED modes structurally readable by accessibility metrics, rebalance the lyric input workspace, and fix cramped label spacing.
+- Acceptance Criteria:
+  - Dark and OLED text contrast remains at or above WCAG AA for static reader surfaces and lyric tiles.
+  - Dark and OLED meaningful component boundaries for panels, controls, inputs, and the ad placeholder target at least `3:1` non-text contrast.
+  - User-provided lyrics and custom romanization inputs occupy half the desktop workspace; an unobtrusive AdSense placeholder occupies the other half.
+  - Mobile layout stacks the ad placeholder below the input column without overlap.
+  - Lyric/custom input label spacing matches the `Lyric text size` control rhythm.
+  - E2E coverage verifies contrast metrics, desktop/mobile layout behavior, ad placeholder presence, and label spacing.
+- Blockers/Dependencies:
+  - Host Node still warns as `v21.7.2`, below the repo target, so DEVOPS-001 remains open for environment parity.
+- Evidence Required:
+  - UX/accessibility audit measured previous dark/OLED component boundaries around `1.3-1.6:1`; updated palette raises dark panel/control/input boundaries to `3.17:1`, `3.23:1`, and `3.28:1`, and OLED panel/control/input boundaries to `3.19:1`, `3.54:1`, and `3.54:1`.
+  - Commit `6f5ccbb` improved Dark/OLED accessibility metrics, lyric input/ad layout, heading spacing, and e2e coverage.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 
 - Status: `Done`
