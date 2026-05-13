@@ -12,6 +12,7 @@
     "dev": "pnpm --filter @pinyin-lyrics/web dev",
     "build": "pnpm --filter @pinyin-lyrics/web build",
     "build:static": "pnpm --filter @pinyin-lyrics/web build:static",
+    "budget:static": "pnpm --filter @pinyin-lyrics/web budget:static",
     "start": "pnpm --filter @pinyin-lyrics/web start",
     "lint": "pnpm --recursive lint",
     "typecheck": "pnpm --recursive typecheck",

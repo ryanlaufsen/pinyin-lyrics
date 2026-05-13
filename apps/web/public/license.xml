@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsl xmlns="https://rslstandard.org/rsl">
+  <content url="https://ryanlaufsen.github.io/pinyin-lyrics/">
+    <license>
+      <permits type="usage">search ai-input</permits>
+      <prohibits type="usage">ai-train</prohibits>
+      <payment type="attribution"/>
+    </license>
+    <copyright type="organization" contactUrl="https://github.com/ryanlaufsen/pinyin-lyrics/issues">Pinyin Lyrics</copyright>
+    <terms>https://ryanlaufsen.github.io/pinyin-lyrics/llms.txt</terms>
+  </content>
+  <content url="https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/">
+    <license>
+      <permits type="usage">search ai-input</permits>
+      <prohibits type="usage">ai-train</prohibits>
+      <payment type="attribution"/>
+    </license>
+    <copyright type="organization" contactUrl="https://github.com/ryanlaufsen/pinyin-lyrics/issues">Pinyin Lyrics</copyright>
+    <terms>https://ryanlaufsen.github.io/pinyin-lyrics/llms.txt</terms>
+  </content>
+</rsl>

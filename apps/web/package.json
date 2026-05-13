@@ -7,6 +7,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "build:static": "STATIC_EXPORT=1 next build",
+    "budget:static": "node scripts/check-static-budget.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
