@@ -82,4 +82,7 @@
 - Latest Pages workflow run `25795539053` passed on 2026-05-13 UTC.
 - Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
 - Latest ad optimization implementation commit: `0423632` (`Optimize static reader ad slot geometry`).
-- Current branch state has uncommitted REV-001 coordination docs; commit, push, watch Pages, smoke the static route, then record deployment bookkeeping with `[skip ci]`.
+- Latest ad optimization handoff commit: `0981699` (`Record AdSense slot optimization handoff`).
+- Latest Pages workflow run `25796125840` passed on 2026-05-13 UTC.
+- Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
+- Current branch state has only post-deploy REV-001 bookkeeping edits; commit with `[skip ci]` before final handoff.

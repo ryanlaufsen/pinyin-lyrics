@@ -209,6 +209,8 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Evidence Required:
   - Google AdSense placement guidance reviewed: multiple units can help, but balance against content; responsive ads should adapt to layout; misleading labels are prohibited; experiments are the proper way to choose a winner.
   - Commit `0423632` optimized static reader ad slot geometry and e2e coverage.
+  - GitHub Pages workflow run `25796125840` completed successfully.
+  - Direct static route smoke check returned `HTTP/2 200`.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
