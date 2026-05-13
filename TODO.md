@@ -189,6 +189,32 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
+### REV-001: Optimize Static Reader Ad Slot Geometry
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Revenue/Monetization Manager
+- Supporting Managers: UI Design Manager, UX Research Manager, QA/Accessibility Manager
+- Goal: Improve expected AdSense eligibility and viewability without crowding the lyric-learning task.
+- Acceptance Criteria:
+  - Static reader uses one clearly labeled `Advertisements` region instead of two cramped matched-height slots.
+  - Right-side desktop ad area contains a responsive slot with dimensions friendly to common rectangle inventory.
+  - Taller desktop screens allow the slot to expand toward half-page geometry.
+  - Mobile keeps a single stacked responsive rectangle slot below the editing column.
+  - Ad area remains visually distinct from content and controls.
+  - E2E coverage verifies the policy-safe label, desktop/mobile slot geometry, and Dark/OLED ad-slot boundary contrast.
+- Blockers/Dependencies:
+  - Real AdSense serving still requires account approval and publisher/ad-slot IDs; current build reserves optimized geometry only.
+  - Host Node still warns as `v21.7.2`, below the repo target, so DEVOPS-001 remains open for environment parity.
+- Evidence Required:
+  - Google AdSense placement guidance reviewed: multiple units can help, but balance against content; responsive ads should adapt to layout; misleading labels are prohibited; experiments are the proper way to choose a winner.
+  - Commit `0423632` optimized static reader ad slot geometry and e2e coverage.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 
 - Status: `Done`
