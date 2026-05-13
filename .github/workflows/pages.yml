@@ -52,6 +52,7 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: apps/web/out
+          include-hidden-files: true
 
   deploy:
     name: Deploy to GitHub Pages
