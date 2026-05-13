@@ -2,11 +2,13 @@
 
 import type { CSSProperties } from "react";
 import { useMemo, useState, useSyncExternalStore } from "react";
-import { Eraser, Grid3X3, Minus, Plus } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Eraser, Grid3X3, Minus, Plus } from "lucide-react";
 import { clsx } from "clsx";
 import { pinyin } from "pinyin-pro";
 import { isKana, toRomaji } from "wanakana";
 import * as OpenCC from "opencc-js";
+import { getJyutpingList } from "to-jyutping";
 
 const titleTiles = [
   { character: "八", pinyin: "bā", color: "#f9d7da" },
@@ -123,7 +125,9 @@ const getClientHydrationSnapshot = () => true;
 const getServerHydrationSnapshot = () => false;
 
 type ChineseScript = "source" | "simplified" | "traditional";
+type ChineseRomanizationMode = "pinyin" | "jyutping" | "cantonese";
 type LanguageHint = "auto" | "zh" | "ja" | "ko";
+type ThemeMode = "light" | "dark" | "oled";
 type LineLanguage = "zh" | "ja" | "ko" | "mixed" | "text";
 type TokenLanguage = "zh" | "ja" | "ko" | "text";
 
@@ -144,6 +148,13 @@ type LyricLine = {
   language: LineLanguage;
   languageHint: LanguageHint;
 };
+
+const themeModes = ["light", "dark", "oled"] as const;
+const chineseRomanizationModes = [
+  "pinyin",
+  "jyutping",
+  "cantonese",
+] as const satisfies readonly ChineseRomanizationMode[];
 
 function parseLanguageTag(line: string): {
   content: string;
@@ -238,30 +249,121 @@ function convertChineseScript(content: string, script: ChineseScript) {
   return content;
 }
 
+function isEnteringTone(syllable: string) {
+  return /[ptk]$/u.test(syllable);
+}
+
+function toCantonesePinyin(syllable: string) {
+  const match = syllable.match(/^(.*?)([1-6])$/u);
+
+  if (match === null) {
+    return syllable;
+  }
+
+  const [, base, tone] = match;
+
+  if (base === undefined || tone === undefined || !isEnteringTone(base)) {
+    return syllable;
+  }
+
+  if (tone === "1") {
+    return `${base}7`;
+  }
+
+  if (tone === "3") {
+    return `${base}8`;
+  }
+
+  if (tone === "6") {
+    return `${base}9`;
+  }
+
+  return syllable;
+}
+
+function normalizeJyutpingReading(raw: unknown) {
+  if (typeof raw === "string") {
+    return raw.trim();
+  }
+
+  if (!Array.isArray(raw)) {
+    return "";
+  }
+
+  const reading = raw[1];
+  return typeof reading === "string" ? reading.trim() : "";
+}
+
+function getChineseSyllables(
+  line: string,
+  chineseRomanizationMode: ChineseRomanizationMode,
+  chineseScript: ChineseScript,
+) {
+  if (chineseRomanizationMode === "pinyin") {
+    return pinyin(line, {
+      nonZh: "removed",
+      toneType: "symbol",
+      traditional: chineseScript === "traditional",
+      type: "array",
+    });
+  }
+
+  const jyutping = getJyutpingList(line).map(
+    normalizeJyutpingReading,
+  );
+
+  const filtered = jyutping.filter((syllable) => syllable.length > 0);
+
+  if (chineseRomanizationMode === "jyutping") {
+    return filtered;
+  }
+
+  return filtered.map(toCantonesePinyin);
+}
+
 function buildLineTokens(
   line: string,
   languageHint: LanguageHint,
   chineseScript: ChineseScript,
+  chineseRomanizationMode: ChineseRomanizationMode,
+  customRomanizationSyllables: string[],
+  useCustomTrack: boolean,
 ): RenderToken[] {
-  const syllables = pinyin(line, {
-    nonZh: "removed",
-    toneType: "symbol",
-    traditional: chineseScript === "traditional",
-    type: "array",
-  });
+  const convertedLine = convertChineseScript(line, chineseScript);
+  const defaultSyllables = getChineseSyllables(
+    convertedLine,
+    chineseRomanizationMode,
+    chineseScript,
+  );
   let syllableIndex = 0;
+  let customIndex = 0;
 
-  return segmentLine(line).map((character, index) => {
+  return segmentLine(convertedLine).map((character, index) => {
     const language = detectTokenLanguage(character, languageHint);
     const isHanzi = language === "zh";
     const isWhitespace = whitespacePattern.test(character);
-    const reading = getTokenReading(character, language, syllables, syllableIndex);
+    const isKanaToken = language === "ja" && isKana(character);
+    const isReadingToken =
+      !isWhitespace && (language === "zh" || language === "ko" || isKanaToken);
+    const generatedReading = getTokenReading(
+      character,
+      language,
+      defaultSyllables,
+      syllableIndex,
+    );
+    const reading = useCustomTrack && isReadingToken
+      ? customRomanizationSyllables[customIndex] ?? ""
+      : generatedReading;
+
+    if (isReadingToken) {
+      customIndex += 1;
+    }
     const token = {
       character,
       color: tileColors[index % tileColors.length] ?? fallbackTileColor,
       displayAsText:
         (language === "text" && !isWhitespace) ||
-        (language === "ja" && reading.length === 0),
+        (language === "ja" && !isKanaToken),
       isHanzi,
       isGuideEligible: language === "zh",
       isWhitespace,
@@ -300,6 +402,20 @@ function segmentLine(line: string) {
   }
 
   return segments;
+}
+
+function splitIntoLines(value: string) {
+  return value.split(/\r\n|\r|\n/);
+}
+
+function splitLineIntoSyllables(line: string) {
+  const trimmedLine = line.trim();
+
+  if (trimmedLine.length === 0) {
+    return [];
+  }
+
+  return trimmedLine.split(/\s+/u);
 }
 
 function getTokenReading(
@@ -377,7 +493,12 @@ function getTokenLanguageHint(line: LyricLine): LanguageHint {
 export function StaticPinyinPractice() {
   const [guidesVisible, setGuidesVisible] = useState(true);
   const [lyricsText, setLyricsText] = useState("");
+  const [chineseRomanizationMode, setChineseRomanizationMode] =
+    useState<ChineseRomanizationMode>("pinyin");
+  const [useCustomTrack, setUseCustomTrack] = useState(false);
+  const [customRomanizationText, setCustomRomanizationText] = useState("");
   const [chineseScript, setChineseScript] = useState<ChineseScript>("source");
+  const [theme, setTheme] = useState<ThemeMode>("light");
   const [lyricTextSize, setLyricTextSize] = useState(100);
   const isInteractive = useSyncExternalStore(
     subscribeHydration,
@@ -408,6 +529,10 @@ export function StaticPinyinPractice() {
       };
     });
   }, [chineseScript, lyricsText]);
+  const customRomanizationLines = useMemo(
+    () => splitIntoLines(customRomanizationText),
+    [customRomanizationText],
+  );
 
   const clearLyrics = () => {
     setLyricsText("");
@@ -417,259 +542,361 @@ export function StaticPinyinPractice() {
   };
 
   return (
-    <section
-      className="static-reader-panel"
-      aria-labelledby="static-reader-title"
+    <main
+      className="static-reader-page"
+      data-theme={theme}
+      data-reader-theme={theme}
     >
-      <div className="static-reader-toolbar">
-        <div>
-          <p className="text-xs font-semibold uppercase text-rust">
-            Static mode
-          </p>
-          <h2 id="static-reader-title" className="text-lg font-semibold">
-            八方来财
-          </h2>
-          <p className="mt-1 text-sm text-muted">SKAI ISYOURGOD</p>
+      <header className="static-reader-page-header">
+        <div className="static-reader-page-header-inner">
+          <div>
+            <p className="text-xs font-semibold uppercase text-forest">
+              Pinyin Lyrics
+            </p>
+            <h1 className="text-xl font-semibold">Static reader</h1>
+          </div>
+          <Link className="static-workspace-link" href="/">
+            <ArrowLeft size={16} />
+            Workspace
+          </Link>
         </div>
-        <div className="static-reader-actions">
-          <button
-            aria-label="Clear lyrics input"
-            className="inline-flex items-center gap-2 rounded border border-line bg-panel px-3 py-2 text-sm font-semibold text-ink hover:border-rust hover:text-rust disabled:cursor-not-allowed disabled:opacity-60"
-            data-ready={isInteractive ? "true" : "false"}
-            disabled={!isInteractive || lyricsText.length === 0}
-            onClick={clearLyrics}
-            type="button"
-          >
-            <Eraser size={16} />
-            Clear
-          </button>
-          <button
-            aria-pressed={guidesVisible}
-            className="inline-flex items-center gap-2 rounded border border-line bg-panel px-3 py-2 text-sm font-semibold text-ink hover:border-forest hover:text-forest disabled:cursor-not-allowed disabled:opacity-60"
-            data-ready={isInteractive ? "true" : "false"}
-            disabled={!isInteractive}
-            onClick={() => setGuidesVisible((value) => !value)}
-            type="button"
-          >
-            <Grid3X3 size={16} />
-            Writing guide
-          </button>
-        </div>
-      </div>
+      </header>
 
-      <div className="static-reader-body">
-        <div className="static-reader-settings">
-          <fieldset className="static-control-group">
-            <legend>Chinese script</legend>
-            <div className="static-segmented-control">
-              {(["source", "simplified", "traditional"] as ChineseScript[]).map(
-                (script) => (
+      <div className="static-reader-shell">
+        <section
+          className="static-reader-panel"
+          data-theme={theme}
+          aria-labelledby="static-reader-title"
+        >
+          <div className="static-reader-toolbar">
+            <div>
+              <p className="text-xs font-semibold uppercase text-rust">
+                Static mode
+              </p>
+              <h2 id="static-reader-title" className="text-lg font-semibold">
+                八方来财
+              </h2>
+              <p className="mt-1 text-sm text-muted">SKAI ISYOURGOD</p>
+            </div>
+            <div className="static-reader-actions">
+              <button
+                aria-label="Clear lyrics input"
+                className="static-action-button static-action-button-danger"
+                data-ready={isInteractive ? "true" : "false"}
+                disabled={!isInteractive || lyricsText.length === 0}
+                onClick={clearLyrics}
+                type="button"
+              >
+                <Eraser size={16} />
+                Clear
+              </button>
+              <button
+                aria-pressed={guidesVisible}
+                className="static-action-button"
+                data-ready={isInteractive ? "true" : "false"}
+                disabled={!isInteractive}
+                onClick={() => setGuidesVisible((value) => !value)}
+                type="button"
+              >
+                <Grid3X3 size={16} />
+                Writing guide
+              </button>
+            </div>
+          </div>
+
+          <div className="static-reader-body">
+            <div className="static-reader-settings">
+              <fieldset className="static-control-group">
+                <legend>Theme</legend>
+                <div className="static-segmented-control">
+                  {themeModes.map((themeOption) => (
+                    <button
+                      aria-pressed={theme === themeOption}
+                      className="static-segment"
+                      disabled={!isInteractive}
+                      key={themeOption}
+                      onClick={() => setTheme(themeOption)}
+                      type="button"
+                    >
+                      {themeOption === "light"
+                        ? "Light"
+                        : themeOption === "dark"
+                          ? "Dark"
+                          : "OLED"}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              <fieldset className="static-control-group">
+                <legend>Chinese script</legend>
+                <div className="static-segmented-control">
+                  {(["source", "simplified", "traditional"] as ChineseScript[]).map(
+                    (script) => (
+                      <button
+                        aria-pressed={chineseScript === script}
+                        className="static-segment"
+                        disabled={!isInteractive}
+                        key={script}
+                        onClick={() => setChineseScript(script)}
+                        type="button"
+                      >
+                        {script === "source"
+                          ? "Source"
+                          : script === "simplified"
+                            ? "简"
+                            : "繁"}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </fieldset>
+              <fieldset className="static-control-group">
+                <legend>Chinese romanization</legend>
+                <div className="static-segmented-control">
+                  {chineseRomanizationModes.map((mode) => (
+                    <button
+                      aria-pressed={chineseRomanizationMode === mode}
+                      className="static-segment"
+                      disabled={!isInteractive}
+                      key={mode}
+                      onClick={() => setChineseRomanizationMode(mode)}
+                      type="button"
+                    >
+                      {mode === "pinyin"
+                        ? "Pinyin"
+                        : mode === "jyutping"
+                          ? "Jyutping"
+                          : "Cantonese"}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+
+              <div className="static-control-group">
+                <label htmlFor="lyric-text-size">
+                  Lyric text size <span>{lyricTextSize}%</span>
+                </label>
+                <div className="static-size-control">
                   <button
-                    aria-pressed={chineseScript === script}
-                    className="static-segment"
-                    disabled={!isInteractive}
-                    key={script}
-                    onClick={() => setChineseScript(script)}
+                    aria-label="Decrease lyric text size"
+                    className="static-icon-button"
+                    disabled={!isInteractive || lyricTextSize <= lyricTextSizeMin}
+                    onClick={() => updateLyricTextSize(lyricTextSize - lyricTextSizeStep)}
                     type="button"
                   >
-                    {script === "source"
-                      ? "Source"
-                      : script === "simplified"
-                        ? "简"
-                        : "繁"}
+                    <Minus size={16} />
                   </button>
-                ),
-              )}
-            </div>
-          </fieldset>
-
-          <div className="static-control-group">
-            <label htmlFor="lyric-text-size">
-              Lyric text size <span>{lyricTextSize}%</span>
-            </label>
-            <div className="static-size-control">
-              <button
-                aria-label="Decrease lyric text size"
-                className="static-icon-button"
-                disabled={!isInteractive || lyricTextSize <= lyricTextSizeMin}
-                onClick={() => updateLyricTextSize(lyricTextSize - lyricTextSizeStep)}
-                type="button"
-              >
-                <Minus size={16} />
-              </button>
-              <input
-                aria-valuetext={`${lyricTextSize}%`}
-                disabled={!isInteractive}
-                id="lyric-text-size"
-                max={lyricTextSizeMax}
-                min={lyricTextSizeMin}
-                onChange={(event) =>
-                  updateLyricTextSize(Number(event.target.value))
-                }
-                step={lyricTextSizeStep}
-                type="range"
-                value={lyricTextSize}
-              />
-              <button
-                aria-label="Increase lyric text size"
-                className="static-icon-button"
-                disabled={!isInteractive || lyricTextSize >= lyricTextSizeMax}
-                onClick={() => updateLyricTextSize(lyricTextSize + lyricTextSizeStep)}
-                type="button"
-              >
-                <Plus size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <ol
-          className="static-pinyin-row static-title-practice"
-          aria-label="Pinyin title practice"
-        >
-          {titleTiles.map((tile) => (
-            <li
-              className="static-character-stack"
-              key={tile.character}
-              style={{ "--tile-color": tile.color } as CSSProperties}
-            >
-              <span className="static-pinyin-box font-mono">{tile.pinyin}</span>
-              <span
-                className={clsx(
-                  "static-hanzi-box",
-                  guidesVisible && "show-guide",
-                )}
-              >
-                {guidesVisible ? (
-                  <span className="writing-guide" aria-hidden="true">
-                    <GuideLines />
-                  </span>
-                ) : null}
-                <span className="static-hanzi cjk">{tile.character}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-
-        <div className="static-lyrics-form">
-          <label
-            className="text-sm font-semibold text-ink"
-            htmlFor="user-provided-lyrics"
-          >
-            User-provided lyrics
-          </label>
-          <textarea
-            className="static-lyrics-input cjk"
-            disabled={!isInteractive}
-            id="user-provided-lyrics"
-            onChange={(event) => setLyricsText(event.target.value)}
-            placeholder="Paste licensed or user-owned Chinese, Japanese, or Korean lines"
-            rows={7}
-            spellCheck={false}
-            value={lyricsText}
-          />
-          <p className="max-w-3xl text-sm leading-6 text-muted">
-            No lyrics are bundled in this public static build. Pasted lines
-            render on this page with line breaks preserved.
-          </p>
-        </div>
-
-        {lyricLines.length > 0 ? (
-          <div
-            className="static-lyric-output"
-            aria-label="Rendered romanized lyrics"
-            style={{ "--lyric-scale": lyricTextSize / 100 } as CSSProperties}
-          >
-            {lyricLines.map((line, lineIndex) => {
-              const lineNumber = lineIndex + 1;
-
-              if (line.content.length === 0) {
-                return (
-                  <div
-                    aria-label={`Line ${lineNumber}: blank`}
-                    className="static-empty-line"
-                    data-testid="pinyin-line-empty"
-                    key={`line-${lineIndex}`}
+                  <input
+                    aria-valuetext={`${lyricTextSize}%`}
+                    disabled={!isInteractive}
+                    id="lyric-text-size"
+                    max={lyricTextSizeMax}
+                    min={lyricTextSizeMin}
+                    onChange={(event) =>
+                      updateLyricTextSize(Number(event.target.value))
+                    }
+                    step={lyricTextSizeStep}
+                    type="range"
+                    value={lyricTextSize}
                   />
-                );
-              }
-
-              return (
-                <div
-                  aria-label={`Line ${lineNumber}: ${line.displayContent}`}
-                  data-language={line.language}
-                  className="static-lyric-line"
-                  data-testid={`pinyin-line-${lineNumber}`}
-                  key={`line-${lineIndex}`}
-                >
-                  <span className="static-line-label">
-                    <span aria-hidden="true">{lineNumber}</span>
-                    <span className="static-line-language">
-                      {getLineLanguageLabel(line.language)}
-                    </span>
-                  </span>
-                  <ol className="static-pinyin-row">
-                    {buildLineTokens(
-                      line.displayContent,
-                      getTokenLanguageHint(line),
-                      chineseScript,
-                    ).map((token, tokenIndex) => (
-                      <li
-                        className={clsx(
-                          "static-character-stack",
-                          token.isWhitespace && "static-space-token",
-                          token.displayAsText && "static-inline-token",
-                        )}
-                        key={`${lineIndex}-${tokenIndex}-${token.character}`}
-                        data-language={token.language}
-                        style={
-                          { "--tile-color": token.color } as CSSProperties
-                        }
-                      >
-                        {token.isWhitespace ? (
-                          <span aria-hidden="true">&nbsp;</span>
-                        ) : token.displayAsText ? (
-                          <span className="static-text-token">{token.character}</span>
-                        ) : (
-                          <>
-                            <span
-                              className={clsx(
-                                "static-pinyin-box font-mono",
-                                !token.isHanzi && "static-pinyin-empty",
-                              )}
-                            >
-                              {token.pinyin || "\u00a0"}
-                            </span>
-                            <span
-                              className={clsx(
-                                "static-hanzi-box",
-                                !token.isHanzi && "static-punctuation-box",
-                                guidesVisible &&
-                                  token.isGuideEligible &&
-                                  "show-guide",
-                              )}
-                            >
-                              {guidesVisible && token.isGuideEligible ? (
-                                <span className="writing-guide" aria-hidden="true">
-                                  <GuideLines />
-                                </span>
-                              ) : null}
-                              <span className="static-hanzi cjk">
-                                {token.character}
-                              </span>
-                            </span>
-                          </>
-                        )}
-                      </li>
-                    ))}
-                  </ol>
+                  <button
+                    aria-label="Increase lyric text size"
+                    className="static-icon-button"
+                    disabled={!isInteractive || lyricTextSize >= lyricTextSizeMax}
+                    onClick={() => updateLyricTextSize(lyricTextSize + lyricTextSizeStep)}
+                    type="button"
+                  >
+                    <Plus size={16} />
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            </div>
+
+            <ol
+              className="static-pinyin-row static-title-practice"
+              aria-label="Pinyin title practice"
+            >
+              {titleTiles.map((tile) => (
+                <li
+                  className="static-character-stack"
+                  key={tile.character}
+                  style={{ "--tile-color": tile.color } as CSSProperties}
+                >
+                  <span className="static-pinyin-box font-mono">{tile.pinyin}</span>
+                  <span
+                    className={clsx(
+                      "static-hanzi-box",
+                      guidesVisible && "show-guide",
+                    )}
+                  >
+                    {guidesVisible ? (
+                      <span className="writing-guide" aria-hidden="true">
+                        <GuideLines />
+                      </span>
+                    ) : null}
+                    <span className="static-hanzi cjk">{tile.character}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+
+            <div className="static-lyrics-form">
+              <label
+                className="text-sm font-semibold text-ink"
+                htmlFor="user-provided-lyrics"
+              >
+                User-provided lyrics
+              </label>
+              <textarea
+                className="static-lyrics-input cjk"
+                disabled={!isInteractive}
+                id="user-provided-lyrics"
+                onChange={(event) => setLyricsText(event.target.value)}
+                placeholder="Paste licensed or user-owned Chinese, Japanese, or Korean lines"
+                rows={7}
+                spellCheck={false}
+                value={lyricsText}
+              />
+              <div className="mt-3">
+                <label
+                  className="static-checkbox-label"
+                  htmlFor="use-custom-track"
+                >
+                  <input
+                    checked={useCustomTrack}
+                    disabled={!isInteractive}
+                    id="use-custom-track"
+                    onChange={(event) => setUseCustomTrack(event.target.checked)}
+                    type="checkbox"
+                  />
+                  <span>Use custom track</span>
+                </label>
+                <label
+                  className="mb-2 block text-sm font-semibold text-ink"
+                  htmlFor="custom-romanization-track"
+                >
+                  Custom romanization track
+                </label>
+                <textarea
+                  className="static-lyrics-input static-custom-track-input cjk"
+                  disabled={!isInteractive}
+                  id="custom-romanization-track"
+                  onChange={(event) => setCustomRomanizationText(event.target.value)}
+                  placeholder="Type syllables, one row per lyric row"
+                  rows={7}
+                  spellCheck={false}
+                  value={customRomanizationText}
+                />
+              </div>
+              <p className="max-w-3xl text-sm leading-6 text-muted">
+                No lyrics are bundled in this public static build. Pasted lines
+                render on this page with line breaks preserved.
+              </p>
+            </div>
+
+            {lyricLines.length > 0 ? (
+              <div
+                className="static-lyric-output"
+                aria-label="Rendered romanized lyrics"
+                style={{ "--lyric-scale": lyricTextSize / 100 } as CSSProperties}
+              >
+                {lyricLines.map((line, lineIndex) => {
+                  const lineNumber = lineIndex + 1;
+
+                  if (line.content.length === 0) {
+                    return (
+                      <div
+                        aria-label={`Line ${lineNumber}: blank`}
+                        className="static-empty-line"
+                        data-testid="pinyin-line-empty"
+                        key={`line-${lineIndex}`}
+                      />
+                    );
+                  }
+
+                  return (
+                    <div
+                      aria-label={`Line ${lineNumber}: ${line.displayContent}`}
+                      data-language={line.language}
+                      className="static-lyric-line"
+                      data-testid={`pinyin-line-${lineNumber}`}
+                      key={`line-${lineIndex}`}
+                    >
+                      <span className="static-line-label">
+                        <span aria-hidden="true">{lineNumber}</span>
+                        <span className="static-line-language">
+                          {getLineLanguageLabel(line.language)}
+                        </span>
+                      </span>
+                      <ol className="static-pinyin-row">
+                        {buildLineTokens(
+                          line.displayContent,
+                          getTokenLanguageHint(line),
+                          chineseScript,
+                          chineseRomanizationMode,
+                          splitLineIntoSyllables(
+                            customRomanizationLines[lineIndex] ?? "",
+                          ),
+                          useCustomTrack,
+                        ).map((token, tokenIndex) => (
+                          <li
+                            className={clsx(
+                              "static-character-stack",
+                              token.isWhitespace && "static-space-token",
+                              token.displayAsText && "static-inline-token",
+                            )}
+                            key={`${lineIndex}-${tokenIndex}-${token.character}`}
+                            data-language={token.language}
+                            style={
+                              { "--tile-color": token.color } as CSSProperties
+                            }
+                          >
+                            {token.isWhitespace ? (
+                              <span aria-hidden="true">&nbsp;</span>
+                            ) : token.displayAsText ? (
+                              <span className="static-text-token">{token.character}</span>
+                            ) : (
+                              <>
+                                <span
+                                  className={clsx(
+                                    "static-pinyin-box font-mono",
+                                    !token.isHanzi && "static-pinyin-empty",
+                                  )}
+                                >
+                                  {token.pinyin || "\u00a0"}
+                                </span>
+                                <span
+                                  className={clsx(
+                                    "static-hanzi-box",
+                                    !token.isHanzi && "static-punctuation-box",
+                                    guidesVisible &&
+                                      token.isGuideEligible &&
+                                      "show-guide",
+                                  )}
+                                >
+                                  {guidesVisible && token.isGuideEligible ? (
+                                    <span className="writing-guide" aria-hidden="true">
+                                      <GuideLines />
+                                    </span>
+                                  ) : null}
+                                  <span className="static-hanzi cjk">
+                                    {token.character}
+                                  </span>
+                                </span>
+                              </>
+                            )}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
-        ) : null}
+        </section>
       </div>
-    </section>
+    </main>
   );
 }
 

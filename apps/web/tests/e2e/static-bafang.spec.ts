@@ -1,4 +1,122 @@
-import { expect, test } from "@playwright/test";
+import { type Locator, expect, test } from "@playwright/test";
+
+const isNonTransparentColor = (value: string) => {
+  if (!value || value === "transparent" || value === "rgba(0, 0, 0, 0)") {
+    return false;
+  }
+
+  const rgbaMatch = value.match(
+    /rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d*\.?\d+)\)/,
+  );
+  if (rgbaMatch && Number(rgbaMatch[4]) === 0) {
+    return false;
+  }
+
+  return true;
+};
+
+const parseRgbColor = (value: string) => {
+  const rgbMatch = value.match(
+    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d+))?\)/,
+  );
+
+  if (rgbMatch) {
+    const alpha = rgbMatch[4] === undefined ? 1 : Number(rgbMatch[4]);
+
+    if (alpha === 0) {
+      return null;
+    }
+
+    return [
+      Number(rgbMatch[1]),
+      Number(rgbMatch[2]),
+      Number(rgbMatch[3]),
+    ] as const;
+  }
+
+  const colorMatch = value.match(
+    /color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\)/,
+  );
+
+  if (!colorMatch) {
+    return null;
+  }
+
+  const alpha = colorMatch[4] === undefined ? 1 : Number(colorMatch[4]);
+
+  if (alpha === 0) {
+    return null;
+  }
+
+  return [
+    Math.round(Number(colorMatch[1]) * 255),
+    Math.round(Number(colorMatch[2]) * 255),
+    Math.round(Number(colorMatch[3]) * 255),
+  ] as const;
+};
+
+const getRelativeLuminance = ([red, green, blue]: readonly [
+  number,
+  number,
+  number,
+]) => {
+  const [r = 0, g = 0, b = 0] = [red, green, blue].map((channel) => {
+    const value = channel / 255;
+
+    return value <= 0.03928
+      ? value / 12.92
+      : ((value + 0.055) / 1.055) ** 2.4;
+  });
+
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+const getContrastRatio = (foreground: string, background: string) => {
+  const foregroundRgb = parseRgbColor(foreground);
+  const backgroundRgb = parseRgbColor(background);
+
+  if (!foregroundRgb || !backgroundRgb) {
+    return null;
+  }
+
+  const foregroundLuminance = getRelativeLuminance(foregroundRgb);
+  const backgroundLuminance = getRelativeLuminance(backgroundRgb);
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+  const darker = Math.min(foregroundLuminance, backgroundLuminance);
+
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
+const assertTileHasReadableColors = async (
+  locator: Locator,
+  label: string,
+) => {
+  const backgroundColor = await locator.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  const color = await locator.evaluate((element) => getComputedStyle(element).color);
+
+  expect
+    .soft(
+      isNonTransparentColor(backgroundColor),
+      `${label}: tile background should be non-transparent (${backgroundColor})`,
+    )
+    .toBe(true);
+  expect
+    .soft(
+      isNonTransparentColor(color),
+      `${label}: tile foreground should be non-transparent (${color})`,
+    )
+    .toBe(true);
+
+  const contrastRatio = getContrastRatio(color, backgroundColor);
+  expect
+    .soft(
+      contrastRatio,
+      `${label}: tile contrast should meet readable text contrast`,
+    )
+    .toBeGreaterThanOrEqual(4.5);
+};
 
 test("renders the static 八方来财 pinyin practice mode", async ({ page }) => {
   const errors: string[] = [];
@@ -20,6 +138,43 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(page.getByText("fāng")).toBeVisible();
   await expect(page.getByText("lái")).toBeVisible();
   await expect(page.getByText("cái")).toBeVisible();
+
+  const themeGroup = page.getByRole("group", { name: "Theme" });
+  const lightThemeButton = themeGroup.getByRole("button", { name: "Light" });
+  const darkThemeButton = themeGroup.getByRole("button", { name: "Dark" });
+  const oledThemeButton = themeGroup.getByRole("button", { name: "OLED" });
+  const readerPage = page.locator(".static-reader-page[data-reader-theme]");
+  const readerRoot = page.locator(".static-reader-panel[data-theme]");
+  const samplePinyinBox = page.locator(".static-pinyin-box").first();
+  const sampleHanziBox = page.locator(".static-hanzi-box").first();
+
+  await expect(themeGroup).toBeVisible();
+  await expect(lightThemeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(darkThemeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(oledThemeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(readerPage).toHaveAttribute("data-reader-theme", "light");
+  await expect(readerRoot).toHaveAttribute("data-theme", "light");
+
+  await darkThemeButton.click();
+  await expect(readerPage).toHaveAttribute("data-reader-theme", "dark");
+  await expect(readerRoot).toHaveAttribute("data-theme", "dark");
+  await expect(darkThemeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(lightThemeButton).toHaveAttribute("aria-pressed", "false");
+  await assertTileHasReadableColors(samplePinyinBox, "Dark theme pinyin");
+  await assertTileHasReadableColors(sampleHanziBox, "Dark theme Hanzi");
+
+  await oledThemeButton.click();
+  await expect(readerPage).toHaveAttribute("data-reader-theme", "oled");
+  await expect(readerRoot).toHaveAttribute("data-theme", "oled");
+  await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(darkThemeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(readerPage).toHaveCSS("background-color", "rgb(0, 0, 0)");
+  await assertTileHasReadableColors(samplePinyinBox, "OLED theme pinyin");
+  await assertTileHasReadableColors(sampleHanziBox, "OLED theme Hanzi");
+
+  await lightThemeButton.click();
+  await expect(readerPage).toHaveAttribute("data-reader-theme", "light");
+  await expect(readerRoot).toHaveAttribute("data-theme", "light");
 
   const sizeSlider = page.getByRole("slider", { name: /Lyric text size/ });
   await expect(sizeSlider).toHaveValue("100");
@@ -150,6 +305,88 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await guideToggle.click();
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator(".writing-guide")).toHaveCount(0);
+
+  await sourceScript.click();
+  await expect(sourceScript).toHaveAttribute("aria-pressed", "true");
+
+  const romanizationGroup = page.getByRole("group", { name: "Chinese romanization" });
+  const pinyinModeButton = romanizationGroup.getByRole("button", {
+    name: "Pinyin",
+  });
+  const jyutpingModeButton = romanizationGroup.getByRole("button", {
+    name: "Jyutping",
+  });
+  const cantoneseModeButton = romanizationGroup.getByRole("button", {
+    name: "Cantonese",
+  });
+
+  await expect(pinyinModeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(jyutpingModeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "false");
+
+  await lyricsInput.fill("[zh] 發財識");
+  const chineseModeLine = page.getByTestId("pinyin-line-1");
+
+  await expect(chineseModeLine).toHaveAttribute("aria-label", "Line 1: 發財識");
+  await expect(chineseModeLine).not.toContainText("faat3");
+
+  await jyutpingModeButton.click();
+  await expect(jyutpingModeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(pinyinModeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(chineseModeLine).toContainText("faat3");
+  await expect(chineseModeLine).toContainText("coi4");
+  await expect(chineseModeLine).toContainText("sik1");
+
+  await cantoneseModeButton.click();
+  await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
+  await expect(jyutpingModeButton).toHaveAttribute("aria-pressed", "false");
+  await expect(chineseModeLine).toContainText("faat8");
+  await expect(chineseModeLine).toContainText("coi4");
+  await expect(chineseModeLine).toContainText("sik7");
+
+  const useCustomTrackCheckbox = page.getByRole("checkbox", {
+    name: "Use custom track",
+  });
+  const customTrackTextarea = page.getByRole("textbox", {
+    name: "Custom romanization track",
+  });
+  await expect(useCustomTrackCheckbox).toBeEnabled();
+  await expect(customTrackTextarea).toBeEnabled();
+
+  await lyricsInput.fill("[auto] 發財識かな사랑Latin-7");
+  await jyutpingModeButton.click();
+  await expect(jyutpingModeButton).toHaveAttribute("aria-pressed", "true");
+
+  await useCustomTrackCheckbox.check();
+  await customTrackTextarea.fill("cue1 cue2 cue3 cue4");
+
+  const customLine = page.getByTestId("pinyin-line-1");
+  const customLineGuideTokens = customLine.locator(
+    ".static-character-stack:not(.static-space-token):not(.static-inline-token)",
+  );
+  await expect(customLineGuideTokens).toHaveCount(7);
+  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(0)).toHaveText(
+    "cue1",
+  );
+  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(1)).toHaveText(
+    "cue2",
+  );
+  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(2)).toHaveText(
+    "cue3",
+  );
+  await expect(customLineGuideTokens.locator(".static-pinyin-box").nth(3)).toHaveText(
+    "cue4",
+  );
+
+  await expect(customLine.locator(".static-text-token")).toHaveText(["Latin-7"]);
+
+  const missingTokenReading = await customLine
+    .locator(".static-pinyin-box")
+    .nth(4)
+    .textContent();
+  expect(missingTokenReading).toBe("\u00a0");
+  await expect(customLine).not.toContainText("na");
 
   await page.getByRole("button", { name: "Clear lyrics input" }).click();
   await expect(lyricsInput).toHaveValue("");
