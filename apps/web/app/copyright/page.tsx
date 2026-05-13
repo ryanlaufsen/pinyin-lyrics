@@ -32,25 +32,25 @@ export default function CopyrightPage() {
       <section>
         <h2>Copyright Boundary</h2>
         <p>
-          {siteName} does not bundle full copyrighted song lyrics or full
-          romanized copyrighted lyrics in public static pages. Song titles,
-          artist names, and third-party works remain the property of their
-          respective owners.
+          {`${siteName} does not bundle full copyrighted song lyrics or full
+          romanized copyrighted lyrics in public static pages.`}{" "}
+          Song titles, artist names, and third-party works remain the property
+          of their respective owners.
         </p>
         <p>
-          The site&apos;s interface, original explanatory text, public policy
-          pages, and product-specific materials are owned by {siteName} unless
-          otherwise stated.
+          {`The site's interface, original explanatory text, public policy
+          pages, and product-specific materials are owned by ${siteName} unless
+          otherwise stated.`}
         </p>
       </section>
 
       <section>
         <h2>User Responsibilities</h2>
         <p>
-          Only paste or process lyrics you own, have licensed, that are in the
+          {`Only paste or process lyrics you own, have licensed, that are in the
           public domain, or that you otherwise have lawful access to use. Do not
-          use {siteName} to publish, share, scrape, train on, or redistribute
-          infringing lyric text.
+          use ${siteName} to publish, share, scrape, train on, or redistribute
+          infringing lyric text.`}
         </p>
       </section>
 
@@ -91,7 +91,7 @@ export default function CopyrightPage() {
         <h2>Counter-Notices And Repeat Infringers</h2>
         <p>
           The current public service does not provide public lyric upload or
-          public lyric sharing features. If those features are added, {siteName}
+          public lyric sharing features. If those features are added, {siteName}{" "}
           will publish a counter-notice process, repeat-infringer policy,
           moderation states, and rights-provenance practices.
         </p>

@@ -72,10 +72,10 @@ export default function PrivacyPage() {
       <section>
         <h2>Lyrics, Analytics, And Ads</h2>
         <p>
-          {siteName} does not use session replay, analytics capture, ad
+          {`${siteName} does not use session replay, analytics capture, ad
           targeting, error reporting, logs, or AI agents to collect lyric
           textarea contents, custom romanization tracks, or private
-          lyric-derived output.
+          lyric-derived output.`}
         </p>
         <p>
           If Google AdSense or other ad partners are enabled, third-party
@@ -125,8 +125,8 @@ export default function PrivacyPage() {
       <section>
         <h2>Children</h2>
         <p>
-          {siteName} is not directed to children under 13. Do not use the
-          service to submit children&apos;s personal information.
+          {`${siteName} is not directed to children under 13. Do not use the
+          service to submit children's personal information.`}
         </p>
       </section>
 

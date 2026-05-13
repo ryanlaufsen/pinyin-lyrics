@@ -32,9 +32,9 @@ export default function TermsPage() {
       <section>
         <h2>What {siteName} Provides</h2>
         <p>
-          {siteName} provides tools for reading and practicing Chinese,
-          Japanese, and Korean song lyrics with romanization support. Public
-          song pages are practice shells that may include metadata,
+          {`${siteName} provides tools for reading and practicing Chinese,
+          Japanese, and Korean song lyrics with romanization support.`}{" "}
+          Public song pages are practice shells that may include metadata,
           title-character practice, settings, romanization notes, and a
           browser-local paste workspace.
         </p>
@@ -114,9 +114,9 @@ export default function TermsPage() {
       <section>
         <h2>No Warranty</h2>
         <p>
-          Romanization output can be wrong, incomplete, dialect-dependent, or
-          context-dependent. {siteName} is provided as a reading aid, not as a
-          legal, linguistic, educational, or professional guarantee.
+          {`Romanization output can be wrong, incomplete, dialect-dependent, or
+          context-dependent. ${siteName} is provided as a reading aid, not as a
+          legal, linguistic, educational, or professional guarantee.`}
         </p>
       </section>
 
