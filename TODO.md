@@ -134,6 +134,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Workflow run `25782293862` completed successfully with passing build and deploy jobs.
   - Redeploy workflow run `25783457361` completed successfully with passing build and deploy jobs.
   - Final workflow run `25783608072` completed successfully with passing build and deploy jobs.
+  - Multilingual controls deploy workflow run `25784999603` completed successfully with passing build and deploy jobs.
   - Direct route smoke check returned `HTTP/2 200`.
   - Static practice route: `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
 

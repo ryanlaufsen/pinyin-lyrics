@@ -40,7 +40,9 @@
 - Latest redeploy commit: `cad59d3` (`Add user-provided lyric line renderer`).
 - Latest deployed code/docs commit: `18ded09` (`Record static Pages redeploy`).
 - Latest Pages workflow run `25783608072` passed on 2026-05-13 UTC.
-- Current undeployed work adds mixed-language static rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls. Verify and redeploy before handoff.
+- Latest feature commit: `0ba55bf` (`Add multilingual static lyric controls`).
+- Latest Pages workflow run `25784999603` passed on 2026-05-13 UTC.
+- Static route now has mixed-language rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
 - Implement romanization adapter interfaces and fixture tests.

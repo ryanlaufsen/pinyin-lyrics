@@ -11,6 +11,8 @@
 - Expanded `apps/web/tests/e2e/static-bafang.spec.ts` to cover mixed-language lines, English plain text tokens, text sizing, Chinese script flipping, guide toggling, and clear behavior on desktop and mobile Chromium.
 - Added `opencc-js@1.0.5` for static client-side Chinese script conversion.
 - Verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
+- Commit `0ba55bf` deployed through GitHub Pages workflow run `25784999603`; build and deploy jobs passed.
+- Direct smoke check of `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200` after the multilingual deployment.
 
 ## 2026-05-12
 
