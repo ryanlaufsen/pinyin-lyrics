@@ -85,22 +85,48 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Supporting Managers: UI Design Manager, QA/Accessibility Manager, Security/Legal Manager
 - Goal: Add a static-export-friendly pinyin practice view for `八方来财` by Skai without bundling copyrighted lyrics.
 - Acceptance Criteria:
-  - Static route renders title/artist metadata and title-character practice content only.
+  - Static route renders title/artist metadata and title-character practice content without bundling full song lyrics.
+  - Static route accepts user-provided Chinese lyric lines in a browser-local input and preserves submitted line breaks, including blank lines.
   - Pinyin is monospace, uses tone marks, and each pinyin container matches the width of its Chinese character box.
   - Chinese characters sit inside pastel boxes.
   - A very light eight-quadrant dashed writing guide overlays each character box and can be toggled on/off.
   - Route works with the repo's static export mode.
-  - E2E coverage exists for route rendering and guide toggle behavior.
+  - E2E coverage exists for route rendering, user-provided line rendering, line segmentation, and guide toggle behavior.
 - Blockers/Dependencies:
   - Actual song lyrics remain excluded unless user provides licensed or user-owned text.
 - Evidence Required:
   - `apps/web/app/static/bafang-laicai/page.tsx`
   - `apps/web/app/static/bafang-laicai/StaticPinyinPractice.tsx`
   - `apps/web/tests/e2e/static-bafang.spec.ts`
+  - Artist metadata corrected to `SKAI ISYOURGOD`.
+  - Web-searched/full song lyrics are not bundled in source, tests, build output, or the public static bundle.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+
+### DEVOPS-002: Deploy Static Mode To GitHub Pages
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: DevOps/System Engineering Manager
+- Supporting Managers: Orchestrator, Frontend Manager, QA/Accessibility Manager
+- Goal: Publish the static `八方来财` practice mode through GitHub Pages using the repo's GitHub Actions workflow.
+- Acceptance Criteria:
+  - GitHub CLI auth has `workflow` scope so workflow files can be pushed.
+  - Repository visibility supports GitHub Pages for the current plan.
+  - GitHub Pages is configured with `build_type: workflow`.
+  - Deployment workflow builds the static export with `PAGES_BASE_PATH=/pinyin-lyrics`.
+  - Published Pages URL and static practice URL are recorded in `DEVLOG.md` and scratch notes.
+- Blockers/Dependencies:
+  - Private GitHub Pages was blocked by the current GitHub plan; resolved by making the repo public at user request.
+  - Direct public URL smoke probing with `curl` was blocked by the command approval layer.
+- Evidence Required:
+  - Commit `e31bc44` pushed `.github/workflows/pages.yml` to `main`.
+  - GitHub Pages API reports `build_type: workflow`, `public: true`, and `html_url: https://ryanlaufsen.github.io/pinyin-lyrics/`.
+  - Workflow run `25782293862` completed successfully with passing build and deploy jobs.
+  - Static practice route: `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
 
 ## Ready
 

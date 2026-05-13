@@ -17,13 +17,23 @@
 - Used the Codex GitHub connector to fetch the Next.js `deploy-github-pages` template `next.config.ts`; adapted the static export pattern behind `STATIC_EXPORT=1` while keeping standalone Docker/server output as the default.
 - Added `FE-002` static `八方来财` pinyin practice mode using only title/artist metadata and title-character practice content, not bundled lyrics.
 - Added monospace tone-mark pinyin boxes, pastel character boxes, and a toggleable light eight-quadrant dashed writing guide.
+- Updated `FE-002` to identify the artist as `SKAI ISYOURGOD` and add a browser-local user-provided lyrics input that preserves line breaks, including blank lines.
+- Added client-side tone-mark pinyin rendering for pasted Chinese lines, using matching-width pinyin and character boxes plus the existing toggleable writing guide.
+- Kept web-searched/full song lyrics out of source, tests, build output, and the public static bundle; tests use synthetic fixture text.
 - Added `apps/web/tests/e2e/static-bafang.spec.ts` and updated `docs/qa/e2e-matrix.md`.
 - Static mode verification passed on 2026-05-12 using Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts` all passed. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
+- Static mode re-verification passed on 2026-05-12 after the user-provided line renderer update: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. Commands still warn that the host Node is `v21.7.2`, below the repo engine target.
 - Installed Playwright Chromium browser cache to run the new e2e spec.
 - Commit `c69b748`: added the static pinyin practice mode, static export script/config, and targeted e2e coverage.
 - Commit `adee912`: recorded the static mode handoff; `main` was fast-forwarded to include it.
 - Added GitHub Pages Actions workflow to deploy the static export from `apps/web/out` with `PAGES_BASE_PATH=/pinyin-lyrics`.
 - Local Pages-base-path static export passed with `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static`; command still warns that the host Node is `v21.7.2`.
+- Refreshed GitHub CLI auth with `workflow` scope after the first workflow push was rejected, then pushed commit `e31bc44` to `main`.
+- GitHub Pages was unavailable for the private repo on the current GitHub plan, so the repository was made public at user request.
+- Enabled GitHub Pages with GitHub Actions as the build source and deployed workflow run `25782293862` successfully.
+- Published Pages URL: https://ryanlaufsen.github.io/pinyin-lyrics/
+- Static practice route: https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/
+- Direct `curl` smoke probing of the public URL was blocked by the command approval layer; deployment evidence is the successful GitHub Actions run and Pages API metadata.
 - Initialized repository on `main`.
 - Researched current agentic coding harness guidance across Codex, Claude Code, Gemini CLI, GitHub Copilot/VS Code, OpenHands, and SWE-agent.
 - Chose initial dockerizable stack: TypeScript monorepo, Next.js App Router, React, Tailwind CSS, PostgreSQL, Prisma, Redis, Docker Compose, Vitest, and Playwright.
@@ -48,7 +58,7 @@
 - Review romanization dependency versions before committing product logic; the adapter boundary is in place but actual engines are not wired yet.
 - To publish, provide an existing private GitHub repository URL or install/authenticate GitHub CLI or provide a token-based publishing path.
 - Re-run full quality gates under Node 22.12+ or 24+ before production release despite the targeted static-mode checks passing under the current host.
-- Watch the GitHub Pages workflow and record the deployed URL once GitHub completes the deployment.
+- GitHub Pages deployment is live at https://ryanlaufsen.github.io/pinyin-lyrics/; continue with production-readiness work from `TODO.md`.
 
 ### Research Sources
 

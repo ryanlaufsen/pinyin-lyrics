@@ -18,13 +18,14 @@ Before production, every committed user-facing route, critical workflow, support
 | Surface                                        | Desktop   | Mobile    | Status            | Owner                    | Evidence                                                                              |
 | ---------------------------------------------- | --------- | --------- | ----------------- | ------------------------ | ------------------------------------------------------------------------------------- |
 | `/` reader workspace                           | Required  | Required  | Blocked Exception | QA/Accessibility Manager | Current `home.spec.ts` is smoke-only and must be replaced by route-contract coverage. |
-| `/static/bafang-laicai` static pinyin practice | Automated | Automated | Automated         | QA/Accessibility Manager | `apps/web/tests/e2e/static-bafang.spec.ts` passed in desktop and mobile Chromium.     |
+| `/static/bafang-laicai` static pinyin practice | Automated | Automated | Automated         | QA/Accessibility Manager | `apps/web/tests/e2e/static-bafang.spec.ts` passed in desktop and mobile Chromium, including user-provided line rendering. |
 
 ## Critical Workflows
 
 | Workflow                                      | Status            | Owner                    | Evidence                                  |
 | --------------------------------------------- | ----------------- | ------------------------ | ----------------------------------------- |
 | Paste/import user-owned lyric text            | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001 and SEC-001.            |
+| Static user-provided Chinese line rendering   | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers paste input, blank-line preservation, pinyin output, clear control, and guide toggle. |
 | Original/Romanized/Split/Study mode switching | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001.                        |
 | Language settings                             | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001 and RZN-001.            |
 | Reader settings and typography density        | Not Yet Committed | QA/Accessibility Manager | Depends on UID-001 and FE-001.            |
@@ -36,7 +37,7 @@ Before production, every committed user-facing route, critical workflow, support
 
 | Mode                           | Status            | Owner                    | Evidence                                                                                                                                         |
 | ------------------------------ | ----------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Chinese pinyin                 | Automated         | Romanization/NLP Manager | Static title-character pinyin with tone marks is covered by `static-bafang.spec.ts`; generated lyric-line adapter coverage is not committed yet. |
+| Chinese pinyin                 | Automated         | Romanization/NLP Manager | Static title-character and user-provided Chinese line pinyin with tone marks are covered by `static-bafang.spec.ts`; broader adapter coverage is not committed yet. |
 | Japanese romaji                | Not Yet Committed | Romanization/NLP Manager | Needs legally clean fixture and adapter tests.                                                                                                   |
 | Korean romanization            | Not Yet Committed | Romanization/NLP Manager | Needs legally clean fixture and adapter tests.                                                                                                   |
 | Mixed CJK punctuation/wrapping | Not Yet Committed | UI Design Manager        | Needs typography matrix and Playwright assertions.                                                                                               |
@@ -58,6 +59,7 @@ Before production, every committed user-facing route, critical workflow, support
 | ----------------------------------------------------------- | ----------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Dev server plus Playwright                                  | Blocked Exception | DevOps/System Engineering Manager | Host shell resolves to Node 21.7.2/pnpm 8.6.12 for plain scripts; rerun under Node 22.12+ or 24+ with pnpm 10.33.4.     |
 | Static export with `STATIC_EXPORT=1 next build`             | Automated         | DevOps/System Engineering Manager | `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.                   |
+| GitHub Pages static export with `/pinyin-lyrics` base path  | Automated         | DevOps/System Engineering Manager | `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed. |
 | Production `pnpm build` plus `pnpm start`                   | Blocked Exception | DevOps/System Engineering Manager | Dependency install succeeded with Corepack pnpm 10.33.4, but build/start not yet verified under the correct host shell. |
 | Dockerfile image                                            | Blocked Exception | DevOps/System Engineering Manager | Docker CLI unavailable in this WSL distro.                                                                              |
 | `docker compose up --build` with PostgreSQL/Redis readiness | Blocked Exception | DevOps/System Engineering Manager | Docker CLI unavailable in this WSL distro.                                                                              |

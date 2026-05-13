@@ -58,6 +58,13 @@ textarea {
   padding: 1rem;
 }
 
+.static-reader-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .static-reader-body {
   display: grid;
   gap: 1.25rem;
@@ -165,9 +172,105 @@ textarea {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
+.static-lyrics-form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.static-lyrics-input {
+  min-height: 11rem;
+  resize: vertical;
+  border: 1px solid var(--color-line);
+  border-radius: 0;
+  background: #fffdfa;
+  color: var(--color-ink);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  padding: 0.75rem;
+}
+
+.static-lyrics-input:focus {
+  border-color: var(--color-forest);
+  outline: 2px solid color-mix(in srgb, var(--color-forest) 24%, transparent);
+  outline-offset: 1px;
+}
+
+.static-lyric-output {
+  display: grid;
+  gap: 1rem;
+  border-top: 1px solid var(--color-line);
+  padding-top: 1rem;
+}
+
+.static-lyric-line {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.static-line-label {
+  display: inline-flex;
+  width: 2rem;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-line);
+  background: var(--color-paper);
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.static-empty-line {
+  min-height: 1rem;
+  border-left: 2rem solid transparent;
+}
+
+.static-punctuation-box {
+  background: #faf9f6;
+  color: var(--color-muted);
+}
+
+.static-pinyin-empty {
+  background: #ffffff;
+}
+
+.static-space-token {
+  width: clamp(0.7rem, 2vw, 1.1rem);
+  min-height: var(--tile-size);
+}
+
+.static-lyric-output .static-character-stack {
+  --tile-size: clamp(3.1rem, 12vw, 4.5rem);
+}
+
+.static-lyric-output .static-hanzi {
+  font-size: clamp(1.9rem, 8vw, 3.15rem);
+}
+
+.static-lyric-output .static-pinyin-box {
+  font-size: clamp(0.68rem, 2.5vw, 0.9rem);
+  white-space: nowrap;
+}
+
 @media (max-width: 640px) {
   .static-reader-toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .static-reader-actions {
+    justify-content: flex-start;
+  }
+
+  .static-lyric-line {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .static-line-label {
+    width: 1.5rem;
   }
 }
