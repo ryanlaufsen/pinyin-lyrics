@@ -41,6 +41,12 @@ const chineseToSimplified = OpenCC.Converter({ from: "tw", to: "cn" });
 const lyricTextSizeMin = 80;
 const lyricTextSizeMax = 150;
 const lyricTextSizeStep = 5;
+const romanizationTextSizeMin = 75;
+const romanizationTextSizeMax = 140;
+const romanizationTextSizeStep = 5;
+const characterTextSizeMin = 75;
+const characterTextSizeMax = 140;
+const characterTextSizeStep = 5;
 const hangulBase = 0xac00;
 const hangulLast = 0xd7a3;
 const hangulVowelCount = 21;
@@ -166,6 +172,8 @@ type StaticReaderSettings = {
   chineseScript: ChineseScript;
   chineseRomanizationMode: ChineseRomanizationMode;
   lyricTextSize: number;
+  romanizationTextSize: number;
+  characterTextSize: number;
 };
 
 const defaultStaticReaderSettings: StaticReaderSettings = {
@@ -177,6 +185,8 @@ const defaultStaticReaderSettings: StaticReaderSettings = {
   chineseScript: "source",
   chineseRomanizationMode: "pinyin",
   lyricTextSize: 100,
+  romanizationTextSize: 100,
+  characterTextSize: 100,
 };
 
 function parseLanguageTag(line: string): {
@@ -485,6 +495,20 @@ function clampTextSize(value: number) {
   return Math.min(lyricTextSizeMax, Math.max(lyricTextSizeMin, value));
 }
 
+function clampRomanizationTextSize(value: number) {
+  return Math.min(
+    romanizationTextSizeMax,
+    Math.max(romanizationTextSizeMin, value),
+  );
+}
+
+function clampCharacterTextSize(value: number) {
+  return Math.min(
+    characterTextSizeMax,
+    Math.max(characterTextSizeMin, value),
+  );
+}
+
 function getLineLanguageLabel(language: LineLanguage) {
   if (language === "zh") {
     return "ZH";
@@ -537,6 +561,30 @@ function clampPersistedTextSize(value: number) {
   }
 
   return clampTextSize(Math.round(value));
+}
+
+function clampPersistedRomanizationTextSize(value: number) {
+  if (Number.isNaN(value)) {
+    return null;
+  }
+
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  return clampRomanizationTextSize(Math.round(value));
+}
+
+function clampPersistedCharacterTextSize(value: number) {
+  if (Number.isNaN(value)) {
+    return null;
+  }
+
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  return clampCharacterTextSize(Math.round(value));
 }
 
 function readStoredStaticReaderSettings() {
@@ -597,6 +645,20 @@ function readStoredStaticReaderSettings() {
       next.lyricTextSize = maybeTextSize;
     }
 
+    const maybeRomanizationTextSize = clampPersistedRomanizationTextSize(
+      parsed.romanizationTextSize,
+    );
+    if (maybeRomanizationTextSize !== null) {
+      next.romanizationTextSize = maybeRomanizationTextSize;
+    }
+
+    const maybeCharacterTextSize = clampPersistedCharacterTextSize(
+      parsed.characterTextSize,
+    );
+    if (maybeCharacterTextSize !== null) {
+      next.characterTextSize = maybeCharacterTextSize;
+    }
+
     return next;
   } catch {
     return null;
@@ -637,6 +699,12 @@ export function StaticPinyinPractice() {
   const [theme, setTheme] = useState(defaultStaticReaderSettings.theme);
   const [lyricTextSize, setLyricTextSize] = useState(
     defaultStaticReaderSettings.lyricTextSize,
+  );
+  const [romanizationTextSize, setRomanizationTextSize] = useState(
+    defaultStaticReaderSettings.romanizationTextSize,
+  );
+  const [characterTextSize, setCharacterTextSize] = useState(
+    defaultStaticReaderSettings.characterTextSize,
   );
   const [isHydratedFromStorage, setIsHydratedFromStorage] = useState(false);
   const skipPersistRef = useRef(false);
@@ -693,6 +761,14 @@ export function StaticPinyinPractice() {
         if (storedSettings.lyricTextSize !== undefined) {
           setLyricTextSize(storedSettings.lyricTextSize);
         }
+
+        if (storedSettings.romanizationTextSize !== undefined) {
+          setRomanizationTextSize(storedSettings.romanizationTextSize);
+        }
+
+        if (storedSettings.characterTextSize !== undefined) {
+          setCharacterTextSize(storedSettings.characterTextSize);
+        }
       }
 
       setIsHydratedFromStorage(true);
@@ -722,6 +798,8 @@ export function StaticPinyinPractice() {
       chineseScript,
       chineseRomanizationMode,
       lyricTextSize,
+      romanizationTextSize,
+      characterTextSize,
     });
   }, [
     chineseRomanizationMode,
@@ -730,6 +808,8 @@ export function StaticPinyinPractice() {
     guidesVisible,
     isHydratedFromStorage,
     lyricTextSize,
+    romanizationTextSize,
+    characterTextSize,
     lyricsText,
     theme,
     useCustomTrack,
@@ -768,6 +848,12 @@ export function StaticPinyinPractice() {
   };
   const updateLyricTextSize = (value: number) => {
     setLyricTextSize(clampTextSize(value));
+  };
+  const updateRomanizationTextSize = (value: number) => {
+    setRomanizationTextSize(clampRomanizationTextSize(value));
+  };
+  const updateCharacterTextSize = (value: number) => {
+    setCharacterTextSize(clampCharacterTextSize(value));
   };
 
   return (
@@ -939,6 +1025,102 @@ export function StaticPinyinPractice() {
                   </button>
                 </div>
               </div>
+              <div className="static-control-group">
+                <label htmlFor="romanization-text-size">
+                  Romanization size <span>{romanizationTextSize}%</span>
+                </label>
+                <div className="static-size-control">
+                  <button
+                    aria-label="Decrease romanization text size"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive || romanizationTextSize <= romanizationTextSizeMin
+                    }
+                    onClick={() =>
+                      updateRomanizationTextSize(
+                        romanizationTextSize - romanizationTextSizeStep,
+                      )
+                    }
+                    type="button"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <input
+                    aria-valuetext={`${romanizationTextSize}%`}
+                    disabled={!isInteractive}
+                    id="romanization-text-size"
+                    max={romanizationTextSizeMax}
+                    min={romanizationTextSizeMin}
+                    onChange={(event) =>
+                      updateRomanizationTextSize(Number(event.target.value))
+                    }
+                    step={romanizationTextSizeStep}
+                    type="range"
+                    value={romanizationTextSize}
+                  />
+                  <button
+                    aria-label="Increase romanization text size"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive || romanizationTextSize >= romanizationTextSizeMax
+                    }
+                    onClick={() =>
+                      updateRomanizationTextSize(
+                        romanizationTextSize + romanizationTextSizeStep,
+                      )
+                    }
+                    type="button"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="static-control-group">
+                <label htmlFor="character-text-size">
+                  Character size <span>{characterTextSize}%</span>
+                </label>
+                <div className="static-size-control">
+                  <button
+                    aria-label="Decrease character text size"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive || characterTextSize <= characterTextSizeMin
+                    }
+                    onClick={() =>
+                      updateCharacterTextSize(characterTextSize - characterTextSizeStep)
+                    }
+                    type="button"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <input
+                    aria-valuetext={`${characterTextSize}%`}
+                    disabled={!isInteractive}
+                    id="character-text-size"
+                    max={characterTextSizeMax}
+                    min={characterTextSizeMin}
+                    onChange={(event) =>
+                      updateCharacterTextSize(Number(event.target.value))
+                    }
+                    step={characterTextSizeStep}
+                    type="range"
+                    value={characterTextSize}
+                  />
+                  <button
+                    aria-label="Increase character text size"
+                    className="static-icon-button"
+                    disabled={
+                      !isInteractive || characterTextSize >= characterTextSizeMax
+                    }
+                    onClick={() =>
+                      updateCharacterTextSize(characterTextSize + characterTextSizeStep)
+                    }
+                    type="button"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
             </div>
 
             <ol
@@ -1027,7 +1209,13 @@ export function StaticPinyinPractice() {
               <div
                 className="static-lyric-output"
                 aria-label="Rendered romanized lyrics"
-                style={{ "--lyric-scale": lyricTextSize / 100 } as CSSProperties}
+                style={
+                  {
+                    "--lyric-scale": lyricTextSize / 100,
+                    "--romanization-scale": romanizationTextSize / 100,
+                    "--character-scale": characterTextSize / 100,
+                  } as CSSProperties
+                }
               >
                 {lyricLines.map((line, lineIndex) => {
                   const lineNumber = lineIndex + 1;

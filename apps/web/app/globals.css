@@ -597,17 +597,17 @@ textarea {
 
 .static-lyric-output .static-hanzi {
   font-size: clamp(
-    calc(1.9rem * var(--lyric-scale, 1)),
-    calc(8vw * var(--lyric-scale, 1)),
-    calc(3.15rem * var(--lyric-scale, 1))
+    calc(1.9rem * var(--lyric-scale, 1) * var(--character-scale, 1)),
+    calc(8vw * var(--lyric-scale, 1) * var(--character-scale, 1)),
+    calc(3.15rem * var(--lyric-scale, 1) * var(--character-scale, 1))
   );
 }
 
 .static-lyric-output .static-pinyin-box {
   font-size: clamp(
-    calc(0.68rem * var(--lyric-scale, 1)),
-    calc(2.5vw * var(--lyric-scale, 1)),
-    calc(0.9rem * var(--lyric-scale, 1))
+    calc(0.68rem * var(--lyric-scale, 1) * var(--romanization-scale, 1)),
+    calc(2.5vw * var(--lyric-scale, 1) * var(--romanization-scale, 1)),
+    calc(0.9rem * var(--lyric-scale, 1) * var(--romanization-scale, 1))
   );
   white-space: nowrap;
 }

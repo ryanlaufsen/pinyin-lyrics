@@ -87,6 +87,14 @@ const getContrastRatio = (foreground: string, background: string) => {
   return (lighter + 0.05) / (darker + 0.05);
 };
 
+const getFontSizePx = async (locator: Locator) => {
+  const value = await locator.evaluate(
+    (element) => window.getComputedStyle(element).fontSize,
+  );
+
+  return Number.parseFloat(value);
+};
+
 const assertTileHasReadableColors = async (
   locator: Locator,
   label: string,
@@ -147,6 +155,12 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   const readerRoot = page.locator(".static-reader-panel[data-theme]");
   const samplePinyinBox = page.locator(".static-pinyin-box").first();
   const sampleHanziBox = page.locator(".static-hanzi-box").first();
+  const lyricOutputPinyinBox = page.locator(
+    '[aria-label="Rendered romanized lyrics"] .static-pinyin-box',
+  );
+  const lyricOutputHanzi = page.locator(
+    '[aria-label="Rendered romanized lyrics"] .static-hanzi',
+  );
 
   await expect(themeGroup).toBeVisible();
   await expect(lightThemeButton).toHaveAttribute("aria-pressed", "true");
@@ -178,24 +192,127 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
 
   const sizeSlider = page.getByRole("slider", { name: /Lyric text size/ });
   await expect(sizeSlider).toHaveValue("100");
-  await page.getByRole("button", { name: "Increase lyric text size" }).click();
-  await expect(sizeSlider).toHaveValue("105");
-  await page.getByRole("button", { name: "Decrease lyric text size" }).click();
+  const sizeSliderIncrease = page.getByRole("button", {
+    name: "Increase lyric text size",
+  });
+  const sizeSliderDecrease = page.getByRole("button", {
+    name: "Decrease lyric text size",
+  });
+  await sizeSliderIncrease.click();
+  await expect(sizeSlider).not.toHaveValue("100");
+  await sizeSliderDecrease.click();
   await expect(sizeSlider).toHaveValue("100");
   await sizeSlider.fill("150");
   await expect(sizeSlider).toHaveValue("150");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "150%");
   await expect(
-    page.getByRole("button", { name: "Increase lyric text size" }),
+    sizeSliderIncrease,
   ).toBeDisabled();
   await sizeSlider.fill("80");
   await expect(sizeSlider).toHaveValue("80");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "80%");
   await expect(
-    page.getByRole("button", { name: "Decrease lyric text size" }),
+    sizeSliderDecrease,
   ).toBeDisabled();
   await sizeSlider.fill("100");
   await expect(sizeSlider).toHaveValue("100");
+
+  const romanizationSizeSlider = page.getByRole("slider", {
+    name: /Romanization size/i,
+  });
+  const characterSizeSlider = page.getByRole("slider", {
+    name: /Character size/i,
+  });
+  const romanizationSizeIncrease = page
+    .getByRole("button", {
+      name: /Increase romanization (?:text )?size/i,
+    })
+    .or(
+      page.getByRole("button", {
+        name: /Romanization (?:text )?size.*Increase/i,
+      }),
+    );
+  const romanizationSizeDecrease = page
+    .getByRole("button", {
+      name: /Decrease romanization (?:text )?size/i,
+    })
+    .or(
+      page.getByRole("button", {
+        name: /Romanization (?:text )?size.*Decrease/i,
+      }),
+    );
+  const characterSizeIncrease = page
+    .getByRole("button", {
+      name: /Increase character (?:text )?size/i,
+    })
+    .or(page.getByRole("button", { name: /Character (?:text )?size.*Increase/i }));
+  const characterSizeDecrease = page
+    .getByRole("button", {
+      name: /Decrease character (?:text )?size/i,
+    })
+    .or(page.getByRole("button", { name: /Character (?:text )?size.*Decrease/i }));
+
+  await expect(romanizationSizeSlider).toBeVisible();
+  await expect(romanizationSizeSlider).toHaveValue("100");
+  await expect(characterSizeSlider).toBeVisible();
+  await expect(characterSizeSlider).toHaveValue("100");
+  await expect(romanizationSizeIncrease).toBeVisible();
+  await expect(romanizationSizeDecrease).toBeVisible();
+  await expect(characterSizeIncrease).toBeVisible();
+  await expect(characterSizeDecrease).toBeVisible();
+
+  const romanizationSizeMin = Number(
+    (await romanizationSizeSlider.getAttribute("min")) ?? "75",
+  );
+  const romanizationSizeMax = Number(
+    (await romanizationSizeSlider.getAttribute("max")) ?? "140",
+  );
+  const characterSizeMin = Number(
+    (await characterSizeSlider.getAttribute("min")) ?? "75",
+  );
+  const characterSizeMax = Number(
+    (await characterSizeSlider.getAttribute("max")) ?? "140",
+  );
+
+  const clampSetting = (value: number, min: number, max: number) =>
+    String(Math.max(min, Math.min(max, value)));
+
+  const clickUntilDisabled = async (button: Locator, slider: Locator) => {
+    for (let i = 0; i < 80; i += 1) {
+      if (!(await button.isEnabled())) {
+        break;
+      }
+
+      await button.click();
+      await page.waitForTimeout(5);
+    }
+
+    await expect(button).toBeDisabled();
+    return slider.inputValue();
+  };
+
+  await romanizationSizeIncrease.click();
+  await expect(romanizationSizeSlider).not.toHaveValue("100");
+  await romanizationSizeDecrease.click();
+  await expect(romanizationSizeSlider).toHaveValue("100");
+  await clickUntilDisabled(romanizationSizeIncrease, romanizationSizeSlider);
+  await expect(romanizationSizeDecrease).toBeEnabled();
+  await clickUntilDisabled(romanizationSizeDecrease, romanizationSizeSlider);
+  await expect(romanizationSizeIncrease).toBeEnabled();
+  await romanizationSizeSlider.fill("100");
+  await expect(romanizationSizeDecrease).toBeEnabled();
+  await expect(romanizationSizeIncrease).toBeEnabled();
+
+  await characterSizeIncrease.click();
+  await expect(characterSizeSlider).not.toHaveValue("100");
+  await characterSizeDecrease.click();
+  await expect(characterSizeSlider).toHaveValue("100");
+  await clickUntilDisabled(characterSizeIncrease, characterSizeSlider);
+  await expect(characterSizeDecrease).toBeEnabled();
+  await clickUntilDisabled(characterSizeDecrease, characterSizeSlider);
+  await characterSizeSlider.fill("100");
+  await expect(characterSizeDecrease).toBeEnabled();
+  await expect(characterSizeIncrease).toBeEnabled();
 
   const lyricsInput = page.getByRole("textbox", {
     name: "User-provided lyrics",
@@ -211,6 +328,31 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
       "[auto] 春かな",
     ].join("\n"),
   );
+  await lyricOutputPinyinBox.first().waitFor();
+
+  const basePinyinSizePx = await getFontSizePx(lyricOutputPinyinBox.first());
+  const baseHanziSizePx = await getFontSizePx(lyricOutputHanzi.first());
+  await sizeSlider.fill("130");
+  const lyricScaledPinyinPx = await getFontSizePx(lyricOutputPinyinBox.first());
+  const lyricScaledHanziPx = await getFontSizePx(lyricOutputHanzi.first());
+  expect(lyricScaledPinyinPx).toBeGreaterThan(basePinyinSizePx);
+  expect(lyricScaledHanziPx).toBeGreaterThan(baseHanziSizePx);
+
+  await romanizationSizeSlider.fill(String(romanizationSizeMax));
+  const romanizedPinyinPx = await getFontSizePx(lyricOutputPinyinBox.first());
+  const romanizedHanziPx = await getFontSizePx(lyricOutputHanzi.first());
+  expect(romanizedPinyinPx).toBeGreaterThan(lyricScaledPinyinPx);
+  expect(romanizedHanziPx).toBeCloseTo(lyricScaledHanziPx, 1);
+
+  await characterSizeSlider.fill(clampSetting(120, characterSizeMin, characterSizeMax));
+  const characterPinyinPx = await getFontSizePx(lyricOutputPinyinBox.first());
+  const characterHanziPx = await getFontSizePx(lyricOutputHanzi.first());
+  expect(characterPinyinPx).toBeCloseTo(romanizedPinyinPx, 1);
+  expect(characterHanziPx).toBeGreaterThan(romanizedHanziPx);
+
+  await sizeSlider.fill("100");
+  await romanizationSizeSlider.fill("100");
+  await characterSizeSlider.fill("100");
 
   await expect(page.getByTestId("pinyin-line-1")).toHaveAttribute(
     "data-language",
@@ -395,11 +537,25 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
     "[auto] 春かな",
   ].join("\n");
   const persistedCustomTrack = "cue1 cue2 cue3 cue4";
+  const persistedRomanizationSize = clampSetting(
+    120,
+    romanizationSizeMin,
+    romanizationSizeMax,
+  );
+  const persistedCharacterSize = clampSetting(
+    120,
+    characterSizeMin,
+    characterSizeMax,
+  );
 
   await lyricsInput.fill(persistedLyrics);
   await sizeSlider.fill("130");
   await expect(sizeSlider).toHaveValue("130");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
+  await romanizationSizeSlider.fill(persistedRomanizationSize);
+  await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
+  await characterSizeSlider.fill(persistedCharacterSize);
+  await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
   await oledThemeButton.click();
   await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
   await expect(lightThemeButton).toHaveAttribute("aria-pressed", "false");
@@ -413,6 +569,9 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await useCustomTrackCheckbox.check();
   await expect(useCustomTrackCheckbox).toBeChecked();
   await customTrackTextarea.fill(persistedCustomTrack);
+
+  const persistedPinyinFontPx = await getFontSizePx(lyricOutputPinyinBox.first());
+  const persistedHanziFontPx = await getFontSizePx(lyricOutputHanzi.first());
 
   await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
   await expect(page.getByTestId("pinyin-line-2")).toContainText("か");
@@ -446,6 +605,16 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
   await expect(sizeSlider).toHaveValue("130");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
+  await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
+  await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
+  await expect(getFontSizePx(lyricOutputPinyinBox.first())).resolves.toBeCloseTo(
+    persistedPinyinFontPx,
+    1,
+  );
+  await expect(getFontSizePx(lyricOutputHanzi.first())).resolves.toBeCloseTo(
+    persistedHanziFontPx,
+    1,
+  );
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator(".writing-guide")).toHaveCount(0);
   await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
@@ -463,6 +632,8 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
   await expect(sizeSlider).toHaveValue("130");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
+  await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
+  await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator(".writing-guide")).toHaveCount(0);
 
@@ -475,6 +646,8 @@ test("renders the static 八方来财 pinyin practice mode", async ({ page }) =>
   await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
   await expect(sizeSlider).toHaveValue("130");
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
+  await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
+  await expect(characterSizeSlider).toHaveValue(persistedCharacterSize);
 
   await expect(page.getByRole("link", { name: "Workspace" })).toBeVisible();
   expect(errors).toEqual([]);
