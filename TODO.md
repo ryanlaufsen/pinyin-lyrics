@@ -154,6 +154,8 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Host Node still warns as `v21.7.2`, below the repo target, so DEVOPS-001 remains open for environment parity.
 - Evidence Required:
   - Commit `fbe32cd` added the lyric box text-size controls.
+  - GitHub Pages workflow run `25795539053` deployed the box-size controls with the accessibility/layout follow-up.
+  - Direct static route smoke check returned `HTTP/2 200`.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
@@ -179,6 +181,8 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Evidence Required:
   - UX/accessibility audit measured previous dark/OLED component boundaries around `1.3-1.6:1`; updated palette raises dark panel/control/input boundaries to `3.17:1`, `3.23:1`, and `3.28:1`, and OLED panel/control/input boundaries to `3.19:1`, `3.54:1`, and `3.54:1`.
   - Commit `6f5ccbb` improved Dark/OLED accessibility metrics, lyric input/ad layout, heading spacing, and e2e coverage.
+  - GitHub Pages workflow run `25795539053` completed successfully.
+  - Direct static route smoke check returned `HTTP/2 200`.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.

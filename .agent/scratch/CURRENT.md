@@ -78,4 +78,7 @@
 - Latest Pages workflow run `25793216226` passed on 2026-05-13 UTC.
 - Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
 - Latest implementation commits: `fbe32cd` (`Add lyric box text size controls`) and `6f5ccbb` (`Improve static reader dark layout accessibility`).
-- Current branch state has uncommitted FE-006/FE-007 coordination docs; commit, push, watch Pages, smoke the static route, then record deployment bookkeeping with `[skip ci]`.
+- Latest handoff commit: `f6aca2b` (`Record static reader accessibility handoff`).
+- Latest Pages workflow run `25795539053` passed on 2026-05-13 UTC.
+- Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
+- Current branch state has only post-deploy FE-006/FE-007 bookkeeping edits; commit with `[skip ci]` before final handoff.
