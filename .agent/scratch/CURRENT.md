@@ -23,10 +23,13 @@
 - Before production, every committed route/workflow/language mode/accessibility-critical interaction/deployment smoke path needs Playwright e2e coverage or an explicit tracked exception.
 - UX Research Manager and UI Design Manager are first-class managers for core reader/import workflow decisions before frontend implementation starts.
 - Security/legal and accessibility gaps should be treated as blockers when they affect lyric ingestion, stored content, keyboard access, screen-reader naming, CJK readability, or mobile density.
+- 5M/month growth path is CDN-first static shell plus API/data/jobs later. GitHub Pages is prototype/demo hosting only because bandwidth and commercial-growth assumptions do not fit the target.
+- Public SEO growth must use legal song-practice shells and tools, not copied full lyrics or full romanized copyrighted lyrics.
 
 ## Next Useful Work
 
-- Assign SEC-001, UXR-001, UID-001, and continue DEVOPS-001 before implementing the reader/import workspace.
+- Continue `ORCH-003` 5M monthly views readiness epic. Highest-risk next cards: `SEC-002`, `DATA-002`, `RZN-001`, `RZN-002`, `ARCH-001`, `DEVOPS-002`, `DEVOPS-003`, `DEVOPS-005`, `SEO-001`, and `QA-004`.
+- Assign SEC-001/SEC-002, UXR-001, UID-001, and continue DEVOPS-001 before implementing server-side reader/import persistence.
 - Rerun install and quality gates with Node 22.12+ or Node 24+ and pnpm 10.33.4 active.
 - Replace the current home smoke test with route-contract e2e coverage.
 - Full release gates still need Node 22.12+ or 24+, but targeted static mode checks passed with Corepack pnpm 10.33.4.
@@ -43,12 +46,15 @@
 - Latest feature commit: `0ba55bf` (`Add multilingual static lyric controls`).
 - Latest Pages workflow run `25784999603` passed on 2026-05-13 UTC.
 - Static route now has mixed-language rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls.
-- Completed local work: `FE-003` dark/OLED static reader themes, `FE-004` custom/Cantonese romanization tracks, `FE-005` local static-reader persistence, `FE-006` independent lyric-box text sizing, `FE-007` dark/OLED accessibility plus lyric workspace layout, and `REV-001` static reader ad slot geometry are verified locally.
+- Completed local work: `FE-003` dark/OLED static reader themes, `FE-004` custom/Cantonese romanization tracks, `FE-005` local static-reader persistence, `FE-006` independent lyric-box text sizing, `FE-007` dark/OLED accessibility plus lyric workspace layout, `REV-001` static reader ad slot geometry, and `FE-008` static first-load reduction are verified locally.
 - Dark/OLED, romanization, persistence, box sizing, and accessibility/layout subagents were closed after completion. No stale subagent ownership remains.
 - Static reader now has page-level Light/Dark/OLED theme state, measured dark/OLED contrast tokens, restrained OLED surfaces, visible focus rings, a Chinese romanization switch (`Pinyin`, `Jyutping`, `Cantonese`), a line-aligned custom romanization track, independent romanization/character text-size scales inside lyric boxes, and a half-width desktop lyric editing column paired with a policy-labeled responsive ad slot.
 - Static reader persists pasted lyrics, custom romanization track, custom-track state, theme, Chinese script, Chinese romanization mode, lyric text size, romanization text size, character text size, and writing guide visibility to localStorage key `pinyin-lyrics:static-bafang:v1`.
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
-- Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts` passed with Corepack pnpm 10.33.4. Commands still warn that host Node is `v21.7.2`.
+- Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and targeted e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts` passed with Corepack pnpm 10.33.4. Commands still warn that host Node is `v21.7.2`.
+- SEO/static foundation now includes root/static route metadata, canonical URLs, sitemap, robots, manifest, SVG icon, and e2e metadata route coverage.
+- Static reader now lazy-loads `pinyin-pro`, `to-jyutping`, `opencc-js`, and `wanakana` after user input/settings require them; first-render static route chunk scan found about `659 KB` of referenced chunks after the change.
+- Cantonese/Jyutping missing readings now preserve source-character slots; e2e covers a blank-in-the-middle regression.
 - Latest local accessibility metrics: dark panel/control/input boundaries are `3.17:1`, `3.23:1`, and `3.28:1`; OLED panel/control/input boundaries are `3.19:1`, `3.54:1`, and `3.54:1`; dark/OLED panel text is `12.28:1` and `12.85:1`.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
 - Add the first Prisma schema for songs, lyric lines, romanization runs, and language settings.
@@ -85,4 +91,5 @@
 - Latest ad optimization handoff commit: `0981699` (`Record AdSense slot optimization handoff`).
 - Latest Pages workflow run `25796125840` passed on 2026-05-13 UTC.
 - Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
-- Current branch state has only post-deploy REV-001 bookkeeping edits; commit with `[skip ci]` before final handoff.
+- Latest scale-readiness implementation commits: `c0367a2` (`Add SEO foundation and Jyutping alignment guard`) and `a491aaf` (`Lazy-load static romanization engines`).
+- Current branch state has uncommitted ORCH-003 docs/board/devlog/e2e matrix updates; commit, push, watch Pages, smoke the static route and metadata routes, then record deployment bookkeeping with `[skip ci]`.

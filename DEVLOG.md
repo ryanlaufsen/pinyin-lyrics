@@ -2,6 +2,18 @@
 
 ## 2026-05-13
 
+- Started the 5M monthly views readiness epic as `ORCH-003`, using parallel council tracks for Architecture/DevOps, Romanization/NLP, Product/Growth/UX, Security/Legal/Data, and Frontend/SEO/Performance.
+- Council conclusion: 5M monthly views is realistic only with a CDN-first static shell, reduced first-load JS, legal song-practice shells instead of copied lyrics, versioned romanization adapters, provenance/ACL/moderation before public lyric storage, production CI gates, observability, and load testing. GitHub Pages remains a prototype/demo host, not the growth architecture.
+- Added `docs/strategy/5m-monthly-views-plan.md` for target segments, legal growth loops, SEO/social strategy, retention metrics, and non-negotiables.
+- Added `docs/architecture/5m-production-architecture.md` with capacity math, CDN/API/data/job split, current bottlenecks, and required production gates.
+- Added SEO/static discovery foundation: root metadata defaults, route-specific static reader metadata, canonical URLs, robots, sitemap, manifest, and a legally clean SVG icon.
+- Added `apps/web/tests/e2e/seo-static.spec.ts` and expanded home/static e2e coverage for metadata routes, canonical tags, OG/Twitter tags, manifest, and absence of known copyrighted lyric text.
+- Fixed a Cantonese/Jyutping alignment bug where blank Jyutping readings could shift later readings onto the wrong Hanzi; missing readings now preserve their slot and e2e covers a blank-in-the-middle regression.
+- Lazy-loaded heavy static romanization engines (`pinyin-pro`, `to-jyutping`, `opencc-js`, `wanakana`) so the static shell and title practice do not load dictionaries/converters before pasted lyrics or script/romanization settings need them.
+- Static export first-render chunk scan after lazy loading found about `659 KB` of referenced chunks for `/static/bafang-laicai/`; automated budget checks remain a DEVOPS-003 follow-up.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and targeted e2e for `home.spec.ts`, `static-bafang.spec.ts`, and `seo-static.spec.ts`. Commands still warn that host Node is `v21.7.2`.
+- Commit `c0367a2` added SEO foundation, metadata routes, manifest/icon, SEO e2e, and the Jyutping alignment guard.
+- Commit `a491aaf` lazy-loaded static romanization engines.
 - Added Light, Dark, and OLED theme modes to the static `八方来财` reader, with the theme applied to the full static route shell instead of only the inner panel.
 - UX/UI council review pushed the final theme direction: page-level theming, dedicated pinyin/Hanzi/focus/border tokens, restrained OLED surfaces, readable dark study tiles, and visible focus states across controls.
 - Added semantic static-reader tokens for page/header/panel surfaces, tiered borders, pinyin text, Hanzi text, tile color mixes, guide lines, focus rings, and active segmented controls.

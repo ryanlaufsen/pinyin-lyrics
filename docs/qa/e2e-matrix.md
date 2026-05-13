@@ -19,6 +19,7 @@ Before production, every committed user-facing route, critical workflow, support
 | ---------------------------------------------- | --------- | --------- | ----------------- | ------------------------ | ------------------------------------------------------------------------------------- |
 | `/` reader workspace                           | Required  | Required  | Blocked Exception | QA/Accessibility Manager | Current `home.spec.ts` is smoke-only and must be replaced by route-contract coverage. |
 | `/static/bafang-laicai` static pinyin practice | Automated | Automated | Automated         | QA/Accessibility Manager | `apps/web/tests/e2e/static-bafang.spec.ts` passed in desktop and mobile Chromium, including mixed-language user-provided line rendering. |
+| Metadata routes: `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest` | Automated | Automated | Automated | SEO/Growth Manager | `seo-static.spec.ts` covers robots, sitemap, manifest, canonical metadata, and social tags on desktop/mobile projects. |
 
 ## Critical Workflows
 
@@ -33,6 +34,7 @@ Before production, every committed user-facing route, critical workflow, support
 | Static reader local persistence               | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers reload persistence for pasted lyrics, custom track, theme, script, romanization mode, text size, guide state, and Clear behavior. |
 | Static lyric box text sizing                  | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers romanization and character size sliders, plus/minus bounds, computed font-size effects, and reload persistence. |
 | Static lyric editing/ad layout                | Automated         | UI Design Manager        | `static-bafang.spec.ts` covers desktop half-width lyrics/custom-input column plus responsive ad slot, mobile stacking, policy-safe `Advertisements` label, minimum slot geometry, and label spacing. |
+| Static SEO metadata and app manifest          | Automated         | SEO/Growth Manager       | `home.spec.ts` and `seo-static.spec.ts` cover title, description, canonical, manifest, OG/Twitter tags, robots, sitemap, and manifest name. |
 | Original/Romanized/Split/Study mode switching | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001.                        |
 | Language settings                             | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001 and RZN-001.            |
 | Reader settings and typography density        | Not Yet Committed | QA/Accessibility Manager | Depends on UID-001 and FE-001.            |
@@ -45,7 +47,7 @@ Before production, every committed user-facing route, critical workflow, support
 | Mode                           | Status            | Owner                    | Evidence                                                                                                                                         |
 | ------------------------------ | ----------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Chinese pinyin                 | Automated         | Romanization/NLP Manager | Static title-character and user-provided Chinese line pinyin with tone marks are covered by `static-bafang.spec.ts`; broader adapter coverage is not committed yet. |
-| Cantonese Jyutping             | Automated         | Romanization/NLP Manager | Static Chinese lyric Jyutping is covered by `static-bafang.spec.ts` using `to-jyutping@3.1.1`; broader adapter coverage remains future work. |
+| Cantonese Jyutping             | Automated         | Romanization/NLP Manager | Static Chinese lyric Jyutping is covered by `static-bafang.spec.ts` using `to-jyutping@3.1.1`, including a missing-reading alignment regression; broader adapter coverage remains future work. |
 | Cantonese Pinyin-style output  | Automated         | Romanization/NLP Manager | Static Chinese lyric Cantonese Pinyin-style entering-tone conversion is covered by `static-bafang.spec.ts`. |
 | Japanese romaji                | Automated         | Romanization/NLP Manager | Static kana romaji is covered by `static-bafang.spec.ts`; Japanese kanji readings remain unclaimed until dictionary-backed adapter coverage lands. |
 | Korean romanization            | Automated         | Romanization/NLP Manager | Static Hangul syllable romanization is covered by `static-bafang.spec.ts`; broader adapter coverage is not committed yet. |
@@ -72,6 +74,7 @@ Before production, every committed user-facing route, critical workflow, support
 | Dev server plus Playwright                                  | Blocked Exception | DevOps/System Engineering Manager | Host shell resolves to Node 21.7.2/pnpm 8.6.12 for plain scripts; rerun under Node 22.12+ or 24+ with pnpm 10.33.4.     |
 | Static export with `STATIC_EXPORT=1 next build`             | Automated         | DevOps/System Engineering Manager | `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.                   |
 | GitHub Pages static export with `/pinyin-lyrics` base path  | Automated         | DevOps/System Engineering Manager | `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed. |
+| Static route first-load chunk scan                         | Automated         | DevOps/System Engineering Manager | Manual export scan after lazy-loading romanization engines found about `659 KB` of first-render chunks for `/static/bafang-laicai/`; automated budget still needed. |
 | Production `pnpm build` plus `pnpm start`                   | Blocked Exception | DevOps/System Engineering Manager | Dependency install succeeded with Corepack pnpm 10.33.4, but build/start not yet verified under the correct host shell. |
 | Dockerfile image                                            | Blocked Exception | DevOps/System Engineering Manager | Docker CLI unavailable in this WSL distro.                                                                              |
 | `docker compose up --build` with PostgreSQL/Redis readiness | Blocked Exception | DevOps/System Engineering Manager | Docker CLI unavailable in this WSL distro.                                                                              |

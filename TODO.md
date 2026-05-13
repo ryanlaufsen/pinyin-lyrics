@@ -7,7 +7,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 ## Board Rules
 
 - Every non-trivial task gets a card ID before implementation starts.
-- Card IDs use the owning discipline prefix: `ORCH`, `UXR`, `UID`, `FE`, `RZN`, `DATA`, `DEVOPS`, `QA`, or `SEC`.
+- Card IDs use the owning discipline prefix: `ORCH`, `ARCH`, `UXR`, `UID`, `FE`, `RZN`, `DATA`, `DEVOPS`, `QA`, `SEC`, `SEO`, or `REV`.
 - Valid statuses: `Backlog`, `Ready`, `In Progress`, `Blocked`, `Review`, `Done`.
 - Valid priorities: `P0`, `P1`, `P2`, `P3`. `P0` means legal, data loss, security, missing required e2e coverage, accessibility blocker, or broken core workflow.
 - Each active card must name one primary manager, supporting managers, acceptance criteria, blockers/dependencies, and evidence required.
@@ -24,6 +24,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 | Manager                           | Primary Responsibility                                                                          |
 | --------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Orchestrator                      | Board hygiene, sequencing, ownership boundaries, integration, final verification.               |
+| Architecture Manager              | CDN/API/data/job boundaries, scale assumptions, capacity tradeoffs, production topology.         |
 | UX Research Manager               | User needs, task flows, research plans, reading-comfort validation, learner workflow evidence.  |
 | UI Design Manager                 | Interface structure, interaction patterns, CJK typography, visual density, design QA.           |
 | Frontend Manager                  | Next.js/React implementation, client/server component boundaries, UI state, keyboard workflows. |
@@ -32,6 +33,8 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 | DevOps/System Engineering Manager | Docker, local services, dependency install, CI-style checks, environment gaps.                  |
 | QA/Accessibility Manager          | Test strategy, Playwright/Vitest coverage, keyboard/screen-reader checks, responsive QA.        |
 | Security/Legal Manager            | Copyright handling, input safety, data retention, permissions, threat modeling.                 |
+| SEO/Growth Manager                | Crawlable legal surfaces, metadata, acquisition loops, Search Console, helpful-content strategy. |
+| Revenue/Monetization Manager      | Ad policy, route-level ad eligibility, RPM/viewability tracking, monetization experiments.       |
 
 ## In Progress
 
@@ -55,6 +58,29 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false` succeeded on 2026-05-12 and generated `pnpm-lock.yaml`.
   - DevOps manager reported full dependency materialization succeeded with Corepack pnpm 10.33.4.
   - Quality gates still need rerun under Node 22.12+ or 24+ with pnpm 10.33.4.
+
+### ORCH-003: Coordinate 5M Monthly Views Readiness Epic
+
+- Status: `In Progress`
+- Priority: `P0`
+- Primary Manager: Orchestrator
+- Supporting Managers: Architecture Manager, UX Research Manager, UI Design Manager, Frontend Manager, Romanization/NLP Manager, Data Manager, DevOps/System Engineering Manager, QA/Accessibility Manager, Security/Legal Manager, SEO/Growth Manager, Revenue/Monetization Manager
+- Goal: Turn the static prototype into a legally clean, scalable CJK song-romanization product capable of reaching and serving 5M monthly pageviews.
+- Acceptance Criteria:
+  - Expert council tracks produce clear P0/P1 cards for product/growth, legal/data, romanization accuracy, architecture, frontend performance, QA, and monetization.
+  - Public growth strategy targets diaspora and heritage CJK music users in Western/westernized markets without indexing full copyrighted lyrics.
+  - Production architecture defines CDN/static shell, API/data, cache, and worker boundaries.
+  - Legal blockers for public lyric storage/sharing are explicit and block dependent cards.
+  - First safe implementation increment improves discovery/performance without increasing copyright risk.
+  - Handoff docs record current capacity assumptions, traffic math, and next highest-risk work.
+- Blockers/Dependencies:
+  - Public indexed lyric pages are blocked until SEC-002, DATA-002, and moderation/takedown rules are done.
+  - GitHub Pages remains prototype hosting; DEVOPS-002 must choose production CDN/app hosting before scale launch.
+- Evidence Required:
+  - `docs/strategy/5m-monthly-views-plan.md` created.
+  - `docs/architecture/5m-production-architecture.md` created.
+  - Council reports summarized in `DEVLOG.md`.
+  - Implementation commits for SEO foundation, Jyutping alignment guard, and lazy-loaded romanization engines.
 
 ## Done
 
@@ -217,6 +243,27 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
+### FE-008: Reduce Static Reader First-Load Work
+
+- Status: `Done`
+- Priority: `P0`
+- Primary Manager: Frontend Manager
+- Supporting Managers: Architecture Manager, DevOps/System Engineering Manager, QA/Accessibility Manager, Romanization/NLP Manager
+- Goal: Make the static reader shell lighter so high-volume CDN traffic and mobile users do not pay for heavy romanization dictionaries before pasting lyrics.
+- Acceptance Criteria:
+  - Heavy romanization/conversion engines are not top-level imports in the static reader client component.
+  - Title practice renders without loading pinyin/Jyutping/OpenCC/romaji engines.
+  - Engines load on demand when pasted lyrics, script conversion, custom track text, or non-default Chinese romanization modes require them.
+  - Existing static reader behavior still passes desktop and mobile e2e coverage.
+  - Static export confirms metadata routes and reader route still prerender successfully.
+- Blockers/Dependencies:
+  - Broader bundle budgets and workerization remain on DEVOPS-003/DEVOPS-005.
+- Evidence Required:
+  - Commit `a491aaf` lazy-loaded static romanization engines.
+  - Pages-base static export passed after lazy-loading engines.
+  - Targeted e2e suite passed for home, static reader, and SEO metadata routes.
+  - Static export first-render chunk scan showed about `659 KB` of referenced chunks for `/static/bafang-laicai/` after the change; broader bundle budget automation remains needed.
+
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 
 - Status: `Done`
@@ -365,15 +412,16 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 ### RZN-001: Define Romanization Adapter Accuracy Plan
 
 - Status: `Ready`
-- Priority: `P1`
+- Priority: `P0`
 - Primary Manager: Romanization/NLP Manager
 - Supporting Managers: Data Manager, QA/Accessibility Manager, UX Research Manager
 - Goal: Specify versioned adapter behavior and fixture coverage for Chinese pinyin, Japanese romaji, and Korean romanization.
 - Acceptance Criteria:
-  - Defines adapter contract, settings versioning, override dictionary expectations, and reproducibility rules.
+  - Defines adapter contract for language spans, romanization requests, tokens, alternatives, warnings, corrections, settings versioning, override dictionary expectations, and reproducibility rules.
   - Includes known edge-case fixture categories for CJK segmentation, heteronyms, kana/kanji, hangul, mixed script, punctuation, and repeated lyric lines.
   - Makes accuracy limitations visible to product/design without overstating language quality.
   - Separates canonical lyric text from generated annotations in all recommendations.
+  - Blocks best-in-class claims until fixture metrics exist.
 - Blockers/Dependencies:
   - Depends on Data Manager schema decisions from DATA-001 for persistence shape.
   - Needs UX Research Manager feedback on learner-facing correction workflows.
@@ -473,6 +521,210 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Evidence Required:
   - Legal/security decision note in `DEVLOG.md` or `docs/`.
   - Review sign-off captured on dependent cards.
+
+### ARCH-001: Define 5M Production Architecture Split
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: Architecture Manager
+- Supporting Managers: DevOps/System Engineering Manager, Data Manager, Security/Legal Manager, Romanization/NLP Manager, Frontend Manager
+- Goal: Define the production split between CDN-static shell, API service, database, cache, and romanization workers.
+- Acceptance Criteria:
+  - Capacity assumptions cover average, peak, and viral traffic for 5M monthly pageviews.
+  - Architecture separates static shell, API/data, cache, and async romanization jobs.
+  - Cache keys include access control, provenance state, adapter version, dictionary version, and settings.
+  - Defines migration path from GitHub Pages prototype to a real CDN/custom-domain production host.
+  - Defines SLOs for CDN TTFB, API p95, job completion p95, error rate, and bundle weight.
+- Blockers/Dependencies:
+  - Public persistence decisions depend on SEC-002 and DATA-002.
+- Evidence Required:
+  - `docs/architecture/5m-production-architecture.md` baseline created.
+  - Follow-up decision record after hosting choice and data/job topology are selected.
+
+### DEVOPS-002: Choose Production CDN And Hosting Path
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: DevOps/System Engineering Manager
+- Supporting Managers: Architecture Manager, SEO/Growth Manager, Revenue/Monetization Manager
+- Goal: Retire GitHub Pages as the growth target and choose production hosting for 5M monthly pageviews.
+- Acceptance Criteria:
+  - Compares Cloudflare Pages, Vercel, Netlify, and S3/CloudFront/Fastly for bandwidth, cache control, dynamic/API path, deploy previews, cost, and operational burden.
+  - Defines custom domain, cache headers, purge behavior, WAF/bot controls, compression, and security header strategy.
+  - Keeps GitHub Pages available only as a prototype/demo path unless evidence says otherwise.
+- Blockers/Dependencies:
+  - Needs ARCH-001 capacity assumptions.
+- Evidence Required:
+  - Hosting decision record and migration checklist.
+
+### DEVOPS-003: Add Production CI And Deploy Gates
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: DevOps/System Engineering Manager
+- Supporting Managers: QA/Accessibility Manager, Frontend Manager, Architecture Manager
+- Goal: Prevent deploy-only workflows from shipping unverified code.
+- Acceptance Criteria:
+  - CI runs lint, typecheck, unit tests, e2e, static export, production build/start smoke, Docker build, and compose smoke or tracked exceptions.
+  - GitHub Pages or future production deploy waits on quality gates.
+  - Deployed smoke checks verify public routes, metadata routes, and static asset cache headers.
+  - Bundle budget check fails oversized static route first-load JS or oversized single chunks.
+- Blockers/Dependencies:
+  - Host Node/Docker parity from DEVOPS-001 remains open.
+- Evidence Required:
+  - Workflow diff and passing run.
+
+### DEVOPS-004: Add Observability And RUM
+
+- Status: `Ready`
+- Priority: `P1`
+- Primary Manager: DevOps/System Engineering Manager
+- Supporting Managers: Security/Legal Manager, Revenue/Monetization Manager, SEO/Growth Manager
+- Goal: Measure user experience, traffic, errors, and monetization without collecting lyric text.
+- Acceptance Criteria:
+  - Adds privacy-preserving analytics/RUM with lyric input redaction and no session replay over text areas.
+  - Tracks route traffic, Core Web Vitals, JS errors, CDN TTFB, LCP, ad viewability, and RPM by route type.
+  - Adds uptime checks for public routes and metadata routes.
+  - Documents data retention and privacy policy implications.
+- Blockers/Dependencies:
+  - Depends on SEC-003 threat model for lyric text/logging.
+- Evidence Required:
+  - Observability decision doc and implementation diff.
+
+### DEVOPS-005: Build Load Test Harness And Capacity Budget
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: DevOps/System Engineering Manager
+- Supporting Managers: Architecture Manager, QA/Accessibility Manager, Romanization/NLP Manager
+- Goal: Prove the app can handle expected traffic and paste/romanization storms before claiming production scale.
+- Acceptance Criteria:
+  - Load tests model 2, 20, 50, and 200 pageviews/sec static traffic with warm and cold cache assumptions.
+  - API tests model saved settings/documents, cached reads, abuse-rate paste/edit storms, and rate limits once APIs exist.
+  - Romanization job tests cover 500, 2k, 5k, and 20k CJK characters with duplicate submissions and retries.
+  - Capacity budget records pass/fail thresholds and monthly bandwidth estimates.
+- Blockers/Dependencies:
+  - API/job tests depend on ARCH-001 and RZN-001/RZN-002 implementation surfaces.
+- Evidence Required:
+  - Load-test scripts and baseline report.
+
+### SEO-001: Build Crawlable Legal Song Practice Shell System
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: SEO/Growth Manager
+- Supporting Managers: Security/Legal Manager, UX Research Manager, Frontend Manager, Romanization/NLP Manager, Revenue/Monetization Manager
+- Goal: Create scalable SEO pages for song romanization intent without republishing copyrighted lyrics.
+- Acceptance Criteria:
+  - Defines crawlable song-shell routes for pinyin, Jyutping, romaji, Korean romanization, and tools.
+  - Pages contain metadata, settings, pronunciation notes, title practice, and local paste workspace only unless rights-cleared.
+  - Sitemap, canonical, OG/Twitter metadata, structured data, and noindex/index rules are test-covered.
+  - Public pages avoid full copyrighted lyrics, full romanized copyrighted lyrics, hidden JSON lyric payloads, and copied snippets.
+  - Search Console indexing and helpful-content metrics are tracked after launch.
+- Blockers/Dependencies:
+  - Public user-generated pages depend on SEC-002 and DATA-002.
+- Evidence Required:
+  - Route implementation, e2e metadata tests, and copyright-leak tests.
+
+### SEC-002: Define Public Sharing, DMCA, And Takedown Policy
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: Security/Legal Manager
+- Supporting Managers: Data Manager, SEO/Growth Manager, Revenue/Monetization Manager, QA/Accessibility Manager
+- Goal: Block copyright/privacy disaster before public sharing or indexed UGC exists.
+- Acceptance Criteria:
+  - Defines public/private/noindex rules, ad eligibility rules, share grants, takedown process, repeat-infringer policy, and moderation states.
+  - States that full copyrighted lyrics and full romanized copyrighted lyrics cannot be public unless licensed or rights-cleared.
+  - Defines DMCA/contact path and rapid disable workflow.
+  - Defines when ads must be disabled on UGC or unreviewed pages.
+- Blockers/Dependencies:
+  - Blocks public UGC, public lyric pages, and global lyric-derived caches.
+- Evidence Required:
+  - Legal/security decision doc and board sign-off.
+
+### SEC-003: Threat Model Lyrics, Analytics, Ads, And Jobs
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: Security/Legal Manager
+- Supporting Managers: DevOps/System Engineering Manager, Data Manager, Frontend Manager, Revenue/Monetization Manager
+- Goal: Prevent sensitive lyric text, custom tracks, notes, and private documents from leaking through logs, analytics, ads, jobs, or error reporting.
+- Acceptance Criteria:
+  - Identifies all lyric-text sinks: localStorage, API payloads, logs, analytics, RUM, errors, job queues, caches, backups, exports, and ads.
+  - Defines redaction, retention, deletion, backup expiry, export, and access-control requirements.
+  - Requires no session replay or textarea capture on lyric surfaces.
+  - Defines rate limits, abuse controls, and safe logging for public and private workflows.
+- Blockers/Dependencies:
+  - Blocks observability and server-side persistence.
+- Evidence Required:
+  - Threat model document and test checklist.
+
+### DATA-002: Add Provenance, Ownership, Visibility, And Moderation Schema
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: Data Manager
+- Supporting Managers: Security/Legal Manager, Romanization/NLP Manager, Architecture Manager
+- Goal: Replace naive lyric persistence with rights-aware private/public document modeling.
+- Acceptance Criteria:
+  - Adds owner/session, lyric document, visibility, rights provenance, share grants, takedown/moderation flags, deletion jobs, audit events, and adapter/run metadata.
+  - Lyric-derived tokens inherit access control and rights state from source documents.
+  - Public render APIs refuse documents without approved provenance/license.
+  - Cache keys include document/owner ACL and rights state.
+- Blockers/Dependencies:
+  - Depends on SEC-002 and RZN-001.
+- Evidence Required:
+  - Prisma schema/migration diff and security review.
+
+### RZN-002: Build Legally Clean Romanization Gold Corpus
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: Romanization/NLP Manager
+- Supporting Managers: QA/Accessibility Manager, UX Research Manager, Security/Legal Manager
+- Goal: Create fixture/evaluation coverage before accuracy claims expand.
+- Acceptance Criteria:
+  - Adds legally clean synthetic/public-domain fixtures for Mandarin, Cantonese, Japanese, Korean, Hanja/Hanzi/Kanji, mixed CJK/Latin, punctuation, and custom-track mismatches.
+  - Tracks exact reading accuracy, span alignment accuracy, OOV rate, ambiguity surfaced rate, and correction persistence.
+  - Does not use scraped or copyrighted song lyrics.
+- Blockers/Dependencies:
+  - Needs SEC-001/SEC-002 provenance rules.
+- Evidence Required:
+  - Fixture files, evaluation tests, and source/provenance notes.
+
+### RZN-003: Prevent Romanization Alignment Drift
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: Romanization/NLP Manager
+- Supporting Managers: Frontend Manager, QA/Accessibility Manager
+- Goal: Ensure unknown or blank readings never shift later readings onto the wrong CJK character.
+- Acceptance Criteria:
+  - Cantonese/Jyutping missing readings preserve one slot per source Hanzi.
+  - Pinyin/Japanese/Korean adapters expose alignment diagnostics for missing readings.
+  - UI renders blanks visibly without silently reassigning subsequent readings.
+  - Tests cover missing readings in the middle of a line.
+- Blockers/Dependencies:
+  - Broader adapter diagnostics depend on RZN-001.
+- Evidence Required:
+  - Static Jyutping guard shipped in commit `c0367a2`; broader adapter tests still required.
+
+### QA-004: Add Copyright Leakage And Growth Route Gates
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: QA/Accessibility Manager
+- Supporting Managers: Security/Legal Manager, SEO/Growth Manager, Senior Dev, Expert QA
+- Goal: Prove public routes, fixtures, metadata, static output, and screenshots do not leak copyrighted lyrics while growth pages expand.
+- Acceptance Criteria:
+  - Tests scan source fixtures, static output, route metadata, JSON payloads, and screenshots for banned copyrighted lyric strings.
+  - Public route e2e asserts canonical metadata, index/noindex state, legal copy, no full lyric payloads, keyboard path, mobile path, and no console/page errors.
+  - Exception ledger records any unautomated coverage with owner and expiry.
+- Blockers/Dependencies:
+  - Depends on SEO-001 route surfaces and SEC-002 policy.
+- Evidence Required:
+  - Playwright/unit tests and matrix updates.
 
 ## Backlog
 
