@@ -46,4 +46,4 @@
 - DevOps manager reported full dependency materialization with Corepack pnpm 10.33.4 succeeded.
 - Build/test/lint commands have not passed yet in this host shell because plain scripts resolve to the wrong pnpm/Node environment.
 - Docker Compose file has not been validated because `docker` is not available in this WSL distro.
-- GitHub publish is blocked until a private repo remote/auth path exists. Current environment has no Git remote, no `gh` CLI, and no `GITHUB_TOKEN`/`GH_TOKEN`.
+- GitHub publish complete: `origin` is `https://github.com/ryanlaufsen/pinyin-lyrics.git`, visibility verified private, default branch `main`.

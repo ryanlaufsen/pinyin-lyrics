@@ -13,6 +13,7 @@
 - DevOps manager reported `corepack pnpm@10.33.4 install --ignore-scripts --config.engine-strict=false` succeeded, but plain root scripts still resolve to host `pnpm 8.6.12`.
 - Fast-forwarded `main` to include `chore/agent-board-dependency-sync`; latest project commit before publish attempt was `679d51c`.
 - Publish attempt blocked: no Git remote is configured, GitHub CLI is not installed in WSL or Windows host, and no `GITHUB_TOKEN`/`GH_TOKEN` environment variable is present. The available GitHub connector can write to existing repos but does not expose private repository creation.
+- Installed GitHub CLI v2.92.0 locally under `/tmp`, authenticated via GitHub device login as `ryanlaufsen`, created private repo `ryanlaufsen/pinyin-lyrics`, set `origin`, and pushed `main`.
 - Used the Codex GitHub connector to fetch the Next.js `deploy-github-pages` template `next.config.ts`; adapted the static export pattern behind `STATIC_EXPORT=1` while keeping standalone Docker/server output as the default.
 - Added `FE-002` static `八方来财` pinyin practice mode using only title/artist metadata and title-character practice content, not bundled lyrics.
 - Added monospace tone-mark pinyin boxes, pastel character boxes, and a toggleable light eight-quadrant dashed writing guide.
