@@ -109,6 +109,32 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
   - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
 
+### FE-005: Persist Static Reader State Locally
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: QA/Accessibility Manager, UX Research Manager, DevOps/System Engineering Manager
+- Goal: Persist the static reader's pasted lyric text, custom romanization track, and reader settings in browser local storage so users can resume after reload.
+- Acceptance Criteria:
+  - Pasted lyric text persists across reloads.
+  - Custom romanization track text and `Use custom track` state persist across reloads.
+  - Theme, Chinese script, Chinese romanization mode, lyric text size, and writing guide visibility persist across reloads.
+  - Stored data is versioned and validated before being applied.
+  - Corrupt or invalid stored data is ignored without crashing the route.
+  - Initial default state is not written over stored user data before hydration completes.
+  - `Clear lyrics input` clears pasted lyrics while preserving custom track text and reader settings.
+  - E2E coverage verifies persistence and clear behavior through page reloads on desktop and mobile.
+- Blockers/Dependencies:
+  - Host Node still warns as `v21.7.2`, below the repo target, so DEVOPS-001 remains open for environment parity.
+- Evidence Required:
+  - Versioned key `pinyin-lyrics:static-bafang:v1` added for static reader state.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web lint` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web typecheck` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @pinyin-lyrics/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+
 ### ORCH-001: Establish Product/UX Board And Coordination Discipline
 
 - Status: `Done`

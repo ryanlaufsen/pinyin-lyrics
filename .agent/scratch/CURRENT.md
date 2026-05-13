@@ -43,9 +43,10 @@
 - Latest feature commit: `0ba55bf` (`Add multilingual static lyric controls`).
 - Latest Pages workflow run `25784999603` passed on 2026-05-13 UTC.
 - Static route now has mixed-language rendering, English/Latin plain text tokens, Chinese Simplified/Traditional flipping with `opencc-js`, and lyric text-size controls.
-- Completed local work: `FE-003` dark/OLED static reader themes and `FE-004` custom/Cantonese romanization tracks are verified locally and ready to commit/deploy.
-- Dark/OLED and romanization subagents were closed after completion. No stale subagent ownership remains.
+- Completed local work: `FE-003` dark/OLED static reader themes, `FE-004` custom/Cantonese romanization tracks, and `FE-005` local static-reader persistence are verified locally.
+- Dark/OLED, romanization, and persistence subagents were closed after completion. No stale subagent ownership remains.
 - Static reader now has page-level Light/Dark/OLED theme state, dedicated dark/OLED palette tokens, restrained OLED surfaces, visible focus rings, a Chinese romanization switch (`Pinyin`, `Jyutping`, `Cantonese`), and a line-aligned custom romanization track.
+- Static reader persists pasted lyrics, custom romanization track, custom-track state, theme, Chinese script, Chinese romanization mode, lyric text size, and writing guide visibility to localStorage key `pinyin-lyrics:static-bafang:v1`.
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
 - Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts` passed with Corepack pnpm 10.33.4. Commands still warn that host Node is `v21.7.2`.
 - Verify or adjust exact package versions after install. Pay special attention to Next.js, ESLint, TypeScript, Prisma, Playwright, and romanization libraries.
@@ -71,4 +72,4 @@
 - Latest handoff commit: `aed7d36` (`Record romanization feature handoff`).
 - Latest Pages workflow run `25791752513` passed on 2026-05-13 UTC.
 - Latest static route smoke check returned `HTTP/2 200` for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/`.
-- Current branch state has only post-deploy bookkeeping edits; commit with `[skip ci]` before final handoff.
+- Current branch state has uncommitted FE-005 persistence implementation and docs. Resume by committing, pushing, watching GitHub Pages, smoking the static route, and recording deployment notes.

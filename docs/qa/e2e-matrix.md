@@ -30,6 +30,7 @@ Before production, every committed user-facing route, critical workflow, support
 | Static Chinese script flipping                | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers source, Simplified, and Traditional controls using synthetic fixtures. |
 | Static reader theme switching                 | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers Light/Dark/OLED switching, full-page theme state, OLED page black, and pinyin/Hanzi tile contrast. |
 | Static custom romanization track              | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers line-aligned custom syllables, mixed CJK custom overrides, Latin inline preservation, and mismatch blanks. |
+| Static reader local persistence               | Automated         | QA/Accessibility Manager | `static-bafang.spec.ts` covers reload persistence for pasted lyrics, custom track, theme, script, romanization mode, text size, guide state, and Clear behavior. |
 | Original/Romanized/Split/Study mode switching | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001.                        |
 | Language settings                             | Not Yet Committed | QA/Accessibility Manager | Depends on FE-001 and RZN-001.            |
 | Reader settings and typography density        | Not Yet Committed | QA/Accessibility Manager | Depends on UID-001 and FE-001.            |
