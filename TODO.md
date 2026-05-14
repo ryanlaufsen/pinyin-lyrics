@@ -114,6 +114,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
   - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
   - `corepack pnpm@10.33.4 --filter @lyricbridge/web budget:static` passed at `715.6 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - Commit `bf0b76a` fixed Traditional Chinese font stacks and added the regression coverage.
 
 ### FE-015: Replace Fallback CJK Character Styles With Loaded Fonts
 

@@ -77,6 +77,7 @@
 - Latest static-reader role-toggle/pronunciation verification passed under Node `v24.15.0` and pnpm `10.33.4`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. Static budget is `707.4 KiB` first-render total and `222.2 KiB` largest referenced asset. Prettier was run on touched files only; repo-wide `format:check` still has pre-existing unrelated warnings.
 - Latest character-style font verification passed under Node `v24.15.0` and pnpm `10.33.4`: `git diff --check`, `lint`, `typecheck`, `e2e -- tests/e2e/static-bafang.spec.ts`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `budget:static`. Static budget is `712.4 KiB` first-render total and `222.2 KiB` largest referenced asset.
 - Latest Traditional Chinese font verification passed under Node `v24.15.0` and pnpm `10.33.4`: `git diff --check`, targeted `eslint`, `typecheck`, `e2e -- tests/e2e/static-bafang.spec.ts`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `budget:static`. Static budget is `715.6 KiB` first-render total and `222.2 KiB` largest referenced asset.
+- Latest Traditional Chinese font implementation commit: `bf0b76a` (`Fix Traditional Chinese font stacks`).
 - Latest character-style implementation commit: `e1d3cd4` (`Load real CJK character style fonts`).
 - Latest badge/pronunciation implementation commit: `5c2229b` (`Refine script badges and kana readings`).
 - Latest static-reader role-toggle implementation commit: `d3a71ba` (`Add Han script role toggles`).

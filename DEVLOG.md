@@ -7,6 +7,7 @@
 - Added render hooks for Chinese script mode and source-mode Traditional glyph detection so source Traditional characters such as `龜鬱臺灣麵` can prefer TC/HK font stacks without forcing the whole lyric line into `繁` mode.
 - Expanded static-reader e2e font coverage to assert Sans/Serif/Brush/Round Traditional font stack behavior with synthetic Traditional-only glyphs, while keeping existing Simplified, Japanese, Korean, Latin, and script-role behavior intact.
 - Verification passed under Node `v24.15.0`: `git diff --check`, targeted `eslint`, `typecheck`, `e2e -- tests/e2e/static-bafang.spec.ts`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `budget:static`. The static route budget measured `715.6 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset.
+- Commit `bf0b76a` fixed Traditional Chinese font stacks, source-mode Traditional glyph detection, and e2e coverage.
 - Ran a five-member typography/accessibility/QA/performance/UX council review for static-reader character styles after the Round/Brush modes were found to be relying on platform fallback and fake shadow styling.
 - Added CDN-loaded open-source Google Fonts families for the character-style modes: Noto Sans/Serif SC/JP/KR for `Sans`/`Serif`, Ma Shan Zheng/Yuji Boku/Nanum Brush Script/Caveat for `Brush`, and ZCOOL KuaiLe/Huninn/Hachi Maru Pop/Zen Maru Gothic/Gaegu/Comic Neue for `Round`.
 - Removed the `Round` text-shadow/fake-thickening treatment. All four styles now rely on actual font faces and keep `text-shadow: none`.
