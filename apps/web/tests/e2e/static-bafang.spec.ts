@@ -1163,6 +1163,9 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(
     page.getByRole("contentinfo").getByRole("link", { name: "Copyright" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("contentinfo").getByRole("link", { name: "AI policy" }),
+  ).toHaveAttribute("href", "/ai-policy");
   expect(errors).toEqual([]);
 });
 

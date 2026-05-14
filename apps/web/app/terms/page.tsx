@@ -92,7 +92,8 @@ export default function TermsPage() {
           custom romanization tracks are not granted.
         </p>
         <p>
-          See <Link href="/robots.txt">robots.txt</Link>,{" "}
+          See the <Link href="/ai-policy">AI Policy</Link>,{" "}
+          <Link href="/robots.txt">robots.txt</Link>,{" "}
           <Link href="/llms.txt">llms.txt</Link>,{" "}
           <Link href="/.well-known/ai-policy.json">AI policy JSON</Link>, and{" "}
           <Link href="/license.xml">RSL license terms</Link>.

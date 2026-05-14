@@ -28,6 +28,12 @@ const legalRoutes = [
     heading: "Copyright Policy",
     canonical: "https://ryanlaufsen.github.io/pinyin-lyrics/copyright/",
   },
+  {
+    path: "/ai-policy",
+    title: "AI Policy | LyricBridge",
+    heading: "AI Policy",
+    canonical: "https://ryanlaufsen.github.io/pinyin-lyrics/ai-policy/",
+  },
 ];
 
 for (const route of legalRoutes) {

@@ -23,6 +23,9 @@ test("opens the reader workspace", async ({ page }) => {
   await expect(page.getByRole("contentinfo")).toContainText(
     "full copyrighted lyrics are not bundled",
   );
+  await expect(
+    page.getByRole("contentinfo").getByRole("link", { name: "AI policy" }),
+  ).toHaveAttribute("href", "/ai-policy");
   await expect(page).toHaveTitle("LyricBridge");
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",

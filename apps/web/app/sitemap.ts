@@ -24,6 +24,10 @@ const staticRoutes = [
     path: "/copyright/",
     priority: 0.4,
   },
+  {
+    path: "/ai-policy/",
+    priority: 0.4,
+  },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

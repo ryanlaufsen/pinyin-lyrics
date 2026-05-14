@@ -50,7 +50,7 @@ export function SiteFooter() {
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/copyright">Copyright</Link>
-          <Link href="/llms.txt">AI policy</Link>
+          <Link href="/ai-policy">AI policy</Link>
         </nav>
       </div>
     </footer>

@@ -15,6 +15,7 @@ export function GET() {
       canonical: absoluteSiteUrl("/"),
       robots: absoluteSiteUrl("/robots.txt"),
       llms: absoluteSiteUrl("/llms.txt"),
+      human_readable: absoluteSiteUrl("/ai-policy/"),
       rsl: absoluteSiteUrl("/license.xml"),
       terms: absoluteSiteUrl("/terms/"),
       privacy: absoluteSiteUrl("/privacy/"),
