@@ -118,6 +118,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
   - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
   - `corepack pnpm@10.33.4 --filter @lyricbridge/web budget:static` passed at `712.4 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - Commit `e1d3cd4` loaded real CJK character-style fonts and updated e2e/coordination docs.
 
 ### FE-014: Improve Kana And Common Hanja Pronunciation
 
