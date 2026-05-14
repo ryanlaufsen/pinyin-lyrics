@@ -117,6 +117,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `pnpm --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
   - `pnpm --filter @lyricbridge/web budget:static` passed at `704.6 KiB` first-render total and `222.2 KiB` largest referenced asset.
   - Prettier was run on the three touched files; repo-wide `pnpm format:check` still reports pre-existing unrelated formatting warnings.
+  - Commit `d3a71ba` added linked Han script role toggles, dark/OLED theme polish, e2e coverage, and coordination updates.
 
 ### SEO-003: Add Human-Readable AI Policy Page
 
