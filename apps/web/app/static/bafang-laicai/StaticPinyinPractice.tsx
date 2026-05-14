@@ -138,7 +138,8 @@ type ChineseScript = "source" | "simplified" | "traditional";
 type ChineseRomanizationMode = "pinyin" | "jyutping" | "cantonese";
 type LanguageHint = "auto" | "zh" | "ja" | "ko";
 type ThemeMode = "light" | "dark" | "oled";
-type CharacterBrushStyle = "modern" | "brush" | "cartoon";
+type CharacterBrushStyle = "sans" | "serif" | "brush" | "round";
+type WritingGuideType = "eight" | "quadrant";
 type LineLanguage = "zh" | "ja" | "ko" | "mixed" | "text";
 type TokenLanguage = "zh" | "ja" | "ko" | "text";
 
@@ -147,10 +148,11 @@ type RenderToken = {
   color: string;
   displayAsText: boolean;
   isHanzi: boolean;
-  isGuideEligible: boolean;
+  isCjkBox: boolean;
   isWhitespace: boolean;
   language: TokenLanguage;
   pinyin: string;
+  writingGuideType: WritingGuideType | null;
 };
 
 type LyricLine = {
@@ -177,7 +179,7 @@ type RomanizationEngines = {
 };
 
 const themeModes = ["light", "dark", "oled"] as const;
-const characterBrushStyles = ["modern", "brush", "cartoon"] as const;
+const characterBrushStyles = ["sans", "serif", "brush", "round"] as const;
 const chineseRomanizationModes = [
   "pinyin",
   "jyutping",
@@ -207,7 +209,7 @@ const defaultStaticReaderSettings: StaticReaderSettings = {
   customRomanizationText: "",
   useCustomTrack: false,
   theme: "light",
-  characterBrushStyle: "modern",
+  characterBrushStyle: "sans",
   chineseScript: "source",
   chineseRomanizationMode: "pinyin",
   lyricTextSize: 100,
@@ -437,13 +439,17 @@ function buildLineTokens(
   let syllableIndex = 0;
   let customIndex = 0;
 
-  return segmentLine(convertedLine).map((character, index) => {
+  return segmentLine(convertedLine).map((character, index): RenderToken => {
     const language = detectTokenLanguage(character, languageHint);
-    const isHanzi = language === "zh";
+    const isHanzi = hanziPattern.test(character);
     const isWhitespace = whitespacePattern.test(character);
     const isKanaToken = language === "ja" && isKanaCharacter(character);
+    const isHangulToken = language === "ko" && hangulPattern.test(character);
+    const isCjkBox =
+      !isWhitespace &&
+      (language === "zh" || language === "ja" || language === "ko");
     const isReadingToken =
-      !isWhitespace && (language === "zh" || language === "ko" || isKanaToken);
+      isCjkBox && (language !== "ja" || isKanaToken || isHanzi);
     const generatedReading = getTokenReading(
       character,
       language,
@@ -459,17 +465,21 @@ function buildLineTokens(
     if (isReadingToken) {
       customIndex += 1;
     }
+    const writingGuideType: WritingGuideType | null = isHanzi
+      ? "eight"
+      : isKanaToken || isHangulToken
+        ? "quadrant"
+        : null;
     const token = {
       character,
       color: tileColors[index % tileColors.length] ?? fallbackTileColor,
-      displayAsText:
-        (language === "text" && !isWhitespace) ||
-        (language === "ja" && !isKanaToken),
+      displayAsText: language === "text" && !isWhitespace,
       isHanzi,
-      isGuideEligible: language === "zh",
+      isCjkBox,
       isWhitespace,
       language,
       pinyin: reading,
+      writingGuideType,
     };
 
     if (language === "zh") {
@@ -614,15 +624,19 @@ function getLineLanguageLabel(language: LineLanguage) {
 }
 
 function getCharacterBrushStyleLabel(style: CharacterBrushStyle) {
+  if (style === "sans") {
+    return "Sans";
+  }
+
+  if (style === "serif") {
+    return "Serif";
+  }
+
   if (style === "brush") {
     return "Brush";
   }
 
-  if (style === "cartoon") {
-    return "Cartoon";
-  }
-
-  return "Modern";
+  return "Round";
 }
 
 function getTokenLanguageHint(line: LyricLine): LanguageHint {
@@ -643,6 +657,24 @@ function isThemeMode(value: string): value is ThemeMode {
 
 function isCharacterBrushStyle(value: string): value is CharacterBrushStyle {
   return characterBrushStyles.includes(value as CharacterBrushStyle);
+}
+
+function normalizeCharacterBrushStyle(
+  value: string,
+): CharacterBrushStyle | null {
+  if (isCharacterBrushStyle(value)) {
+    return value;
+  }
+
+  if (value === "modern") {
+    return "sans";
+  }
+
+  if (value === "cartoon") {
+    return "round";
+  }
+
+  return null;
 }
 
 function isChineseScript(value: string): value is ChineseScript {
@@ -787,11 +819,14 @@ function readStoredStaticReaderSettings() {
       next.theme = parsed.theme;
     }
 
-    if (
-      typeof parsed.characterBrushStyle === "string" &&
-      isCharacterBrushStyle(parsed.characterBrushStyle)
-    ) {
-      next.characterBrushStyle = parsed.characterBrushStyle;
+    if (typeof parsed.characterBrushStyle === "string") {
+      const maybeCharacterBrushStyle = normalizeCharacterBrushStyle(
+        parsed.characterBrushStyle,
+      );
+
+      if (maybeCharacterBrushStyle !== null) {
+        next.characterBrushStyle = maybeCharacterBrushStyle;
+      }
     }
 
     if (
@@ -1617,6 +1652,22 @@ export function StaticPinyinPractice() {
                 No lyrics are bundled in this public static build. Pasted lines
                 render on this page with line breaks preserved.
               </p>
+              <details className="static-limitations">
+                <summary>Known limitations</summary>
+                <div>
+                  <p>
+                    Japanese kanji and Korean hanja are shown as full lyric
+                    boxes with blank romanization unless you provide a custom
+                    romanization track.
+                  </p>
+                  <p>
+                    Kana and Hangul can be romanized automatically in this
+                    static reader. Kanji and hanja need dictionary-backed
+                    readings in a future adapter because their pronunciation
+                    depends on word, language, and context.
+                  </p>
+                </div>
+              </details>
             </div>
 
             {lyricLines.length > 0 ? (
@@ -1788,7 +1839,7 @@ function LyricTokenView({
           <span
             className={clsx(
               "static-pinyin-box font-mono",
-              !token.isHanzi && "static-pinyin-empty",
+              !token.pinyin && "static-pinyin-empty",
             )}
           >
             <span className="static-romanization-text">
@@ -1798,13 +1849,17 @@ function LyricTokenView({
           <span
             className={clsx(
               "static-hanzi-box",
-              !token.isHanzi && "static-punctuation-box",
-              guidesVisible && token.isGuideEligible && "show-guide",
+              !token.isCjkBox && "static-punctuation-box",
+              guidesVisible && token.writingGuideType && "show-guide",
             )}
           >
-            {guidesVisible && token.isGuideEligible ? (
-              <span className="writing-guide" aria-hidden="true">
-                <GuideLines />
+            {guidesVisible && token.writingGuideType ? (
+              <span
+                className="writing-guide"
+                data-guide-type={token.writingGuideType}
+                aria-hidden="true"
+              >
+                <GuideLines type={token.writingGuideType} />
               </span>
             ) : null}
             <span className="static-hanzi cjk">
@@ -1817,13 +1872,17 @@ function LyricTokenView({
   );
 }
 
-function GuideLines() {
+function GuideLines({ type }: { type: WritingGuideType }) {
   return (
     <>
       <span className="guide-line guide-horizontal" />
       <span className="guide-line guide-vertical" />
-      <span className="guide-line guide-diagonal-a" />
-      <span className="guide-line guide-diagonal-b" />
+      {type === "eight" ? (
+        <>
+          <span className="guide-line guide-diagonal-a" />
+          <span className="guide-line guide-diagonal-b" />
+        </>
+      ) : null}
     </>
   );
 }

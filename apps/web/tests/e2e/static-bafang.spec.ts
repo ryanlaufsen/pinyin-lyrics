@@ -104,6 +104,9 @@ const getOpacity = async (locator: Locator) => {
 const getFontFamily = async (locator: Locator) =>
   locator.evaluate((element) => window.getComputedStyle(element).fontFamily);
 
+const getTextShadow = async (locator: Locator) =>
+  locator.evaluate((element) => window.getComputedStyle(element).textShadow);
+
 const getVerticalGapPx = async (label: Locator, control: Locator) => {
   const [labelBox, controlBox] = await Promise.all([
     label.boundingBox(),
@@ -218,7 +221,7 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   const previewCharacterText = previewOutput.locator(".static-character-text");
 
   await expect(previewOutput).toBeVisible();
-  await expect(previewOutput).toHaveAttribute("data-character-style", "modern");
+  await expect(previewOutput).toHaveAttribute("data-character-style", "sans");
   await expect(previewLine).toHaveAttribute("data-language", "zh");
   await expect(previewLine.locator(".static-line-label")).toContainText("1");
   await expect(previewLine.locator(".static-line-language")).toHaveText("ZH");
@@ -275,14 +278,17 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   const brushStyleGroup = page.getByRole("group", {
     name: "Character style",
   });
-  const modernStyleButton = brushStyleGroup.getByRole("button", {
-    name: "Modern",
+  const sansStyleButton = brushStyleGroup.getByRole("button", {
+    name: "Sans",
+  });
+  const serifStyleButton = brushStyleGroup.getByRole("button", {
+    name: "Serif",
   });
   const brushStyleButton = brushStyleGroup.getByRole("button", {
     name: "Brush",
   });
-  const cartoonStyleButton = brushStyleGroup.getByRole("button", {
-    name: "Cartoon",
+  const roundStyleButton = brushStyleGroup.getByRole("button", {
+    name: "Round",
   });
   const sizeControlGroup = page.locator(".static-control-group", {
     has: page.locator("#lyric-text-size"),
@@ -311,9 +317,10 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
       .toBe(lyricLabelGap);
   }
 
-  await expect(modernStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(sansStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(serifStyleButton).toHaveAttribute("aria-pressed", "false");
   await expect(brushStyleButton).toHaveAttribute("aria-pressed", "false");
-  await expect(cartoonStyleButton).toHaveAttribute("aria-pressed", "false");
+  await expect(roundStyleButton).toHaveAttribute("aria-pressed", "false");
 
   await darkThemeButton.click();
   await expect(readerPage).toHaveAttribute("data-reader-theme", "dark");
@@ -370,6 +377,16 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(adSpace).toHaveAccessibleName("Advertisements");
   await expect(adSpace).toHaveText("Advertisements");
   await expect(adSlot).toBeVisible();
+
+  const limitations = page.locator(".static-limitations");
+  await expect(limitations).toBeVisible();
+  await expect(limitations).not.toHaveAttribute("open", "");
+  await expect(limitations.locator("p").first()).not.toBeVisible();
+  await limitations.locator("summary").click();
+  await expect(
+    limitations.getByText("Japanese kanji and Korean hanja"),
+  ).toBeVisible();
+  await expect(limitations.getByText("dictionary-backed readings")).toBeVisible();
 
   const lyricsLayoutBox = await lyricsLayout.boundingBox();
   const lyricsFieldsBox = await lyricsFields.boundingBox();
@@ -601,11 +618,12 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
       "[auto] 春光 かな 사랑 Luna-7",
       "[auto] Blue SKY-7",
       "[auto] 春かな",
+      "[ko] 愛사랑",
     ].join("\n"),
   );
   await lyricOutputPinyinBox.first().waitFor();
 
-  await expect(lyricOutput).toHaveAttribute("data-character-style", "modern");
+  await expect(lyricOutput).toHaveAttribute("data-character-style", "sans");
   const basePinyinSizePx = await getFontSizePx(lyricOutputPinyinBox.first());
   const baseHanziSizePx = await getFontSizePx(lyricOutputHanzi.first());
   const previewBasePinyinSizePx = await getFontSizePx(previewPinyinBox.first());
@@ -723,7 +741,13 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(mixedLine).toContainText("랑");
   await expect(mixedLine).toContainText("rang");
   await expect(mixedLine.locator(".static-text-token")).toHaveText(["Luna-7"]);
-  await expect(mixedLine.locator(".writing-guide")).toHaveCount(2);
+  await expect(mixedLine.locator(".writing-guide")).toHaveCount(6);
+  await expect(
+    mixedLine.locator('.writing-guide[data-guide-type="eight"]').first(),
+  ).toBeVisible();
+  await expect(
+    mixedLine.locator('.writing-guide[data-guide-type="quadrant"]').first(),
+  ).toBeVisible();
 
   const latinLine = page.getByTestId("pinyin-line-5");
   await expect(latinLine).toHaveAttribute("data-language", "text");
@@ -736,12 +760,47 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
 
   const japaneseKanjiLine = page.getByTestId("pinyin-line-6");
   await expect(japaneseKanjiLine).toHaveAttribute("data-language", "ja");
-  await expect(japaneseKanjiLine.locator(".static-text-token")).toContainText(
+  await expect(japaneseKanjiLine.locator(".static-text-token")).toHaveCount(0);
+  await expect(
+    japaneseKanjiLine.locator(
+      ".static-character-stack:not(.static-space-token):not(.static-inline-token)",
+    ),
+  ).toHaveCount(3);
+  await expect(japaneseKanjiLine.locator(".static-character-text").first()).toHaveText(
     "春",
   );
+  expect(
+    await japaneseKanjiLine.locator(".static-pinyin-box").first().textContent(),
+  ).toBe("\u00a0");
   await expect(japaneseKanjiLine).not.toContainText("chūn");
   await expect(japaneseKanjiLine).toContainText("ka");
   await expect(japaneseKanjiLine).toContainText("na");
+  await expect(japaneseKanjiLine.locator(".writing-guide")).toHaveCount(3);
+  await expect(
+    japaneseKanjiLine.locator('.writing-guide[data-guide-type="eight"]'),
+  ).toHaveCount(1);
+  await expect(
+    japaneseKanjiLine.locator('.writing-guide[data-guide-type="quadrant"]'),
+  ).toHaveCount(2);
+
+  const koreanHanjaLine = page.getByTestId("pinyin-line-7");
+  await expect(koreanHanjaLine).toHaveAttribute("data-language", "ko");
+  await expect(koreanHanjaLine.locator(".static-text-token")).toHaveCount(0);
+  await expect(koreanHanjaLine.locator(".static-character-text").first()).toHaveText(
+    "愛",
+  );
+  expect(
+    await koreanHanjaLine.locator(".static-pinyin-box").first().textContent(),
+  ).toBe("\u00a0");
+  await expect(koreanHanjaLine).toContainText("sa");
+  await expect(koreanHanjaLine).toContainText("rang");
+  await expect(koreanHanjaLine.locator(".writing-guide")).toHaveCount(3);
+  await expect(
+    koreanHanjaLine.locator('.writing-guide[data-guide-type="eight"]'),
+  ).toHaveCount(1);
+  await expect(
+    koreanHanjaLine.locator('.writing-guide[data-guide-type="quadrant"]'),
+  ).toHaveCount(2);
 
   const zhCharacterText = page
     .getByTestId("pinyin-line-1")
@@ -756,11 +815,21 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
     .locator(".static-character-text")
     .first();
   const latinTextToken = latinLine.locator(".static-text-token").first();
-  const modernZhFamily = await getFontFamily(zhCharacterText);
+  const sansZhFamily = await getFontFamily(zhCharacterText);
+
+  await serifStyleButton.click();
+  await expect(serifStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(sansStyleButton).toHaveAttribute("aria-pressed", "false");
+  await expect(lyricOutput).toHaveAttribute("data-character-style", "serif");
+  await expect(previewOutput).toHaveAttribute("data-character-style", "serif");
+  expect(await getFontFamily(zhCharacterText)).toContain("Noto Serif SC");
+  expect(await getFontFamily(jaCharacterText)).toContain("Noto Serif JP");
+  expect(await getFontFamily(koCharacterText)).toContain("Noto Serif KR");
+  expect(await getFontFamily(latinTextToken)).toContain("Georgia");
 
   await brushStyleButton.click();
   await expect(brushStyleButton).toHaveAttribute("aria-pressed", "true");
-  await expect(modernStyleButton).toHaveAttribute("aria-pressed", "false");
+  await expect(serifStyleButton).toHaveAttribute("aria-pressed", "false");
   await expect(lyricOutput).toHaveAttribute("data-character-style", "brush");
   await expect(previewOutput).toHaveAttribute("data-character-style", "brush");
   expect(await getFontFamily(zhCharacterText)).toContain("Kaiti SC");
@@ -768,13 +837,13 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   expect(await getFontFamily(koCharacterText)).toContain("Nanum Myeongjo");
   expect(await getFontFamily(latinTextToken)).toContain("Georgia");
 
-  await cartoonStyleButton.click();
-  await expect(cartoonStyleButton).toHaveAttribute("aria-pressed", "true");
+  await roundStyleButton.click();
+  await expect(roundStyleButton).toHaveAttribute("aria-pressed", "true");
   await expect(brushStyleButton).toHaveAttribute("aria-pressed", "false");
-  await expect(lyricOutput).toHaveAttribute("data-character-style", "cartoon");
+  await expect(lyricOutput).toHaveAttribute("data-character-style", "round");
   await expect(previewOutput).toHaveAttribute(
     "data-character-style",
-    "cartoon",
+    "round",
   );
   expect(await getFontFamily(zhCharacterText)).toContain("HanziPen SC");
   expect(await getFontFamily(jaCharacterText)).toContain(
@@ -782,12 +851,13 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   );
   expect(await getFontFamily(koCharacterText)).toContain("Nanum Gothic");
   expect(await getFontFamily(latinTextToken)).toContain("Comic Sans MS");
-  expect(await getFontFamily(zhCharacterText)).not.toBe(modernZhFamily);
+  expect(await getFontFamily(zhCharacterText)).not.toBe(sansZhFamily);
+  expect(await getTextShadow(zhCharacterText)).not.toBe("none");
 
-  await modernStyleButton.click();
-  await expect(modernStyleButton).toHaveAttribute("aria-pressed", "true");
-  await expect(lyricOutput).toHaveAttribute("data-character-style", "modern");
-  await expect(previewOutput).toHaveAttribute("data-character-style", "modern");
+  await sansStyleButton.click();
+  await expect(sansStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(lyricOutput).toHaveAttribute("data-character-style", "sans");
+  await expect(previewOutput).toHaveAttribute("data-character-style", "sans");
 
   const sourceScript = page.getByRole("button", { name: "Source" });
   const simplifiedScript = page.getByRole("button", { name: "简" });
@@ -935,7 +1005,7 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   );
   const persistedRomanizationOpacity = "55";
   const persistedCharacterOpacity = "70";
-  const persistedCharacterStyle = "cartoon";
+  const persistedCharacterStyle = "round";
 
   await lyricsInput.fill(persistedLyrics);
   await sizeSlider.fill("130");
@@ -960,9 +1030,9 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await cantoneseModeButton.click();
   await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
   await expect(jyutpingModeButton).toHaveAttribute("aria-pressed", "false");
-  await cartoonStyleButton.click();
-  await expect(cartoonStyleButton).toHaveAttribute("aria-pressed", "true");
-  await expect(modernStyleButton).toHaveAttribute("aria-pressed", "false");
+  await roundStyleButton.click();
+  await expect(roundStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(sansStyleButton).toHaveAttribute("aria-pressed", "false");
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await useCustomTrackCheckbox.check();
   await expect(useCustomTrackCheckbox).toBeChecked();
@@ -1009,7 +1079,7 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
   await expect(sourceScript).toHaveAttribute("aria-pressed", "false");
   await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
-  await expect(cartoonStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(roundStyleButton).toHaveAttribute("aria-pressed", "true");
   await expect(sizeSlider).toHaveValue("130");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
@@ -1054,7 +1124,7 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
   await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
   await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
-  await expect(cartoonStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(roundStyleButton).toHaveAttribute("aria-pressed", "true");
   await expect(sizeSlider).toHaveValue("130");
   await expect(sizeSlider).toHaveAttribute("aria-valuetext", "130%");
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
@@ -1073,7 +1143,7 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(oledThemeButton).toHaveAttribute("aria-pressed", "true");
   await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
   await expect(cantoneseModeButton).toHaveAttribute("aria-pressed", "true");
-  await expect(cartoonStyleButton).toHaveAttribute("aria-pressed", "true");
+  await expect(roundStyleButton).toHaveAttribute("aria-pressed", "true");
   await expect(sizeSlider).toHaveValue("130");
   await expect(guideToggle).toHaveAttribute("aria-pressed", "false");
   await expect(romanizationSizeSlider).toHaveValue(persistedRomanizationSize);
@@ -1103,7 +1173,7 @@ test("migrates static reader settings from the legacy storage namespace", async 
     window.localStorage.setItem(
       "pinyin-lyrics:static-bafang:v1",
       JSON.stringify({
-        characterBrushStyle: "brush",
+        characterBrushStyle: "cartoon",
         characterTextOpacity: 70,
         characterTextSize: 115,
         chineseRomanizationMode: "jyutping",
@@ -1134,7 +1204,7 @@ test("migrates static reader settings from the legacy storage namespace", async 
   await expect(
     page.locator(".static-reader-page[data-reader-theme]"),
   ).toHaveAttribute("data-reader-theme", "oled");
-  await expect(page.getByRole("button", { name: "Brush" })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: "Round" })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
@@ -1167,7 +1237,7 @@ test("migrates static reader settings from the legacy storage namespace", async 
   await expect(page.getByTestId("pinyin-line-1")).toContainText("saan1");
   await expect(
     page.locator('[aria-label="Rendered romanized lyrics"]'),
-  ).toHaveAttribute("data-character-style", "brush");
+  ).toHaveAttribute("data-character-style", "round");
   await expect
     .poll(() =>
       page.evaluate(() =>

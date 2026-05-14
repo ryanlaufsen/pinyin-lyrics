@@ -796,6 +796,36 @@ textarea {
   line-height: 1.55;
 }
 
+.static-limitations {
+  max-width: 48rem;
+  border: 1px solid var(--static-control-border);
+  background: color-mix(
+    in srgb,
+    var(--static-input-bg) 90%,
+    var(--color-panel)
+  );
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  padding: 0.7rem 0.8rem;
+}
+
+.static-limitations summary {
+  cursor: pointer;
+  color: var(--color-ink);
+  font-weight: 750;
+}
+
+.static-limitations div {
+  display: grid;
+  gap: 0.45rem;
+  padding-top: 0.55rem;
+}
+
+.static-limitations p {
+  margin: 0;
+}
+
 .static-preview-block {
   display: grid;
   gap: 0.55rem;
@@ -929,7 +959,13 @@ textarea {
   opacity: var(--character-opacity, 1);
 }
 
-.static-lyric-output[data-character-style="modern"]
+.static-lyric-output
+  :is(.static-character-text, .static-text-token) {
+  letter-spacing: 0;
+  text-shadow: none;
+}
+
+.static-lyric-output[data-character-style="sans"]
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
@@ -937,7 +973,7 @@ textarea {
   font-weight: 650;
 }
 
-.static-lyric-output[data-character-style="modern"]
+.static-lyric-output[data-character-style="sans"]
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
@@ -945,7 +981,7 @@ textarea {
   font-weight: 650;
 }
 
-.static-lyric-output[data-character-style="modern"]
+.static-lyric-output[data-character-style="sans"]
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
@@ -953,13 +989,44 @@ textarea {
   font-weight: 650;
 }
 
-.static-lyric-output[data-character-style="modern"]
+.static-lyric-output[data-character-style="sans"]
   [data-language="text"]
   :is(.static-character-text, .static-text-token) {
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   font-weight: 650;
+}
+
+.static-lyric-output[data-character-style="serif"]
+  [data-language="zh"]
+  :is(.static-character-text, .static-text-token) {
+  font-family:
+    "Noto Serif SC", "Songti SC", SimSun, "Source Han Serif SC", serif;
+  font-weight: 700;
+}
+
+.static-lyric-output[data-character-style="serif"]
+  [data-language="ja"]
+  :is(.static-character-text, .static-text-token) {
+  font-family:
+    "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-weight: 700;
+}
+
+.static-lyric-output[data-character-style="serif"]
+  [data-language="ko"]
+  :is(.static-character-text, .static-text-token) {
+  font-family:
+    "Noto Serif KR", "Nanum Myeongjo", AppleMyungjo, Batang, serif;
+  font-weight: 700;
+}
+
+.static-lyric-output[data-character-style="serif"]
+  [data-language="text"]
+  :is(.static-character-text, .static-text-token) {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
 }
 
 .static-lyric-output[data-character-style="brush"]
@@ -995,38 +1062,50 @@ textarea {
   font-weight: 700;
 }
 
-.static-lyric-output[data-character-style="cartoon"]
+.static-lyric-output[data-character-style="round"]
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
     "HanziPen SC", "Hannotate SC", "Kaiti SC", "Microsoft YaHei",
     "Comic Sans MS", sans-serif;
-  font-weight: 800;
+  font-weight: 850;
+  text-shadow:
+    0.035em 0 currentColor,
+    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
 }
 
-.static-lyric-output[data-character-style="cartoon"]
+.static-lyric-output[data-character-style="round"]
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
     "Hiragino Maru Gothic ProN", "Yu Gothic", "Meiryo", "Comic Sans MS",
     sans-serif;
-  font-weight: 800;
+  font-weight: 850;
+  text-shadow:
+    0.035em 0 currentColor,
+    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
 }
 
-.static-lyric-output[data-character-style="cartoon"]
+.static-lyric-output[data-character-style="round"]
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
     "Nanum Gothic", "Apple SD Gothic Neo", "Malgun Gothic", "Comic Sans MS",
     sans-serif;
-  font-weight: 800;
+  font-weight: 850;
+  text-shadow:
+    0.035em 0 currentColor,
+    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
 }
 
-.static-lyric-output[data-character-style="cartoon"]
+.static-lyric-output[data-character-style="round"]
   [data-language="text"]
   :is(.static-character-text, .static-text-token) {
   font-family: "Comic Sans MS", "Trebuchet MS", ui-rounded, sans-serif;
-  font-weight: 800;
+  font-weight: 850;
+  text-shadow:
+    0.035em 0 currentColor,
+    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
 }
 
 .static-lyric-output .static-pinyin-box {
