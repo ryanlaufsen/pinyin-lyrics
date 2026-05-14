@@ -1,4 +1,23 @@
-import { type Locator, expect, test } from "@playwright/test";
+import { type Locator, type Page, expect, test } from "@playwright/test";
+
+const characterStyleFontChecks = [
+  ["Noto Sans SC", "八"],
+  ["Noto Sans JP", "か"],
+  ["Noto Sans KR", "사"],
+  ["Noto Serif SC", "八"],
+  ["Noto Serif JP", "か"],
+  ["Noto Serif KR", "사"],
+  ["Ma Shan Zheng", "八"],
+  ["Yuji Boku", "か"],
+  ["Nanum Brush Script", "사"],
+  ["ZCOOL KuaiLe", "八"],
+  ["Huninn", "愛"],
+  ["Hachi Maru Pop", "か"],
+  ["Zen Maru Gothic", "か"],
+  ["Gaegu", "사"],
+  ["Caveat", "Sample"],
+  ["Comic Neue", "Sample"],
+] as const;
 
 const isNonTransparentColor = (value: string) => {
   if (!value || value === "transparent" || value === "rgba(0, 0, 0, 0)") {
@@ -116,6 +135,47 @@ const getFontFamily = async (locator: Locator) =>
 
 const getTextShadow = async (locator: Locator) =>
   locator.evaluate((element) => window.getComputedStyle(element).textShadow);
+
+const waitForFontsReady = async (page: Page) => {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
+
+  await expect
+    .poll(() => page.evaluate(() => document.fonts.status), {
+      message: "document fonts should finish loading",
+    })
+    .toBe("loaded");
+};
+
+const assertCharacterStyleFontsLoaded = async (page: Page) => {
+  const fontStatus = await page.evaluate(async (fontChecks) => {
+    await Promise.all(
+      fontChecks.map(([family, text]) =>
+        document.fonts.load(`16px "${family}"`, text),
+      ),
+    );
+    await document.fonts.ready;
+
+    return Object.fromEntries(
+      fontChecks.map(([family, text]) => [
+        family,
+        document.fonts.check(`16px "${family}"`, text),
+      ]),
+    );
+  }, characterStyleFontChecks);
+
+  await waitForFontsReady(page);
+  expect(fontStatus).toEqual(
+    Object.fromEntries(
+      characterStyleFontChecks.map(([family]) => [family, true]),
+    ),
+  );
+};
+
+const assertNoTextShadow = async (locator: Locator, label: string) => {
+  expect(await getTextShadow(locator), `${label} text shadow`).toBe("none");
+};
 
 const getVerticalGapPx = async (label: Locator, control: Locator) => {
   const [labelBox, controlBox] = await Promise.all([
@@ -261,6 +321,7 @@ test("renders the static multilingual lyric practice mode", async ({
   });
 
   await page.goto("/static/bafang-laicai");
+  await assertCharacterStyleFontsLoaded(page);
 
   await expect(
     page.getByRole("heading", { name: "Static reader" }),
@@ -994,8 +1055,37 @@ test("renders the static multilingual lyric practice mode", async ({
     .getByTestId("pinyin-line-3")
     .locator(".static-character-text")
     .first();
+  const japaneseKanjiCharacterText = japaneseKanjiLine
+    .locator(".static-character-text")
+    .first();
+  const koreanHanjaCharacterText = koreanHanjaLine
+    .locator(".static-character-text")
+    .first();
   const latinTextToken = latinLine.locator(".static-text-token").first();
   const sansZhFamily = await getFontFamily(zhCharacterText);
+
+  expect(sansZhFamily).toContain("Noto Sans SC");
+  expect(await getFontFamily(jaCharacterText)).toContain("Noto Sans JP");
+  expect(await getFontFamily(japaneseKanjiCharacterText)).toContain(
+    "Noto Sans JP",
+  );
+  expect(await getFontFamily(koCharacterText)).toContain("Noto Sans KR");
+  expect(await getFontFamily(koreanHanjaCharacterText)).toContain(
+    "Noto Sans KR",
+  );
+  expect(await getFontFamily(latinTextToken)).toContain("Inter");
+  await assertNoTextShadow(zhCharacterText, "Sans Chinese character");
+  await assertNoTextShadow(jaCharacterText, "Sans Japanese character");
+  await assertNoTextShadow(
+    japaneseKanjiCharacterText,
+    "Sans Japanese Kanji character",
+  );
+  await assertNoTextShadow(koCharacterText, "Sans Korean character");
+  await assertNoTextShadow(
+    koreanHanjaCharacterText,
+    "Sans Korean Hanja character",
+  );
+  await assertNoTextShadow(latinTextToken, "Sans Latin text");
 
   await serifStyleButton.click();
   await expect(serifStyleButton).toHaveAttribute("aria-pressed", "true");
@@ -1004,32 +1094,81 @@ test("renders the static multilingual lyric practice mode", async ({
   await expect(previewOutput).toHaveAttribute("data-character-style", "serif");
   expect(await getFontFamily(zhCharacterText)).toContain("Noto Serif SC");
   expect(await getFontFamily(jaCharacterText)).toContain("Noto Serif JP");
+  expect(await getFontFamily(japaneseKanjiCharacterText)).toContain(
+    "Noto Serif JP",
+  );
   expect(await getFontFamily(koCharacterText)).toContain("Noto Serif KR");
+  expect(await getFontFamily(koreanHanjaCharacterText)).toContain(
+    "Noto Serif KR",
+  );
   expect(await getFontFamily(latinTextToken)).toContain("Georgia");
+  await assertNoTextShadow(zhCharacterText, "Serif Chinese character");
+  await assertNoTextShadow(jaCharacterText, "Serif Japanese character");
+  await assertNoTextShadow(
+    japaneseKanjiCharacterText,
+    "Serif Japanese Kanji character",
+  );
+  await assertNoTextShadow(koCharacterText, "Serif Korean character");
+  await assertNoTextShadow(
+    koreanHanjaCharacterText,
+    "Serif Korean Hanja character",
+  );
+  await assertNoTextShadow(latinTextToken, "Serif Latin text");
 
   await brushStyleButton.click();
   await expect(brushStyleButton).toHaveAttribute("aria-pressed", "true");
   await expect(serifStyleButton).toHaveAttribute("aria-pressed", "false");
   await expect(lyricOutput).toHaveAttribute("data-character-style", "brush");
   await expect(previewOutput).toHaveAttribute("data-character-style", "brush");
-  expect(await getFontFamily(zhCharacterText)).toContain("Kaiti SC");
-  expect(await getFontFamily(jaCharacterText)).toContain("Yu Mincho");
-  expect(await getFontFamily(koCharacterText)).toContain("Nanum Myeongjo");
-  expect(await getFontFamily(latinTextToken)).toContain("Georgia");
+  expect(await getFontFamily(zhCharacterText)).toContain("Ma Shan Zheng");
+  expect(await getFontFamily(jaCharacterText)).toContain("Yuji Boku");
+  expect(await getFontFamily(japaneseKanjiCharacterText)).toContain(
+    "Yuji Boku",
+  );
+  expect(await getFontFamily(koCharacterText)).toContain("Nanum Brush Script");
+  expect(await getFontFamily(koreanHanjaCharacterText)).toContain(
+    "Ma Shan Zheng",
+  );
+  expect(await getFontFamily(latinTextToken)).toContain("Caveat");
+  await assertNoTextShadow(zhCharacterText, "Brush Chinese character");
+  await assertNoTextShadow(jaCharacterText, "Brush Japanese character");
+  await assertNoTextShadow(
+    japaneseKanjiCharacterText,
+    "Brush Japanese Kanji character",
+  );
+  await assertNoTextShadow(koCharacterText, "Brush Korean character");
+  await assertNoTextShadow(
+    koreanHanjaCharacterText,
+    "Brush Korean Hanja character",
+  );
+  await assertNoTextShadow(latinTextToken, "Brush Latin text");
 
   await roundStyleButton.click();
   await expect(roundStyleButton).toHaveAttribute("aria-pressed", "true");
   await expect(brushStyleButton).toHaveAttribute("aria-pressed", "false");
   await expect(lyricOutput).toHaveAttribute("data-character-style", "round");
   await expect(previewOutput).toHaveAttribute("data-character-style", "round");
-  expect(await getFontFamily(zhCharacterText)).toContain("HanziPen SC");
-  expect(await getFontFamily(jaCharacterText)).toContain(
-    "Hiragino Maru Gothic ProN",
+  expect(await getFontFamily(zhCharacterText)).toContain("ZCOOL KuaiLe");
+  expect(await getFontFamily(jaCharacterText)).toContain("Hachi Maru Pop");
+  expect(await getFontFamily(japaneseKanjiCharacterText)).toContain(
+    "Hachi Maru Pop",
   );
-  expect(await getFontFamily(koCharacterText)).toContain("Nanum Gothic");
-  expect(await getFontFamily(latinTextToken)).toContain("Comic Sans MS");
+  expect(await getFontFamily(koCharacterText)).toContain("Gaegu");
+  expect(await getFontFamily(koreanHanjaCharacterText)).toContain("Huninn");
+  expect(await getFontFamily(latinTextToken)).toContain("Comic Neue");
   expect(await getFontFamily(zhCharacterText)).not.toBe(sansZhFamily);
-  expect(await getTextShadow(zhCharacterText)).not.toBe("none");
+  await assertNoTextShadow(zhCharacterText, "Round Chinese character");
+  await assertNoTextShadow(jaCharacterText, "Round Japanese character");
+  await assertNoTextShadow(
+    japaneseKanjiCharacterText,
+    "Round Japanese Kanji character",
+  );
+  await assertNoTextShadow(koCharacterText, "Round Korean character");
+  await assertNoTextShadow(
+    koreanHanjaCharacterText,
+    "Round Korean Hanja character",
+  );
+  await assertNoTextShadow(latinTextToken, "Round Latin text");
 
   await sansStyleButton.click();
   await expect(sansStyleButton).toHaveAttribute("aria-pressed", "true");

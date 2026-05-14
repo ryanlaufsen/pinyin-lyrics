@@ -2,6 +2,15 @@
 
 ## 2026-05-14
 
+- Ran a five-member typography/accessibility/QA/performance/UX council review for static-reader character styles after the Round/Brush modes were found to be relying on platform fallback and fake shadow styling.
+- Added CDN-loaded open-source Google Fonts families for the character-style modes: Noto Sans/Serif SC/JP/KR for `Sans`/`Serif`, Ma Shan Zheng/Yuji Boku/Nanum Brush Script/Caveat for `Brush`, and ZCOOL KuaiLe/Huninn/Hachi Maru Pop/Zen Maru Gothic/Gaegu/Comic Neue for `Round`.
+- Removed the `Round` text-shadow/fake-thickening treatment. All four styles now rely on actual font faces and keep `text-shadow: none`.
+- Added script-role-specific CSS overrides so Japanese Kanji and Korean Hanja can use ideograph-capable display stacks instead of inheriting kana/Hangul-only font choices.
+- Expanded static-reader e2e font coverage: the spec waits for browser font readiness, checks loaded font stacks, rejects text shadows for every style, and verifies Japanese Kanji plus Korean Hanja style behavior on desktop and mobile.
+- Captured browser screenshots for Sans, Serif, Brush, and Round on desktop and mobile using synthetic Chinese/Japanese/Korean/Latin fixtures; artifacts are kept in ignored `.agent/cache/artifacts/character-styles/` for local visual review.
+- Performance council accepted the CDN-loaded font set as a prototype/demo compromise, but flagged production risk for 5M/month traffic. Follow-up production work should route-scope or opt into font packs, review Google Fonts privacy, measure font payload/CLS, and move serious traffic off raw GitHub Pages.
+- Accessibility council found separate issues with low text-opacity settings, incomplete full-palette separation testing, and faint writing guides. Those are now tracked as `QA-005` rather than being hidden inside the font fix.
+- Verification passed under Node `v24.15.0`: `git diff --check`, `lint`, `typecheck`, `e2e -- tests/e2e/static-bafang.spec.ts`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `budget:static`. The static route budget measured `712.4 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset.
 - Added linked Han-script role correction for the static reader: tapping an unbroken Han ideograph run first switches the whole run between Hanzi, Kanji, and Hanja, then later taps can split individual characters inside that run.
 - Added one compact role badge per same-role segment, with matching role-colored borders on all surrounding Han tiles, so the correction state is visible without putting a badge on every character.
 - Moved script role badges flush to the bottom-right wall of the character box, removed rounded badge styling, and suppressed the badge entirely when every Han ideograph in a line is still Chinese.
@@ -25,7 +34,7 @@
 
 ## 2026-05-13
 
-- Refined the static reader `Character style` control from the old `Modern`/`Brush`/`Cartoon` set into `Sans`, `Serif`, `Brush`, and `Round`. The old cartoon/modern modes could look identical when the browser fell back to the same installed system fonts; `Round` now has rounded/cute fallback stacks plus weight/shadow treatment so it remains visually distinct even under fallback.
+- Refined the static reader `Character style` control from the old `Modern`/`Brush`/`Cartoon` set into `Sans`, `Serif`, `Brush`, and `Round`. The old cartoon/modern modes could look identical when the browser fell back to the same installed system fonts; FE-015 later replaced the interim Round fallback treatment with loaded display fonts and no shadows.
 - Added safe legacy migration from stored `modern` to `sans` and stored `cartoon` to `round`.
 - Added a collapsed-by-default `Known limitations` disclosure explaining that Japanese kanji and Korean hanja need dictionary-backed contextual readings and will otherwise rely on custom romanization.
 - Changed Japanese kanji and Korean hanja rendering to full colored lyric boxes with blank romanization rather than small inline text or false Chinese readings.

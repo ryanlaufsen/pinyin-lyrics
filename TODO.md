@@ -89,6 +89,36 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Done
 
+### FE-015: Replace Fallback CJK Character Styles With Loaded Fonts
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, UX Research Manager, QA/Accessibility Manager, DevOps/System Engineering Manager, Orchestrator
+- Goal: Make `Sans`, `Serif`, `Brush`, and `Round` character styles visually honest for Chinese/Hanzi, Japanese kana/kanji, Korean Hangul/Hanja, and Latin text without fake shadows or platform-font guesswork.
+- Acceptance Criteria:
+  - Static reader loads open-source/free commercial character-style fonts from a CDN with preconnect hints and ordered fallbacks.
+  - `Sans` uses loaded Noto Sans SC/JP/KR stacks; `Serif` uses loaded Noto Serif SC/JP/KR stacks.
+  - `Brush` uses real brush/handwriting fonts for Chinese Hanzi, Japanese kana/kanji, Korean Hangul, Korean Hanja, and Latin text instead of serif fallbacks.
+  - `Round` uses real cute/rounded fonts for Chinese Hanzi, Japanese kana/kanji, Korean Hangul, Korean Hanja, and Latin text without text-shadow, blur, outline, fake bolding, or decorative effects.
+  - Script-role Han tiles can override language-level stacks so Korean Hanja does not inherit a Hangul-only display font and Japanese Kanji stays in a Japanese display stack.
+  - E2E waits for browser font readiness, asserts expected loaded font-family stacks, rejects text shadows for all four styles, and covers Japanese Kanji plus Korean Hanja style assertions on desktop/mobile.
+  - Browser screenshots are captured for desktop/mobile style review using legally clean synthetic CJK/Latin fixtures.
+- Blockers/Dependencies:
+  - Google Fonts CDN is acceptable for this prototype/demo, but 5M/month production needs a measured font loading strategy, route scoping or opt-in font packs, privacy review, and CDN hosting beyond raw GitHub Pages.
+  - Full glyph-face proof remains environment-sensitive; Playwright now checks loaded CSS/font readiness, while screenshots remain the visual review artifact.
+  - QA/Accessibility council found separate opacity, full-palette separation, and writing-guide contrast issues tracked under `QA-005`.
+- Evidence Required:
+  - Five-member typography/UX/accessibility/QA/performance council review completed on 2026-05-14.
+  - Local screenshot artifacts generated under ignored `.agent/cache/artifacts/character-styles/` for Sans, Serif, Brush, and Round on desktop and mobile Chromium.
+  - `git diff --check` passed.
+  - `corepack pnpm@10.33.4 --recursive lint` passed under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web typecheck` passed under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web budget:static` passed at `712.4 KiB` first-render total and `222.2 KiB` largest referenced asset.
+
 ### FE-014: Improve Kana And Common Hanja Pronunciation
 
 - Status: `Done`
@@ -186,7 +216,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Hanzi, kanji, and hanja use eight-direction dashed writing guides; kana and Hangul use four-quadrant dashed guides.
   - E2E covers default style, all style modes, legacy style migration, limitation disclosure state, blank Japanese kanji and uncommon Hanja romanization, and guide type counts on desktop and mobile.
 - Blockers/Dependencies:
-  - Browser font availability varies by platform, so the `Round` style includes stronger rounded/cute fallback stacks plus weight/shadow treatment to stay visibly distinct when exact platform fonts are unavailable.
+  - Browser font availability varies by platform; FE-015 replaced the old `Round` weight/shadow fallback with CDN-loaded display fonts and no fake shadow treatment.
   - Fully automatic kanji and broad Hanja transcription remains blocked on future dictionary-backed, context-aware adapters.
 - Evidence Required:
   - Galileo explorer audit completed for renderer/test/doc impact.
@@ -761,6 +791,27 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Depends on FE-001, RZN-001, SEC-001, and DATA-001 implementation surfaces.
 - Evidence Required:
   - Updated e2e matrix, specs, fixture provenance, and test output.
+
+### QA-005: Fix Static Reader Opacity And Guide Contrast Gaps
+
+- Status: `Ready`
+- Priority: `P0`
+- Primary Manager: QA/Accessibility Manager
+- Supporting Managers: UI Design Manager, UX Research Manager, Frontend Manager, Orchestrator
+- Goal: Close the accessibility gaps found during the FE-015 typography council review without conflating them with font-stack work.
+- Acceptance Criteria:
+  - Romanization and character opacity controls cannot lower essential lyric text below accessible perceived contrast in Light, Dark, or OLED themes.
+  - Tests calculate effective contrast with opacity applied, not only computed `color` against background.
+  - Full 8-color tile palette is tested for adjacent/repeating hue and value separation, not only the first four visible tiles.
+  - Visible writing-guide state has a dependable contrast target or user-facing strength option while preserving the existing toggle behavior.
+  - Desktop and mobile e2e cover the revised opacity bounds/colors, full palette separation, guide visibility, and no regression to theme controls.
+- Blockers/Dependencies:
+  - Needs UI Design Manager sign-off on whether to raise minimum opacity values or replace opacity with AA-safe muted token colors.
+  - Needs UX Research Manager input on how visible writing guides should be for learners versus visual noise.
+- Evidence Required:
+  - Updated contrast calculations with opacity included.
+  - Static reader e2e updates for opacity-aware contrast, full palette separation, and guide visibility.
+  - Before/after screenshots or written design review notes for Light, Dark, and OLED.
 
 ### SEC-001: Write Copyright And Input-Safety Guardrails
 

@@ -1044,6 +1044,7 @@ textarea {
 
 .static-lyric-output :is(.static-character-text, .static-text-token) {
   letter-spacing: 0;
+  font-synthesis: none;
   text-shadow: none;
 }
 
@@ -1051,7 +1052,8 @@ textarea {
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+    "Noto Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei",
+    "Heiti SC", sans-serif;
   font-weight: 650;
 }
 
@@ -1059,7 +1061,8 @@ textarea {
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Yu Gothic",
+    "Meiryo", sans-serif;
   font-weight: 650;
 }
 
@@ -1067,7 +1070,8 @@ textarea {
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo",
+    "Malgun Gothic", sans-serif;
   font-weight: 650;
 }
 
@@ -1089,21 +1093,25 @@ textarea {
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Serif SC", "Songti SC", SimSun, "Source Han Serif SC", serif;
+    "Noto Serif SC", "Source Han Serif SC", "Songti SC", SimSun, serif;
   font-weight: 700;
 }
 
 .static-lyric-output[data-character-style="serif"]
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
-  font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-family:
+    "Noto Serif JP", "Source Han Serif JP", "Hiragino Mincho ProN",
+    "Yu Mincho", serif;
   font-weight: 700;
 }
 
 .static-lyric-output[data-character-style="serif"]
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
-  font-family: "Noto Serif KR", "Nanum Myeongjo", AppleMyungjo, Batang, serif;
+  font-family:
+    "Noto Serif KR", "Source Han Serif KR", "Nanum Myeongjo", AppleMyungjo,
+    Batang, serif;
   font-weight: 700;
 }
 
@@ -1117,32 +1125,35 @@ textarea {
 .static-lyric-output[data-character-style="brush"]
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
-  font-family: "Kaiti SC", STKaiti, KaiTi, BiauKai, "Noto Serif CJK SC", serif;
-  font-weight: 700;
+  font-family:
+    "Ma Shan Zheng", "Long Cang", "Kaiti SC", STKaiti, KaiTi, BiauKai,
+    cursive;
+  font-weight: 400;
 }
 
 .static-lyric-output[data-character-style="brush"]
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Yu Mincho", "Hiragino Mincho ProN", "HiraMinProN-W3", "Noto Serif CJK JP",
+    "Yuji Boku", "Hachi Maru Pop", "Yu Mincho", "Hiragino Mincho ProN",
     serif;
-  font-weight: 650;
+  font-weight: 400;
 }
 
 .static-lyric-output[data-character-style="brush"]
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Nanum Myeongjo", AppleMyungjo, Batang, "Noto Serif CJK KR", serif;
-  font-weight: 700;
+    "Nanum Brush Script", "East Sea Dokdo", "Dokdo", "Nanum Pen Script",
+    cursive;
+  font-weight: 400;
 }
 
 .static-lyric-output[data-character-style="brush"]
   [data-language="text"]
   :is(.static-character-text, .static-text-token) {
-  font-family: Georgia, "Times New Roman", serif;
-  font-style: italic;
+  font-family: Caveat, "Comic Neue", cursive;
+  font-style: normal;
   font-weight: 700;
 }
 
@@ -1150,46 +1161,69 @@ textarea {
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "HanziPen SC", "Hannotate SC", "Kaiti SC", "Microsoft YaHei",
-    "Comic Sans MS", sans-serif;
-  font-weight: 850;
-  text-shadow:
-    0.035em 0 currentColor,
-    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
+    "ZCOOL KuaiLe", Huninn, "Noto Sans SC", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  font-weight: 400;
 }
 
 .static-lyric-output[data-character-style="round"]
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Hiragino Maru Gothic ProN", "Yu Gothic", "Meiryo", "Comic Sans MS",
-    sans-serif;
-  font-weight: 850;
-  text-shadow:
-    0.035em 0 currentColor,
-    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
+    "Hachi Maru Pop", "Zen Maru Gothic", "M PLUS Rounded 1c", "Kosugi Maru",
+    "Noto Sans JP", "Hiragino Maru Gothic ProN", sans-serif;
+  font-weight: 400;
 }
 
 .static-lyric-output[data-character-style="round"]
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Nanum Gothic", "Apple SD Gothic Neo", "Malgun Gothic", "Comic Sans MS",
-    sans-serif;
-  font-weight: 850;
-  text-shadow:
-    0.035em 0 currentColor,
-    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
+    Gaegu, Dongle, Jua, "Noto Sans KR", "Apple SD Gothic Neo",
+    "Malgun Gothic", sans-serif;
+  font-weight: 700;
 }
 
 .static-lyric-output[data-character-style="round"]
   [data-language="text"]
   :is(.static-character-text, .static-text-token) {
-  font-family: "Comic Sans MS", "Trebuchet MS", ui-rounded, sans-serif;
-  font-weight: 850;
-  text-shadow:
-    0.035em 0 currentColor,
-    0 0.035em color-mix(in srgb, currentColor 34%, transparent);
+  font-family: "Comic Neue", Gaegu, ui-rounded, sans-serif;
+  font-weight: 700;
+}
+
+.static-lyric-output[data-character-style="brush"]
+  [data-script-role="ja"]
+  .static-character-text {
+  font-family:
+    "Yuji Boku", "Ma Shan Zheng", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-weight: 400;
+}
+
+.static-lyric-output[data-character-style="brush"]
+  [data-script-role="ko"]
+  .static-character-text {
+  font-family:
+    "Ma Shan Zheng", "Yuji Boku", "Noto Serif KR", "Source Han Serif KR",
+    serif;
+  font-weight: 400;
+}
+
+.static-lyric-output[data-character-style="round"]
+  [data-script-role="ja"]
+  .static-character-text {
+  font-family:
+    "Hachi Maru Pop", "Zen Maru Gothic", "Noto Sans JP",
+    "Hiragino Maru Gothic ProN", sans-serif;
+  font-weight: 400;
+}
+
+.static-lyric-output[data-character-style="round"]
+  [data-script-role="ko"]
+  .static-character-text {
+  font-family:
+    Huninn, "ZCOOL KuaiLe", "Noto Sans KR", "Apple SD Gothic Neo",
+    "Malgun Gothic", sans-serif;
+  font-weight: 400;
 }
 
 .static-lyric-output .static-pinyin-box {
