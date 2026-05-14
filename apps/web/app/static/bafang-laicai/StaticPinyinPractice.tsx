@@ -35,8 +35,13 @@ const fallbackTileColor = tileColors[0] ?? "#f9d7da";
 const hanziPattern = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/u;
 const hangulPattern = /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/u;
 const kanaPattern = /[\u3040-\u30ff\uff66-\uff9f]/u;
+const hiraganaPattern = /[\u3040-\u309f]/u;
+const smallKanaPattern = /^[ぁぃぅぇぉゃゅょゎァィゥェォャュョヮ]$/u;
+const sokuonPattern = /^[っッ]$/u;
 const latinPattern = /[\p{Script=Latin}\p{Number}'’-]/u;
 const whitespacePattern = /\s/u;
+const japaneseParticleBoundaryPattern =
+  /[\s、。！？!?.,，・「」『』（）()[\]{}]/u;
 const languageTagPattern = /^\s*\[(zh|ja|ko|auto)\]\s*/i;
 
 const lyricTextSizeMin = 80;
@@ -129,6 +134,96 @@ const koreanFinals = [
   "p",
   "h",
 ];
+const koreanHanjaReadings: Record<string, string> = {
+  愛: "ae",
+  安: "an",
+  白: "baek",
+  百: "baek",
+  春: "chun",
+  天: "cheon",
+  大: "dae",
+  東: "dong",
+  花: "hwa",
+  火: "hwa",
+  和: "hwa",
+  高: "go",
+  國: "guk",
+  国: "guk",
+  光: "gwang",
+  海: "hae",
+  韓: "han",
+  江: "gang",
+  金: "geum",
+  空: "gong",
+  九: "gu",
+  月: "wol",
+  心: "sim",
+  星: "seong",
+  雪: "seol",
+  生: "saeng",
+  水: "su",
+  山: "san",
+  三: "sam",
+  四: "sa",
+  死: "sa",
+  世: "se",
+  小: "so",
+  風: "pung",
+  雨: "u",
+  夜: "ya",
+  一: "il",
+  人: "in",
+  日: "il",
+  長: "jang",
+  中: "jung",
+  地: "ji",
+};
+const kanaDigraphReadings: Record<string, string> = {
+  イェ: "ye",
+  ウァ: "wa",
+  ウィ: "wi",
+  ウェ: "we",
+  ウォ: "wo",
+  ヴァ: "va",
+  ヴィ: "vi",
+  ヴェ: "ve",
+  ヴォ: "vo",
+  シェ: "she",
+  ジェ: "je",
+  チェ: "che",
+  ツァ: "tsa",
+  ツィ: "tsi",
+  ツェ: "tse",
+  ツォ: "tso",
+  ティ: "ti",
+  ディ: "di",
+  トゥ: "tu",
+  ドゥ: "du",
+  ファ: "fa",
+  フィ: "fi",
+  フェ: "fe",
+  フォ: "fo",
+  いぇ: "ye",
+  うぁ: "wa",
+  うぃ: "wi",
+  うぇ: "we",
+  うぉ: "wo",
+  しぇ: "she",
+  じぇ: "je",
+  ちぇ: "che",
+  つぁ: "tsa",
+  つぃ: "tsi",
+  つぇ: "tse",
+  つぉ: "tso",
+  てぃ: "ti",
+  でぃ: "di",
+  とぅ: "tu",
+  どぅ: "du",
+  ふぁ: "fa",
+  ふぃ: "fi",
+  ふぇ: "fe",
+  ふぉ: "fo",
+};
 
 const subscribeHydration = () => () => {};
 const getClientHydrationSnapshot = () => true;
@@ -232,6 +327,10 @@ let romanizationEnginesPromise: Promise<RomanizationEngines> | null = null;
 
 function isKanaCharacter(character: string) {
   return kanaPattern.test(character);
+}
+
+function isHiraganaCharacter(character: string | undefined) {
+  return character !== undefined && hiraganaPattern.test(character);
 }
 
 function loadRomanizationEngines() {
@@ -495,6 +594,205 @@ function getChineseSyllables(
   return jyutping.map(toCantonesePinyin);
 }
 
+function getJapaneseKanaReadings(
+  characters: string[],
+  romanizationEngines: RomanizationEngines | null,
+) {
+  const readings = new Map<number, string>();
+
+  if (romanizationEngines === null) {
+    return readings;
+  }
+
+  let index = 0;
+
+  while (index < characters.length) {
+    const character = characters[index] ?? "";
+
+    if (!isKanaCharacter(character)) {
+      index += 1;
+      continue;
+    }
+
+    const startIndex = index;
+    const runCharacters: string[] = [];
+
+    while (index < characters.length) {
+      const nextCharacter = characters[index] ?? "";
+
+      if (!isKanaCharacter(nextCharacter)) {
+        break;
+      }
+
+      runCharacters.push(nextCharacter);
+      index += 1;
+    }
+
+    romanizeKanaRun(
+      runCharacters,
+      startIndex,
+      characters,
+      romanizationEngines,
+    ).forEach((reading, offset) => {
+      readings.set(startIndex + offset, reading);
+    });
+  }
+
+  return readings;
+}
+
+function romanizeKanaRun(
+  runCharacters: string[],
+  runStartIndex: number,
+  characters: string[],
+  romanizationEngines: RomanizationEngines,
+) {
+  const readings = Array.from({ length: runCharacters.length }, () => "");
+  const runText = runCharacters.join("");
+  let index = 0;
+
+  while (index < runCharacters.length) {
+    const character = runCharacters[index] ?? "";
+    const absoluteIndex = runStartIndex + index;
+
+    if (sokuonPattern.test(character)) {
+      const nextUnit = getKanaUnit(runCharacters, index + 1);
+      readings[index] = getSokuonReading(
+        romanizeKanaUnit(nextUnit, romanizationEngines),
+      );
+      index += 1;
+      continue;
+    }
+
+    if (character === "ー") {
+      readings[index] = getPreviousRomajiVowel(readings);
+      index += 1;
+      continue;
+    }
+
+    const particleReading = getKanaParticleReading(
+      character,
+      runText,
+      absoluteIndex,
+      characters,
+    );
+
+    if (particleReading !== null) {
+      readings[index] = particleReading;
+      index += 1;
+      continue;
+    }
+
+    const nextCharacter = runCharacters[index + 1];
+    const shouldCombineWithSmallKana =
+      nextCharacter !== undefined && smallKanaPattern.test(nextCharacter);
+    const unit = shouldCombineWithSmallKana
+      ? `${character}${nextCharacter}`
+      : character;
+
+    readings[index] = smallKanaPattern.test(character)
+      ? romanizeKanaUnit(character, romanizationEngines)
+      : romanizeKanaUnit(unit, romanizationEngines);
+
+    if (shouldCombineWithSmallKana) {
+      readings[index + 1] = "";
+      index += 2;
+      continue;
+    }
+
+    index += 1;
+  }
+
+  return readings;
+}
+
+function getKanaUnit(runCharacters: string[], index: number) {
+  const character = runCharacters[index] ?? "";
+  const nextCharacter = runCharacters[index + 1];
+
+  if (nextCharacter !== undefined && smallKanaPattern.test(nextCharacter)) {
+    return `${character}${nextCharacter}`;
+  }
+
+  return character;
+}
+
+function romanizeKanaUnit(
+  unit: string,
+  romanizationEngines: RomanizationEngines,
+) {
+  return kanaDigraphReadings[unit] ?? romanizationEngines.toRomaji(unit);
+}
+
+function getSokuonReading(nextRomaji: string) {
+  return nextRomaji.match(/[bcdfghjklmnpqrstvwxyz]/iu)?.[0] ?? "";
+}
+
+function getPreviousRomajiVowel(readings: string[]) {
+  for (const reading of [...readings].reverse()) {
+    const vowel = reading.match(/[aeiou]$/iu)?.[0];
+
+    if (vowel !== undefined) {
+      return vowel.toLowerCase();
+    }
+  }
+
+  return "";
+}
+
+function getKanaParticleReading(
+  character: string,
+  runText: string,
+  absoluteIndex: number,
+  characters: string[],
+) {
+  if (character === "を" || character === "ヲ") {
+    return "o";
+  }
+
+  if (
+    (character === "は" &&
+      isLikelyJapaneseParticle(absoluteIndex, characters)) ||
+    ((runText === "コンニチハ" || runText === "コンバンハ") &&
+      character === "ハ")
+  ) {
+    return "wa";
+  }
+
+  if (
+    (character === "へ" &&
+      isLikelyJapaneseParticle(absoluteIndex, characters)) ||
+    (character === "ヘ" &&
+      isLikelyJapaneseParticle(absoluteIndex, characters) &&
+      runText.length === 1)
+  ) {
+    return "e";
+  }
+
+  return null;
+}
+
+function isLikelyJapaneseParticle(absoluteIndex: number, characters: string[]) {
+  const previousCharacter = characters[absoluteIndex - 1];
+  const nextCharacter = characters[absoluteIndex + 1];
+
+  if (
+    previousCharacter === undefined ||
+    whitespacePattern.test(previousCharacter)
+  ) {
+    return false;
+  }
+
+  if (
+    nextCharacter === undefined ||
+    japaneseParticleBoundaryPattern.test(nextCharacter)
+  ) {
+    return true;
+  }
+
+  return !isHiraganaCharacter(nextCharacter);
+}
+
 function buildLineTokens(
   line: string,
   languageHint: LanguageHint,
@@ -521,6 +819,10 @@ function buildLineTokens(
   let syllableIndex = 0;
   let customIndex = 0;
   const characters = segmentLine(convertedLine);
+  const japaneseKanaReadings = getJapaneseKanaReadings(
+    characters,
+    romanizationEngines,
+  );
   let activeHanziGroupStart = -1;
   const hanziGroupStarts = characters.map((character, index) => {
     if (!hanziPattern.test(character)) {
@@ -569,6 +871,7 @@ function buildLineTokens(
       language,
       defaultSyllables,
       syllableIndex,
+      japaneseKanaReadings.get(index) ?? "",
       romanizationEngines,
     );
     const reading =
@@ -607,10 +910,14 @@ function buildLineTokens(
     return token;
   });
 
+  const shouldShowScriptBadges = tokens.some(
+    (token) => token.scriptRole !== null && token.scriptRole !== "zh",
+  );
+
   return tokens.map((token, index) => {
     const previousToken = tokens[index - 1];
 
-    if (token.scriptRole === null) {
+    if (token.scriptRole === null || !shouldShowScriptBadges) {
       return token;
     }
 
@@ -667,6 +974,7 @@ function getTokenReading(
   language: TokenLanguage,
   chineseSyllables: string[],
   syllableIndex: number,
+  japaneseKanaReading: string,
   romanizationEngines: RomanizationEngines | null,
 ) {
   if (language === "zh") {
@@ -678,13 +986,23 @@ function getTokenReading(
       return "";
     }
 
-    return isKanaCharacter(character)
-      ? romanizationEngines.toRomaji(character)
-      : "";
+    return isKanaCharacter(character) ? japaneseKanaReading : "";
   }
 
   if (language === "ko") {
+    return romanizeKoreanToken(character);
+  }
+
+  return "";
+}
+
+function romanizeKoreanToken(character: string) {
+  if (hangulPattern.test(character)) {
     return romanizeHangul(character);
+  }
+
+  if (hanziPattern.test(character)) {
+    return koreanHanjaReadings[character] ?? "";
   }
 
   return "";
@@ -1851,15 +2169,16 @@ export function StaticPinyinPractice() {
                 <summary>Known limitations</summary>
                 <div>
                   <p>
-                    Japanese kanji and Korean hanja are shown as full lyric
-                    boxes with blank romanization unless you provide a custom
-                    romanization track.
+                    Japanese kanji and uncommon Korean hanja are shown as full
+                    lyric boxes with blank romanization unless you provide a
+                    custom romanization track.
                   </p>
                   <p>
-                    Kana and Hangul can be romanized automatically in this
-                    static reader. Kanji and hanja need dictionary-backed
-                    readings in a future adapter because their pronunciation
-                    depends on word, language, and context.
+                    Kana, Hangul, and common Korean hanja can be romanized
+                    automatically in this static reader. Kanji and full Hanja
+                    coverage need dictionary-backed readings in a future adapter
+                    because their pronunciation depends on word, language, and
+                    context.
                   </p>
                 </div>
               </details>

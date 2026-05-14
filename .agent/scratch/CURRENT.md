@@ -28,7 +28,8 @@
 - AI-agent discovery policy allows public search and user-requested fetchers while disallowing model training, bulk scraping, dataset building, and user lyric/custom-track extraction.
 - Baseline legal posture now has public Terms, Privacy, and Copyright pages. They match the current static app and keep public UGC, server-side lyric persistence, and production DMCA safe-harbor operations blocked until SEC-002/SEC-003/DATA-002 and formal designated-agent/provenance work are complete.
 - Human-readable AI policy is available at `/ai-policy/`; visible `AI policy` footer links point there, while `/llms.txt` and `/.well-known/ai-policy.json` remain machine-readable policy files.
-- Static reader Han ideographs are now role-correctable as Hanzi, Kanji, or Hanja. First tap on an unbroken Han run changes the whole run; later taps split individual characters. Badges appear once per same-role segment and surrounding Han tiles carry matching role-colored borders.
+- Static reader Han ideographs are now role-correctable as Hanzi, Kanji, or Hanja. First tap on an unbroken Han run changes the whole run; later taps split individual characters. Badges appear once per same-role segment only when a line contains non-Chinese Han roles, sit flush to the bottom-right box wall, and surrounding Han tiles carry matching role-colored borders.
+- Japanese kana readings now use run-aware pronunciation heuristics for particles, sokuon, small-kana digraphs, and long-vowel marks. Common Korean Hanja has a small built-in Sino-Korean reading table; uncommon/context-dependent Hanja still needs custom tracks or future dictionary-backed adapters.
 - Dark/OLED static-reader controls now use muted semantic accents, and e2e checks dark/OLED tile hue/value separation so the pastel lyric boxes do not collapse into muddy same-looking colors.
 - Local Node `v24.15.0` is installed via `nvm`; use `source /home/ryan/.nvm/nvm.sh && nvm use 24` before running repo scripts.
 
@@ -61,7 +62,7 @@
 - Static reader now uses generic multilingual-reader public copy. The route slug remains `/static/bafang-laicai/`, but the visible title/metadata no longer present `八方来财` as the page title.
 - The colored `八方来财` sample is now a normal shared-renderer preview line with line number/language badge and reacts to lyric scale, romanization scale, character scale, opacity, writing guide, script, and Chinese romanization settings.
 - Static reader persists `characterBrushStyle` with `Sans`, `Serif`, `Brush`, and `Round` modes; legacy stored `modern` and `cartoon` values migrate to `sans` and `round`.
-- Japanese kanji and Korean hanja now render as normal colored lyric boxes with blank romanization unless a custom romanization track is provided. Kana and Hangul continue to auto-romanize where supported.
+- Japanese kanji and uncommon/context-dependent Korean hanja now render as normal colored lyric boxes with blank romanization unless a custom romanization track is provided. Kana, Hangul, and common Korean Hanja auto-romanize where supported.
 - Static reader has a collapsed `Known limitations` disclosure explaining that kanji/hanja automatic transcription needs future dictionary-backed contextual adapters.
 - Hanzi/kanji/hanja use eight-direction dashed writing guides; kana and Hangul use four-quadrant dashed guides.
 - Latest implementation commit: `b8d8aac` (`Add human readable AI policy page`).
@@ -69,7 +70,7 @@
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
 - Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and focused e2e for `static-bafang.spec.ts`/`seo-static.spec.ts` passed with Corepack pnpm 10.33.4. Static budget is `699.4 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
 - Latest AI policy verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `legal.spec.ts`, `seo-static.spec.ts`, `home.spec.ts`, and `static-bafang.spec.ts`. Static budget is `700.1 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
-- Latest static-reader role-toggle verification passed under Node `v24.15.0` and pnpm `10.33.4`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. Static budget is `704.6 KiB` first-render total and `222.2 KiB` largest referenced asset. Prettier was run on touched files only; repo-wide `format:check` still has pre-existing unrelated warnings.
+- Latest static-reader role-toggle/pronunciation verification passed under Node `v24.15.0` and pnpm `10.33.4`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. Static budget is `707.4 KiB` first-render total and `222.2 KiB` largest referenced asset. Prettier was run on touched files only; repo-wide `format:check` still has pre-existing unrelated warnings.
 - Latest static-reader role-toggle implementation commit: `d3a71ba` (`Add Han script role toggles`).
 - SEO/static foundation now includes root/static route metadata, canonical URLs, sitemap, robots, manifest, SVG icon, and e2e metadata route coverage.
 - Static reader now lazy-loads `pinyin-pro`, `to-jyutping`, `opencc-js`, and `wanakana` after user input/settings require them; first-render static route chunk scan found about `659 KB` of referenced chunks after the change.
@@ -94,7 +95,7 @@
 - GitHub Pages API reports `build_type: workflow`, `public: true`, and `html_url: https://ryanlaufsen.github.io/pinyin-lyrics/`.
 - Direct route smoke check for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200`.
 - Latest static-route verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. All commands still warn that the host Node is `v21.7.2`.
-- Static Japanese/Korean support note: kana and Hangul get romanization; kanji and hanja render as colored blank-romanization boxes to avoid false readings until dictionary-backed adapters are added.
+- Static Japanese/Korean support note: kana and Hangul get romanization; common Korean Hanja uses a small reviewed reading table; Japanese kanji and unknown/context-dependent Hanja render as colored blank-romanization boxes to avoid false readings until dictionary-backed adapters are added.
 - Latest implementation commit: `989732d` (`Add themed custom romanization controls`).
 - Latest handoff commit: `aed7d36` (`Record romanization feature handoff`).
 - Latest Pages workflow run `25791752513` passed on 2026-05-13 UTC.

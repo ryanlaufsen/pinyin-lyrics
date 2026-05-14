@@ -693,11 +693,11 @@ textarea {
 
 .static-script-indicator {
   position: absolute;
-  top: 0.24rem;
-  right: 0.24rem;
+  right: 0;
+  bottom: 0;
   z-index: 2;
   min-width: 1.45rem;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--script-role-color);
   color: var(--static-script-badge-text);
   font-family: var(--font-sans);
@@ -705,7 +705,7 @@ textarea {
   font-weight: 850;
   letter-spacing: 0;
   line-height: 1;
-  padding: 0.18rem 0.25rem;
+  padding: 0.2rem 0.28rem;
   pointer-events: none;
   text-align: center;
 }

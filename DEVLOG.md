@@ -4,12 +4,15 @@
 
 - Added linked Han-script role correction for the static reader: tapping an unbroken Han ideograph run first switches the whole run between Hanzi, Kanji, and Hanja, then later taps can split individual characters inside that run.
 - Added one compact role badge per same-role segment, with matching role-colored borders on all surrounding Han tiles, so the correction state is visible without putting a badge on every character.
-- Preserved romanization alignment when a character's role changes: Chinese roles keep their matching pinyin/Jyutping/Cantonese slot, while Kanji and Hanja roles render blank unless the user supplies a custom romanization track.
+- Moved script role badges flush to the bottom-right wall of the character box, removed rounded badge styling, and suppressed the badge entirely when every Han ideograph in a line is still Chinese.
+- Preserved romanization alignment when a character's role changes: Chinese roles keep their matching pinyin/Jyutping/Cantonese slot, Kanji roles render blank unless the user supplies a custom romanization track, and common Hanja roles can use best-effort Sino-Korean readings.
 - Added user-facing helper copy that tells readers they can tap an ideograph tile to switch between Hanzi, Kanji, and Hanja.
+- Added run-aware Japanese kana pronunciation so hiragana/katakana particles, sokuon, small-kana digraphs, and long-vowel marks have context. E2E now covers `こんにちは` as `ko n ni chi wa`, `パーティー` as `pa a ti [blank] i`, and `かった` as `ka t ta`.
+- Added a conservative common-Hanja reading table for Korean lyric boxes; unknown or context-dependent Hanja still fall back to blank/custom romanization.
 - Reworked Dark/OLED reader accents so segmented controls, sliders, and checkboxes use muted semantic control colors instead of neon greens, and adjusted dark study tiles to keep stronger perceived hue/value separation.
-- Expanded static-reader e2e coverage for grouped role toggling, individual overrides, slot preservation, helper text, and dark/OLED tile color separation on desktop and mobile.
+- Expanded static-reader e2e coverage for grouped role toggling, individual overrides, badge placement/suppression, slot preservation, kana/Hanja pronunciation examples, helper text, and dark/OLED tile color separation on desktop and mobile.
 - Installed Node `v24.15.0` via local `nvm` for repo-compliant verification and activated pnpm `10.33.4` with Corepack.
-- Verification passed under Node `v24.15.0`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. The static route budget measured `704.6 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset.
+- Verification passed under Node `v24.15.0`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. The static route budget measured `707.4 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset after the badge and pronunciation refinements.
 - Ran Prettier on the three touched files. Repo-wide `pnpm format:check` still reports pre-existing unrelated formatting warnings in files outside this patch.
 - Commit `d3a71ba` added linked Han script role toggles, dark/OLED theme polish, e2e coverage, and coordination updates.
 - Added `/ai-policy/` as the human-readable AI policy page so visible `AI policy` footer links no longer lead to a raw file or missing route.

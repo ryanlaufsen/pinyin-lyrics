@@ -456,7 +456,7 @@ test("renders the static multilingual lyric practice mode", async ({
   await expect(limitations.locator("p").first()).not.toBeVisible();
   await limitations.locator("summary").click();
   await expect(
-    limitations.getByText("Japanese kanji and Korean hanja"),
+    limitations.getByText("Japanese kanji and uncommon Korean hanja"),
   ).toBeVisible();
   await expect(
     limitations.getByText("dictionary-backed readings"),
@@ -801,7 +801,7 @@ test("renders the static multilingual lyric practice mode", async ({
     "data-script-role",
     "zh",
   );
-  await expect(chineseScriptBadges).toHaveText(["CN"]);
+  await expect(chineseScriptBadges).toHaveCount(0);
 
   await chineseScriptTiles.nth(0).click();
   await expect(chineseScriptTiles.nth(0)).toHaveAttribute(
@@ -813,6 +813,33 @@ test("renders the static multilingual lyric practice mode", async ({
     "ja",
   );
   await expect(chineseScriptBadges).toHaveText(["KAN"]);
+  await expect(chineseScriptBadges.first()).toHaveCSS("right", "0px");
+  await expect(chineseScriptBadges.first()).toHaveCSS("bottom", "0px");
+  await expect(chineseScriptBadges.first()).toHaveCSS(
+    "border-top-right-radius",
+    "0px",
+  );
+  const firstScriptTileBox = await chineseScriptTiles.nth(0).boundingBox();
+  const firstScriptBadgeBox = await chineseScriptBadges.first().boundingBox();
+  if (!firstScriptTileBox || !firstScriptBadgeBox) {
+    throw new Error("Expected script tile and badge boxes to be measurable");
+  }
+  expect(firstScriptBadgeBox.x).toBeGreaterThanOrEqual(firstScriptTileBox.x);
+  expect(firstScriptBadgeBox.y).toBeGreaterThanOrEqual(firstScriptTileBox.y);
+  expect(
+    Math.abs(
+      firstScriptBadgeBox.x +
+        firstScriptBadgeBox.width -
+        (firstScriptTileBox.x + firstScriptTileBox.width),
+    ),
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(
+      firstScriptBadgeBox.y +
+        firstScriptBadgeBox.height -
+        (firstScriptTileBox.y + firstScriptTileBox.height),
+    ),
+  ).toBeLessThanOrEqual(1);
   await expect(chineseLineReadings.nth(0)).toHaveText("\u00a0");
   await expect(chineseLineReadings.nth(1)).toHaveText("\u00a0");
 
@@ -860,7 +887,7 @@ test("renders the static multilingual lyric practice mode", async ({
     "data-script-role",
     "zh",
   );
-  await expect(chineseScriptBadges).toHaveText(["CN"]);
+  await expect(chineseScriptBadges).toHaveCount(0);
   await expect(chineseLineReadings.nth(0)).toHaveText("shān");
   await expect(chineseLineReadings.nth(1)).toHaveText("gāo");
 
@@ -944,7 +971,7 @@ test("renders the static multilingual lyric practice mode", async ({
   ).toHaveText("愛");
   expect(
     await koreanHanjaLine.locator(".static-pinyin-box").first().textContent(),
-  ).toBe("\u00a0");
+  ).toBe("ae");
   await expect(koreanHanjaLine).toContainText("sa");
   await expect(koreanHanjaLine).toContainText("rang");
   await expect(koreanHanjaLine.locator(".writing-guide")).toHaveCount(3);
@@ -1317,6 +1344,34 @@ test("renders the static multilingual lyric practice mode", async ({
     page.getByRole("contentinfo").getByRole("link", { name: "AI policy" }),
   ).toHaveAttribute("href", "/ai-policy");
   expect(errors).toEqual([]);
+});
+
+test("applies contextual kana and common Hanja pronunciation rules", async ({
+  page,
+}) => {
+  await page.goto("/static/bafang-laicai");
+
+  const lyricsInput = page.getByRole("textbox", {
+    name: "User-provided lyrics",
+  });
+  await lyricsInput.fill(
+    ["[ja] こんにちは", "[ja] パーティー", "[ja] かった", "[ko] 愛高山"].join(
+      "\n",
+    ),
+  );
+
+  await expect(
+    page.getByTestId("pinyin-line-1").locator(".static-pinyin-box"),
+  ).toHaveText(["ko", "n", "ni", "chi", "wa"]);
+  await expect(
+    page.getByTestId("pinyin-line-2").locator(".static-pinyin-box"),
+  ).toHaveText(["pa", "a", "ti", "\u00a0", "i"]);
+  await expect(
+    page.getByTestId("pinyin-line-3").locator(".static-pinyin-box"),
+  ).toHaveText(["ka", "t", "ta"]);
+  await expect(
+    page.getByTestId("pinyin-line-4").locator(".static-pinyin-box"),
+  ).toHaveText(["ae", "go", "san"]);
 });
 
 test("migrates static reader settings from the legacy storage namespace", async ({

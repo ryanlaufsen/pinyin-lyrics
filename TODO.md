@@ -89,6 +89,30 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Done
 
+### FE-014: Improve Kana And Common Hanja Pronunciation
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Romanization/NLP Manager
+- Supporting Managers: Frontend Manager, UX Research Manager, QA/Accessibility Manager, UI Design Manager, Orchestrator
+- Goal: Make static Japanese kana and common Korean Hanja readings closer to pronunciation instead of naive one-codepoint transliteration.
+- Acceptance Criteria:
+  - Hiragana and katakana readings are generated from kana runs, not isolated characters, so particle は can render as `wa` in examples such as `こんにちは`.
+  - Kana rules handle common sokuon, small-kana digraph, and long-vowel mark pronunciation without shifting box alignment.
+  - Katakana loanword examples such as `パーティー` use modern digraph readings like `ti`.
+  - Korean Hanja uses a conservative common-character Sino-Korean reading table, while unknown/context-dependent Hanja remain blank or custom-track driven.
+  - The limitations disclosure distinguishes Japanese kanji and uncommon Korean Hanja from common Hanja with built-in readings.
+  - E2E covers contextual kana examples, common Hanja examples, and desktop/mobile behavior.
+- Blockers/Dependencies:
+  - Full Japanese kanji and Korean Hanja coverage still needs dictionary-backed, context-aware adapters.
+  - The common-Hanja table is deliberately limited and should grow from tested fixtures rather than unreviewed bulk data.
+- Evidence Required:
+  - `pnpm --filter @lyricbridge/web typecheck` passed under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web lint` passed under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web e2e -- static-bafang.spec.ts` passed for desktop and mobile Chromium under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web budget:static` passed at `707.4 KiB` first-render total and `222.2 KiB` largest referenced asset.
+
 ### FE-013: Add Linked Han Script Role Toggles And Dark Theme Polish
 
 - Status: `Done`
@@ -99,12 +123,13 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Acceptance Criteria:
   - Tapping any Han ideograph in an unbroken linked run first changes the whole run's role between Hanzi, Kanji, and Hanja.
   - After a run-level change, tapping an individual Han tile changes only that character's role.
-  - Role changes preserve romanization slot alignment: Chinese roles use the matching Chinese reading slot, while Kanji/Hanja roles render blank unless a custom romanization track supplies text.
-  - The UI exposes only one role badge per same-role linked segment, and every Han tile in the segment uses a border keyed to the same role color.
+  - Role changes preserve romanization slot alignment: Chinese roles use the matching Chinese reading slot, Kanji roles render blank unless a custom romanization track supplies text, and common Hanja roles can use built-in Sino-Korean readings.
+  - The UI exposes only one role badge per same-role linked segment, suppresses badges for all-Chinese Han lines, and every Han tile in the segment uses a border keyed to the same role color.
+  - Script role badges sit flush with the bottom-right wall of the character box without rounded badge styling or interior margin.
   - Han role tiles are keyboard-accessible buttons with meaningful accessible names and focus-visible styling.
   - Customer-facing copy tells users they can tap an ideograph tile to switch between Hanzi, Kanji, and Hanja.
   - Dark and OLED controls use restrained accents instead of neon controls, and CJK tile backgrounds preserve visible hue/value separation comparable to Light mode.
-  - E2E covers grouped toggling, individual override after group change, pinyin slot preservation, user hint visibility, dark/OLED tile separation, and desktop/mobile behavior.
+  - E2E covers grouped toggling, individual override after group change, pinyin slot preservation, badge placement/suppression, user hint visibility, dark/OLED tile separation, and desktop/mobile behavior.
 - Blockers/Dependencies:
   - Automatic kanji/hanja transcription remains blocked on future dictionary-backed, context-aware adapters.
   - Docker is still unavailable in this WSL distro, so local Docker validation remains under `DEVOPS-001`.
@@ -115,7 +140,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `pnpm --filter @lyricbridge/web lint` passed under Node `v24.15.0`.
   - `pnpm --filter @lyricbridge/web e2e -- static-bafang.spec.ts` passed for desktop and mobile Chromium under Node `v24.15.0`.
   - `pnpm --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
-  - `pnpm --filter @lyricbridge/web budget:static` passed at `704.6 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - `pnpm --filter @lyricbridge/web budget:static` passed at `707.4 KiB` first-render total and `222.2 KiB` largest referenced asset after the badge and pronunciation refinements.
   - Prettier was run on the three touched files; repo-wide `pnpm format:check` still reports pre-existing unrelated formatting warnings.
   - Commit `d3a71ba` added linked Han script role toggles, dark/OLED theme polish, e2e coverage, and coordination updates.
 
@@ -154,14 +179,14 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Acceptance Criteria:
   - Static reader exposes `Sans`, `Serif`, `Brush`, and `Round` character styles.
   - Legacy stored `modern` and `cartoon` values migrate to `sans` and `round` without losing user settings.
-  - A collapsed-by-default `Known limitations` disclosure explains that Japanese kanji and Korean hanja need dictionary-backed readings and custom romanization until that adapter exists.
-  - Japanese kanji and Korean hanja render as normal colored lyric boxes with blank romanization, not as small inline fallback text or false Chinese readings.
+  - A collapsed-by-default `Known limitations` disclosure explains that Japanese kanji and uncommon Korean hanja need dictionary-backed readings and custom romanization until that adapter exists.
+  - Japanese kanji and uncommon Korean hanja render as normal colored lyric boxes with blank romanization, not as small inline fallback text or false Chinese readings.
   - Japanese kana and Korean Hangul render as colored lyric boxes with automatic romanization where supported.
   - Hanzi, kanji, and hanja use eight-direction dashed writing guides; kana and Hangul use four-quadrant dashed guides.
-  - E2E covers default style, all style modes, legacy style migration, limitation disclosure state, blank kanji/hanja romanization, and guide type counts on desktop and mobile.
+  - E2E covers default style, all style modes, legacy style migration, limitation disclosure state, blank Japanese kanji and uncommon Hanja romanization, and guide type counts on desktop and mobile.
 - Blockers/Dependencies:
   - Browser font availability varies by platform, so the `Round` style includes stronger rounded/cute fallback stacks plus weight/shadow treatment to stay visibly distinct when exact platform fonts are unavailable.
-  - Fully automatic kanji/hanja transcription remains blocked on future dictionary-backed, context-aware adapters.
+  - Fully automatic kanji and broad Hanja transcription remains blocked on future dictionary-backed, context-aware adapters.
 - Evidence Required:
   - Galileo explorer audit completed for renderer/test/doc impact.
   - `git diff --check` passed.
@@ -528,7 +553,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Static route accepts user-provided Chinese, Japanese, Korean, and English/Latin lyric lines in a browser-local input and preserves submitted line breaks, including blank lines.
   - Static route supports mixed-language songs through auto-detection and optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line hints.
   - Chinese pinyin is monospace, uses tone marks, and each pinyin container matches the width of its Chinese character box.
-  - Japanese kana romaji and Korean Hangul romanization render in matching study boxes; Japanese kanji and Korean hanja render as blank-romanization study boxes until dictionary-backed adapters are added.
+  - Japanese kana romaji and Korean Hangul romanization render in matching study boxes; Japanese kanji and uncommon Korean hanja render as blank-romanization study boxes until dictionary-backed adapters are added.
   - English/Latin runs render as plain inline text tokens, not per-letter boxes.
   - Chinese characters sit inside pastel boxes and can flip between source, Simplified, and Traditional display.
   - Lyric text size can be adjusted with a slider and plus/minus icon buttons.
