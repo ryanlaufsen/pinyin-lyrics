@@ -2,6 +2,14 @@
 
 ## 2026-05-13
 
+- Refined the static reader `Character style` control from the old `Modern`/`Brush`/`Cartoon` set into `Sans`, `Serif`, `Brush`, and `Round`. The old cartoon/modern modes could look identical when the browser fell back to the same installed system fonts; `Round` now has rounded/cute fallback stacks plus weight/shadow treatment so it remains visually distinct even under fallback.
+- Added safe legacy migration from stored `modern` to `sans` and stored `cartoon` to `round`.
+- Added a collapsed-by-default `Known limitations` disclosure explaining that Japanese kanji and Korean hanja need dictionary-backed contextual readings and will otherwise rely on custom romanization.
+- Changed Japanese kanji and Korean hanja rendering to full colored lyric boxes with blank romanization rather than small inline text or false Chinese readings.
+- Expanded Japanese and Korean writing-guide support: hanzi/kanji/hanja use eight-direction dashed guides, while kana and Hangul use four-quadrant dashed guides.
+- Expanded static e2e coverage for style modes, legacy style migration, limitations disclosure, blank kanji/hanja romanization, and per-script guide type counts on desktop and mobile.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `static-bafang.spec.ts`/`seo-static.spec.ts`. The static route budget measured `699.4 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
+- Commit `b5cbac9` refined CJK lyric styles, blank kanji/hanja romanization, Japanese/Korean writing guides, limitations disclosure, and e2e coverage.
 - Genericized the static reader so customer-facing metadata, the page title, the home-page static link, and `/llms.txt` present it as a reusable multilingual lyric reader instead of a `八方来财` title page. The route slug remains `/static/bafang-laicai/` for continuity.
 - Replaced the hard-coded title-practice widget with a shared lyric renderer. The colored `八方来财` sample now renders as a normal preview line with line number/language badge and reacts to the same lyric scale, romanization scale, character scale, opacity, guide, script, and Chinese romanization settings as pasted lyrics.
 - Added a persisted `Character style` control with `Modern`, `Brush`, and `Cartoon` modes. CSS applies language-specific font stacks/treatments for Chinese, Japanese, Korean, and Latin/other tokens.

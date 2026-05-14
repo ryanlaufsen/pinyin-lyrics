@@ -88,6 +88,35 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Done
 
+### FE-012: Clarify CJK Styles, Guides, And Kanji/Hanja Limits
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: Romanization/NLP Manager, UI Design Manager, UX Research Manager, QA/Accessibility Manager, Orchestrator
+- Goal: Make the static reader's character-style choices visually distinct and make Japanese/Korean non-automatic romanization limits explicit without mislabeling kanji or hanja.
+- Acceptance Criteria:
+  - Static reader exposes `Sans`, `Serif`, `Brush`, and `Round` character styles.
+  - Legacy stored `modern` and `cartoon` values migrate to `sans` and `round` without losing user settings.
+  - A collapsed-by-default `Known limitations` disclosure explains that Japanese kanji and Korean hanja need dictionary-backed readings and custom romanization until that adapter exists.
+  - Japanese kanji and Korean hanja render as normal colored lyric boxes with blank romanization, not as small inline fallback text or false Chinese readings.
+  - Japanese kana and Korean Hangul render as colored lyric boxes with automatic romanization where supported.
+  - Hanzi, kanji, and hanja use eight-direction dashed writing guides; kana and Hangul use four-quadrant dashed guides.
+  - E2E covers default style, all style modes, legacy style migration, limitation disclosure state, blank kanji/hanja romanization, and guide type counts on desktop and mobile.
+- Blockers/Dependencies:
+  - Browser font availability varies by platform, so the `Round` style includes stronger rounded/cute fallback stacks plus weight/shadow treatment to stay visibly distinct when exact platform fonts are unavailable.
+  - Fully automatic kanji/hanja transcription remains blocked on future dictionary-backed, context-aware adapters.
+- Evidence Required:
+  - Galileo explorer audit completed for renderer/test/doc impact.
+  - `git diff --check` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed at `699.4 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts tests/e2e/seo-static.spec.ts` passed for desktop and mobile Chromium.
+  - Commit `b5cbac9` refined CJK lyric styles, blank kanji/hanja romanization, Japanese/Korean writing guides, limitations disclosure, and e2e coverage.
+
 ### FE-011: Genericize Static Reader Preview And Character Styles
 
 - Status: `Done`
@@ -98,7 +127,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Acceptance Criteria:
   - Static reader page metadata, visible title, home link, and AI policy label use generic multilingual lyric-reader copy instead of presenting `八方来财` as the page title.
   - The colored `八方来财` sample renders through the same lyric-line component as pasted lyrics, including line number, language badge, tile sizing, romanization sizing, character sizing, opacity, writing-guide visibility, script conversion, and Chinese romanization mode.
-  - Static reader exposes a `Character style` segmented control with `Modern`, `Brush`, and `Cartoon` options.
+  - Static reader exposes a `Character style` segmented control with `Sans`, `Serif`, `Brush`, and `Round` options.
   - Character style is applied through language-scoped CSS so Chinese, Japanese, Korean, and Latin/other text use distinct font stacks/treatments.
   - Character style persists in localStorage and valid legacy migrated settings restore safely.
   - E2E covers preview parity, generic metadata, character-style state, language-specific style application, persistence, and legacy migration on desktop and mobile.
@@ -443,7 +472,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - Static route accepts user-provided Chinese, Japanese, Korean, and English/Latin lyric lines in a browser-local input and preserves submitted line breaks, including blank lines.
   - Static route supports mixed-language songs through auto-detection and optional `[zh]`, `[ja]`, `[ko]`, and `[auto]` line hints.
   - Chinese pinyin is monospace, uses tone marks, and each pinyin container matches the width of its Chinese character box.
-  - Japanese kana romaji and Korean Hangul romanization render in matching study boxes; Japanese kanji is preserved as readable text in static mode until a dictionary-backed adapter is added.
+  - Japanese kana romaji and Korean Hangul romanization render in matching study boxes; Japanese kanji and Korean hanja render as blank-romanization study boxes until dictionary-backed adapters are added.
   - English/Latin runs render as plain inline text tokens, not per-letter boxes.
   - Chinese characters sit inside pastel boxes and can flip between source, Simplified, and Traditional display.
   - Lyric text size can be adjusted with a slider and plus/minus icon buttons.

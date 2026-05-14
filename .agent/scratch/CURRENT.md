@@ -56,10 +56,14 @@
 - Static reader persists pasted lyrics, custom romanization track, custom-track state, theme, Chinese script, Chinese romanization mode, lyric text size, romanization text size, character text size, romanization opacity, character opacity, and writing guide visibility to localStorage key `lyricbridge:static-bafang:v1`; the legacy `pinyin-lyrics:static-bafang:v1` key is read and copied forward for migration.
 - Static reader now uses generic multilingual-reader public copy. The route slug remains `/static/bafang-laicai/`, but the visible title/metadata no longer present `八方来财` as the page title.
 - The colored `八方来财` sample is now a normal shared-renderer preview line with line number/language badge and reacts to lyric scale, romanization scale, character scale, opacity, writing guide, script, and Chinese romanization settings.
-- Static reader persists `characterBrushStyle` with `Modern`, `Brush`, and `Cartoon` modes; CSS applies language-specific font stacks for Chinese, Japanese, Korean, and Latin/other tokens.
+- Static reader persists `characterBrushStyle` with `Sans`, `Serif`, `Brush`, and `Round` modes; legacy stored `modern` and `cartoon` values migrate to `sans` and `round`.
+- Japanese kanji and Korean hanja now render as normal colored lyric boxes with blank romanization unless a custom romanization track is provided. Kana and Hangul continue to auto-romanize where supported.
+- Static reader has a collapsed `Known limitations` disclosure explaining that kanji/hanja automatic transcription needs future dictionary-backed contextual adapters.
+- Hanzi/kanji/hanja use eight-direction dashed writing guides; kana and Hangul use four-quadrant dashed guides.
+- Latest implementation commit: `b5cbac9` (`Refine CJK lyric styles and guides`).
 - Latest implementation commit: `fcc9e66` (`Genericize static reader preview`).
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
-- Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, focused e2e for `static-bafang.spec.ts`/`seo-static.spec.ts`, and e2e for `home.spec.ts`/`legal.spec.ts` passed with Corepack pnpm 10.33.4. Static budget is `695.5 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
+- Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and focused e2e for `static-bafang.spec.ts`/`seo-static.spec.ts` passed with Corepack pnpm 10.33.4. Static budget is `699.4 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
 - SEO/static foundation now includes root/static route metadata, canonical URLs, sitemap, robots, manifest, SVG icon, and e2e metadata route coverage.
 - Static reader now lazy-loads `pinyin-pro`, `to-jyutping`, `opencc-js`, and `wanakana` after user input/settings require them; first-render static route chunk scan found about `659 KB` of referenced chunks after the change.
 - Cantonese/Jyutping missing readings now preserve source-character slots; e2e covers a blank-in-the-middle regression.
@@ -82,7 +86,7 @@
 - GitHub Pages API reports `build_type: workflow`, `public: true`, and `html_url: https://ryanlaufsen.github.io/pinyin-lyrics/`.
 - Direct route smoke check for `https://ryanlaufsen.github.io/pinyin-lyrics/static/bafang-laicai/` returned `HTTP/2 200`.
 - Latest static-route verification passed with Corepack pnpm 10.33.4: `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, and `e2e -- tests/e2e/static-bafang.spec.ts`. All commands still warn that the host Node is `v21.7.2`.
-- Static Japanese support note: kana gets romaji; Japanese kanji is preserved as readable text in static mode to avoid false Chinese pinyin until a dictionary-backed adapter is added.
+- Static Japanese/Korean support note: kana and Hangul get romanization; kanji and hanja render as colored blank-romanization boxes to avoid false readings until dictionary-backed adapters are added.
 - Latest implementation commit: `989732d` (`Add themed custom romanization controls`).
 - Latest handoff commit: `aed7d36` (`Record romanization feature handoff`).
 - Latest Pages workflow run `25791752513` passed on 2026-05-13 UTC.
