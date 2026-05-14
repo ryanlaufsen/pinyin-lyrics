@@ -88,6 +88,31 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Done
 
+### SEO-003: Add Human-Readable AI Policy Page
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: SEO/Growth Manager
+- Supporting Managers: Security/Legal Manager, UI Design Manager, QA/Accessibility Manager, Orchestrator
+- Goal: Make the visible `AI policy` footer link land on a customer-facing page instead of a raw machine-readable file or a missing route.
+- Acceptance Criteria:
+  - `/ai-policy/` renders a human-readable AI policy with canonical metadata.
+  - Site and static-reader footers link `AI policy` to `/ai-policy`.
+  - `/llms.txt` and `/.well-known/ai-policy.json` cross-reference the human-readable policy.
+  - Sitemap includes `/ai-policy/`.
+  - E2E covers the AI policy page on desktop/mobile, the sitemap entry, policy-file cross references, and footer link hrefs.
+- Blockers/Dependencies:
+  - GitHub Pages project hosting still requires the `/pinyin-lyrics` base path on live URLs.
+- Evidence Required:
+  - `git diff --check` passed.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web lint` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web typecheck` passed with the existing host Node warning.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed and listed `/ai-policy`.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web build:static` passed and listed `/ai-policy`.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web budget:static` passed at `700.1 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - `corepack pnpm@10.33.4 --config.engine-strict=false --filter @lyricbridge/web e2e -- tests/e2e/legal.spec.ts tests/e2e/seo-static.spec.ts tests/e2e/home.spec.ts tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium.
+  - Commit `b8d8aac` added the human-readable AI policy page, footer links, sitemap/policy cross references, and e2e coverage.
+
 ### FE-012: Clarify CJK Styles, Guides, And Kanji/Hanja Limits
 
 - Status: `Done`

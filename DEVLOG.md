@@ -1,5 +1,14 @@
 # Devlog
 
+## 2026-05-14
+
+- Added `/ai-policy/` as the human-readable AI policy page so visible `AI policy` footer links no longer lead to a raw file or missing route.
+- Updated the shared site footer and static-reader footer to point `AI policy` at `/ai-policy`.
+- Added `/ai-policy/` to the sitemap and cross-referenced it from `/llms.txt` and `/.well-known/ai-policy.json`.
+- Expanded e2e coverage for the AI policy page on desktop/mobile, sitemap inclusion, machine-readable policy cross references, and footer link hrefs.
+- Verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `legal.spec.ts`/`seo-static.spec.ts`/`home.spec.ts`/`static-bafang.spec.ts`. The static route budget measured `700.1 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
+- Commit `b8d8aac` added the human-readable AI policy page, footer links, sitemap/policy cross references, and e2e coverage.
+
 ## 2026-05-13
 
 - Refined the static reader `Character style` control from the old `Modern`/`Brush`/`Cartoon` set into `Sans`, `Serif`, `Brush`, and `Round`. The old cartoon/modern modes could look identical when the browser fell back to the same installed system fonts; `Round` now has rounded/cute fallback stacks plus weight/shadow treatment so it remains visually distinct even under fallback.

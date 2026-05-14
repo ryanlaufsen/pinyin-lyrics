@@ -27,6 +27,7 @@
 - Public SEO growth must use legal song-practice shells and tools, not copied full lyrics or full romanized copyrighted lyrics.
 - AI-agent discovery policy allows public search and user-requested fetchers while disallowing model training, bulk scraping, dataset building, and user lyric/custom-track extraction.
 - Baseline legal posture now has public Terms, Privacy, and Copyright pages. They match the current static app and keep public UGC, server-side lyric persistence, and production DMCA safe-harbor operations blocked until SEC-002/SEC-003/DATA-002 and formal designated-agent/provenance work are complete.
+- Human-readable AI policy is available at `/ai-policy/`; visible `AI policy` footer links point there, while `/llms.txt` and `/.well-known/ai-policy.json` remain machine-readable policy files.
 
 ## Next Useful Work
 
@@ -60,10 +61,11 @@
 - Japanese kanji and Korean hanja now render as normal colored lyric boxes with blank romanization unless a custom romanization track is provided. Kana and Hangul continue to auto-romanize where supported.
 - Static reader has a collapsed `Known limitations` disclosure explaining that kanji/hanja automatic transcription needs future dictionary-backed contextual adapters.
 - Hanzi/kanji/hanja use eight-direction dashed writing guides; kana and Hangul use four-quadrant dashed guides.
-- Latest implementation commit: `b5cbac9` (`Refine CJK lyric styles and guides`).
-- Latest implementation commit: `fcc9e66` (`Genericize static reader preview`).
+- Latest implementation commit: `b8d8aac` (`Add human readable AI policy page`).
+- Previous static-reader implementation commits: `b5cbac9` (`Refine CJK lyric styles and guides`) and `fcc9e66` (`Genericize static reader preview`).
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
 - Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and focused e2e for `static-bafang.spec.ts`/`seo-static.spec.ts` passed with Corepack pnpm 10.33.4. Static budget is `699.4 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
+- Latest AI policy verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `legal.spec.ts`, `seo-static.spec.ts`, `home.spec.ts`, and `static-bafang.spec.ts`. Static budget is `700.1 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
 - SEO/static foundation now includes root/static route metadata, canonical URLs, sitemap, robots, manifest, SVG icon, and e2e metadata route coverage.
 - Static reader now lazy-loads `pinyin-pro`, `to-jyutping`, `opencc-js`, and `wanakana` after user input/settings require them; first-render static route chunk scan found about `659 KB` of referenced chunks after the change.
 - Cantonese/Jyutping missing readings now preserve source-character slots; e2e covers a blank-in-the-middle regression.
