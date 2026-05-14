@@ -14,6 +14,7 @@
 - Installed Node `v24.15.0` via local `nvm` for repo-compliant verification and activated pnpm `10.33.4` with Corepack.
 - Verification passed under Node `v24.15.0`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. The static route budget measured `707.4 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset after the badge and pronunciation refinements.
 - Ran Prettier on the three touched files. Repo-wide `pnpm format:check` still reports pre-existing unrelated formatting warnings in files outside this patch.
+- Commit `5c2229b` added run-aware kana pronunciation, common Hanja readings, badge placement/suppression, and e2e coverage.
 - Commit `d3a71ba` added linked Han script role toggles, dark/OLED theme polish, e2e coverage, and coordination updates.
 - Added `/ai-policy/` as the human-readable AI policy page so visible `AI policy` footer links no longer lead to a raw file or missing route.
 - Updated the shared site footer and static-reader footer to point `AI policy` at `/ai-policy`.

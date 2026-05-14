@@ -112,6 +112,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - `pnpm --filter @lyricbridge/web e2e -- static-bafang.spec.ts` passed for desktop and mobile Chromium under Node `v24.15.0`.
   - `pnpm --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
   - `pnpm --filter @lyricbridge/web budget:static` passed at `707.4 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - Commit `5c2229b` added run-aware kana pronunciation, common Hanja readings, badge placement/suppression, and e2e coverage.
 
 ### FE-013: Add Linked Han Script Role Toggles And Dark Theme Polish
 
