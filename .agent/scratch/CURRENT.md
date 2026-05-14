@@ -28,6 +28,9 @@
 - AI-agent discovery policy allows public search and user-requested fetchers while disallowing model training, bulk scraping, dataset building, and user lyric/custom-track extraction.
 - Baseline legal posture now has public Terms, Privacy, and Copyright pages. They match the current static app and keep public UGC, server-side lyric persistence, and production DMCA safe-harbor operations blocked until SEC-002/SEC-003/DATA-002 and formal designated-agent/provenance work are complete.
 - Human-readable AI policy is available at `/ai-policy/`; visible `AI policy` footer links point there, while `/llms.txt` and `/.well-known/ai-policy.json` remain machine-readable policy files.
+- Static reader Han ideographs are now role-correctable as Hanzi, Kanji, or Hanja. First tap on an unbroken Han run changes the whole run; later taps split individual characters. Badges appear once per same-role segment and surrounding Han tiles carry matching role-colored borders.
+- Dark/OLED static-reader controls now use muted semantic accents, and e2e checks dark/OLED tile hue/value separation so the pastel lyric boxes do not collapse into muddy same-looking colors.
+- Local Node `v24.15.0` is installed via `nvm`; use `source /home/ryan/.nvm/nvm.sh && nvm use 24` before running repo scripts.
 
 ## Next Useful Work
 
@@ -66,6 +69,7 @@
 - `to-jyutping@3.1.1` is installed for Jyutping. Cantonese Pinyin-style mode maps entering-tone Jyutping syllables ending in `p/t/k` from tones `1/3/6` to `7/8/9`.
 - Current verification: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and focused e2e for `static-bafang.spec.ts`/`seo-static.spec.ts` passed with Corepack pnpm 10.33.4. Static budget is `699.4 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
 - Latest AI policy verification passed with Corepack pnpm 10.33.4: `git diff --check`, `lint`, `typecheck`, `build:static`, `PAGES_BASE_PATH=/pinyin-lyrics build:static`, `budget:static`, and e2e for `legal.spec.ts`, `seo-static.spec.ts`, `home.spec.ts`, and `static-bafang.spec.ts`. Static budget is `700.1 KiB` first-render total and `222.2 KiB` largest referenced asset. Commands still warn that host Node is `v21.7.2`.
+- Latest static-reader role-toggle verification passed under Node `v24.15.0` and pnpm `10.33.4`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. Static budget is `704.6 KiB` first-render total and `222.2 KiB` largest referenced asset. Prettier was run on touched files only; repo-wide `format:check` still has pre-existing unrelated warnings.
 - SEO/static foundation now includes root/static route metadata, canonical URLs, sitemap, robots, manifest, SVG icon, and e2e metadata route coverage.
 - Static reader now lazy-loads `pinyin-pro`, `to-jyutping`, `opencc-js`, and `wanakana` after user input/settings require them; first-render static route chunk scan found about `659 KB` of referenced chunks after the change.
 - Cantonese/Jyutping missing readings now preserve source-character slots; e2e covers a blank-in-the-middle regression.
@@ -80,6 +84,7 @@
 - `git status --short` was clean after commits.
 - Host versions checked on 2026-05-12: `node v21.7.2`, plain `pnpm 8.6.12`.
 - These are below the scaffold targets: Node 22.12+ or Node 24+ and pnpm 10.33.4+.
+- Node `v24.15.0` was installed via local `nvm` on 2026-05-14. Plain shell defaults may still point at Node `v21.7.2`, so activate Node 24 explicitly before running gates.
 - `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false` succeeded and generated `pnpm-lock.yaml`.
 - DevOps manager reported full dependency materialization with Corepack pnpm 10.33.4 succeeded.
 - Corepack pnpm 10.33.4 quality gates pass in this host shell, but commands still warn that host Node is `v21.7.2`; plain scripts may still resolve to the wrong pnpm/Node environment.

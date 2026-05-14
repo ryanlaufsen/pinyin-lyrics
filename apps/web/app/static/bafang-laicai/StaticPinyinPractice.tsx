@@ -142,6 +142,8 @@ type CharacterBrushStyle = "sans" | "serif" | "brush" | "round";
 type WritingGuideType = "eight" | "quadrant";
 type LineLanguage = "zh" | "ja" | "ko" | "mixed" | "text";
 type TokenLanguage = "zh" | "ja" | "ko" | "text";
+type IdeographScript = "zh" | "ja" | "ko";
+type ScriptOverrideMap = Record<string, IdeographScript>;
 
 type RenderToken = {
   character: string;
@@ -152,6 +154,10 @@ type RenderToken = {
   isWhitespace: boolean;
   language: TokenLanguage;
   pinyin: string;
+  scriptBadgeVisible: boolean;
+  scriptGroupKey: string | null;
+  scriptRole: IdeographScript | null;
+  scriptTokenKey: string | null;
   writingGuideType: WritingGuideType | null;
 };
 
@@ -180,6 +186,7 @@ type RomanizationEngines = {
 
 const themeModes = ["light", "dark", "oled"] as const;
 const characterBrushStyles = ["sans", "serif", "brush", "round"] as const;
+const ideographScriptCycle = ["zh", "ja", "ko"] as const;
 const chineseRomanizationModes = [
   "pinyin",
   "jyutping",
@@ -201,6 +208,7 @@ type StaticReaderSettings = {
   characterTextSize: number;
   romanizationTextOpacity: number;
   characterTextOpacity: number;
+  scriptOverrides: ScriptOverrideMap;
 };
 
 const defaultStaticReaderSettings: StaticReaderSettings = {
@@ -217,6 +225,7 @@ const defaultStaticReaderSettings: StaticReaderSettings = {
   characterTextSize: 100,
   romanizationTextOpacity: 100,
   characterTextOpacity: 100,
+  scriptOverrides: {},
 };
 
 let romanizationEnginesPromise: Promise<RomanizationEngines> | null = null;
@@ -319,6 +328,76 @@ function detectTokenLanguage(
   }
 
   return "text";
+}
+
+function getDefaultIdeographScript(language: TokenLanguage): IdeographScript {
+  if (language === "ja" || language === "ko") {
+    return language;
+  }
+
+  return "zh";
+}
+
+function isIdeographScript(value: string): value is IdeographScript {
+  return ideographScriptCycle.includes(value as IdeographScript);
+}
+
+function getScriptTokenOverrideKey(
+  scope: string,
+  lineIndex: number,
+  tokenIndex: number,
+) {
+  return `${scope}:${lineIndex}:token:${tokenIndex}`;
+}
+
+function getScriptGroupOverrideKey(
+  scope: string,
+  lineIndex: number,
+  groupStartIndex: number,
+) {
+  return `${scope}:${lineIndex}:group:${groupStartIndex}`;
+}
+
+function getNextIdeographScript(scriptRole: IdeographScript) {
+  const currentIndex = ideographScriptCycle.indexOf(scriptRole);
+  const nextIndex = (currentIndex + 1) % ideographScriptCycle.length;
+
+  return ideographScriptCycle[nextIndex] ?? "zh";
+}
+
+function getScriptRoleLabel(scriptRole: IdeographScript) {
+  if (scriptRole === "ja") {
+    return "KAN";
+  }
+
+  if (scriptRole === "ko") {
+    return "HAN";
+  }
+
+  return "CN";
+}
+
+function getScriptRoleName(scriptRole: IdeographScript) {
+  if (scriptRole === "ja") {
+    return "Kanji";
+  }
+
+  if (scriptRole === "ko") {
+    return "Hanja";
+  }
+
+  return "Hanzi";
+}
+
+function clearScriptOverrideScope(
+  scriptOverrides: ScriptOverrideMap,
+  scope: string,
+) {
+  return Object.fromEntries(
+    Object.entries(scriptOverrides).filter(
+      ([key]) => !key.startsWith(`${scope}:`),
+    ),
+  );
 }
 
 function convertChineseScript(
@@ -424,6 +503,9 @@ function buildLineTokens(
   customRomanizationSyllables: string[],
   useCustomTrack: boolean,
   romanizationEngines: RomanizationEngines | null,
+  scriptOverrides: ScriptOverrideMap,
+  scriptOverrideScope: string,
+  lineIndex: number,
 ): RenderToken[] {
   const convertedLine = convertChineseScript(
     line,
@@ -438,10 +520,42 @@ function buildLineTokens(
   );
   let syllableIndex = 0;
   let customIndex = 0;
+  const characters = segmentLine(convertedLine);
+  let activeHanziGroupStart = -1;
+  const hanziGroupStarts = characters.map((character, index) => {
+    if (!hanziPattern.test(character)) {
+      activeHanziGroupStart = -1;
+      return null;
+    }
 
-  return segmentLine(convertedLine).map((character, index): RenderToken => {
-    const language = detectTokenLanguage(character, languageHint);
+    if (activeHanziGroupStart === -1) {
+      activeHanziGroupStart = index;
+    }
+
+    return activeHanziGroupStart;
+  });
+
+  const tokens = characters.map((character, index): RenderToken => {
     const isHanzi = hanziPattern.test(character);
+    const groupStartIndex = hanziGroupStarts[index];
+    const scriptTokenKey = isHanzi
+      ? getScriptTokenOverrideKey(scriptOverrideScope, lineIndex, index)
+      : null;
+    const scriptGroupKey =
+      isHanzi && groupStartIndex != null
+        ? getScriptGroupOverrideKey(
+            scriptOverrideScope,
+            lineIndex,
+            groupStartIndex,
+          )
+        : null;
+    const detectedLanguage = detectTokenLanguage(character, languageHint);
+    const scriptRole = isHanzi
+      ? (scriptOverrides[scriptTokenKey ?? ""] ??
+        scriptOverrides[scriptGroupKey ?? ""] ??
+        getDefaultIdeographScript(detectedLanguage))
+      : null;
+    const language = scriptRole ?? detectedLanguage;
     const isWhitespace = whitespacePattern.test(character);
     const isKanaToken = language === "ja" && isKanaCharacter(character);
     const isHangulToken = language === "ko" && hangulPattern.test(character);
@@ -479,14 +593,33 @@ function buildLineTokens(
       isWhitespace,
       language,
       pinyin: reading,
+      scriptBadgeVisible: false,
+      scriptGroupKey,
+      scriptRole,
+      scriptTokenKey,
       writingGuideType,
     };
 
-    if (language === "zh") {
+    if (isHanzi) {
       syllableIndex += 1;
     }
 
     return token;
+  });
+
+  return tokens.map((token, index) => {
+    const previousToken = tokens[index - 1];
+
+    if (token.scriptRole === null) {
+      return token;
+    }
+
+    return {
+      ...token,
+      scriptBadgeVisible:
+        previousToken?.scriptRole !== token.scriptRole ||
+        previousToken.scriptGroupKey !== token.scriptGroupKey,
+    };
   });
 }
 
@@ -675,6 +808,19 @@ function normalizeCharacterBrushStyle(
   }
 
   return null;
+}
+
+function normalizeScriptOverrides(value: unknown): ScriptOverrideMap | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return null;
+  }
+
+  const entries = Object.entries(value).filter(
+    (entry): entry is [string, IdeographScript] =>
+      typeof entry[1] === "string" && isIdeographScript(entry[1]),
+  );
+
+  return Object.fromEntries(entries);
 }
 
 function isChineseScript(value: string): value is ChineseScript {
@@ -876,6 +1022,13 @@ function readStoredStaticReaderSettings() {
       next.characterTextOpacity = maybeCharacterTextOpacity;
     }
 
+    const maybeScriptOverrides = normalizeScriptOverrides(
+      parsed.scriptOverrides,
+    );
+    if (maybeScriptOverrides !== null) {
+      next.scriptOverrides = maybeScriptOverrides;
+    }
+
     if (readFromLegacyStorage) {
       window.localStorage.setItem(storageKey, raw);
     }
@@ -935,6 +1088,9 @@ export function StaticPinyinPractice() {
   );
   const [characterTextOpacity, setCharacterTextOpacity] = useState(
     defaultStaticReaderSettings.characterTextOpacity,
+  );
+  const [scriptOverrides, setScriptOverrides] = useState<ScriptOverrideMap>(
+    defaultStaticReaderSettings.scriptOverrides,
   );
   const [romanizationEngines, setRomanizationEngines] =
     useState<RomanizationEngines | null>(null);
@@ -1013,6 +1169,10 @@ export function StaticPinyinPractice() {
         if (storedSettings.characterTextOpacity !== undefined) {
           setCharacterTextOpacity(storedSettings.characterTextOpacity);
         }
+
+        if (storedSettings.scriptOverrides !== undefined) {
+          setScriptOverrides(storedSettings.scriptOverrides);
+        }
       }
 
       setIsHydratedFromStorage(true);
@@ -1047,6 +1207,7 @@ export function StaticPinyinPractice() {
       characterTextSize,
       romanizationTextOpacity,
       characterTextOpacity,
+      scriptOverrides,
     });
   }, [
     characterTextOpacity,
@@ -1059,6 +1220,7 @@ export function StaticPinyinPractice() {
     lyricTextSize,
     romanizationTextSize,
     romanizationTextOpacity,
+    scriptOverrides,
     characterTextSize,
     lyricsText,
     theme,
@@ -1121,8 +1283,34 @@ export function StaticPinyinPractice() {
     [customRomanizationText],
   );
 
+  const updateLyricsText = (value: string) => {
+    setLyricsText(value);
+    setScriptOverrides((current) =>
+      clearScriptOverrideScope(current, "lyrics"),
+    );
+  };
   const clearLyrics = () => {
     setLyricsText("");
+    setScriptOverrides((current) =>
+      clearScriptOverrideScope(current, "lyrics"),
+    );
+  };
+  const toggleScriptOverride = (
+    tokenKey: string,
+    groupKey: string,
+    currentScriptRole: IdeographScript,
+  ) => {
+    setScriptOverrides((current) => {
+      const targetKey =
+        current[groupKey] === undefined && current[tokenKey] === undefined
+          ? groupKey
+          : tokenKey;
+
+      return {
+        ...current,
+        [targetKey]: getNextIdeographScript(currentScriptRole),
+      };
+    });
   };
   const updateLyricTextSize = (value: number) => {
     setLyricTextSize(clampTextSize(value));
@@ -1571,6 +1759,9 @@ export function StaticPinyinPractice() {
                 romanizationEngines={romanizationEngines}
                 romanizationTextOpacity={romanizationTextOpacity}
                 romanizationTextSize={romanizationTextSize}
+                scriptOverrides={scriptOverrides}
+                scriptOverrideScope="preview"
+                onToggleScriptOverride={toggleScriptOverride}
                 testIdPrefix="preview-line"
                 useCustomTrack={false}
               />
@@ -1590,7 +1781,7 @@ export function StaticPinyinPractice() {
                       className="static-lyrics-input cjk"
                       disabled={!isInteractive}
                       id="user-provided-lyrics"
-                      onChange={(event) => setLyricsText(event.target.value)}
+                      onChange={(event) => updateLyricsText(event.target.value)}
                       placeholder="Paste licensed or user-owned Chinese, Japanese, or Korean lines"
                       rows={7}
                       spellCheck={false}
@@ -1652,6 +1843,10 @@ export function StaticPinyinPractice() {
                 No lyrics are bundled in this public static build. Pasted lines
                 render on this page with line breaks preserved.
               </p>
+              <p className="static-lyrics-note">
+                Tap an ideograph tile to switch its role between Hanzi, Kanji,
+                and Hanja.
+              </p>
               <details className="static-limitations">
                 <summary>Known limitations</summary>
                 <div>
@@ -1685,6 +1880,9 @@ export function StaticPinyinPractice() {
                 romanizationEngines={romanizationEngines}
                 romanizationTextOpacity={romanizationTextOpacity}
                 romanizationTextSize={romanizationTextSize}
+                scriptOverrides={scriptOverrides}
+                scriptOverrideScope="lyrics"
+                onToggleScriptOverride={toggleScriptOverride}
                 testIdPrefix="pinyin-line"
                 useCustomTrack={useCustomTrack}
               />
@@ -1724,9 +1922,12 @@ function LyricOutput({
   guidesVisible,
   lines,
   lyricTextSize,
+  onToggleScriptOverride,
   romanizationEngines,
   romanizationTextOpacity,
   romanizationTextSize,
+  scriptOverrides,
+  scriptOverrideScope,
   testIdPrefix,
   useCustomTrack,
 }: {
@@ -1740,9 +1941,16 @@ function LyricOutput({
   guidesVisible: boolean;
   lines: LyricLine[];
   lyricTextSize: number;
+  onToggleScriptOverride: (
+    tokenKey: string,
+    groupKey: string,
+    currentScriptRole: IdeographScript,
+  ) => void;
   romanizationEngines: RomanizationEngines | null;
   romanizationTextOpacity: number;
   romanizationTextSize: number;
+  scriptOverrides: ScriptOverrideMap;
+  scriptOverrideScope: string;
   testIdPrefix: string;
   useCustomTrack: boolean;
 }) {
@@ -1795,13 +2003,19 @@ function LyricOutput({
                 getTokenLanguageHint(line),
                 chineseScript,
                 chineseRomanizationMode,
-                splitLineIntoSyllables(customRomanizationLines[lineIndex] ?? ""),
+                splitLineIntoSyllables(
+                  customRomanizationLines[lineIndex] ?? "",
+                ),
                 useCustomTrack,
                 romanizationEngines,
+                scriptOverrides,
+                scriptOverrideScope,
+                lineIndex,
               ).map((token, tokenIndex) => (
                 <LyricTokenView
                   guidesVisible={guidesVisible}
                   key={`${lineIndex}-${tokenIndex}-${token.character}`}
+                  onToggleScriptOverride={onToggleScriptOverride}
                   token={token}
                 />
               ))}
@@ -1815,11 +2029,48 @@ function LyricOutput({
 
 function LyricTokenView({
   guidesVisible,
+  onToggleScriptOverride,
   token,
 }: {
   guidesVisible: boolean;
+  onToggleScriptOverride: (
+    tokenKey: string,
+    groupKey: string,
+    currentScriptRole: IdeographScript,
+  ) => void;
   token: RenderToken;
 }) {
+  const hanziBoxClassName = clsx(
+    "static-hanzi-box",
+    token.scriptTokenKey && "static-character-toggle",
+    !token.isCjkBox && "static-punctuation-box",
+    guidesVisible && token.writingGuideType && "show-guide",
+  );
+  const scriptTokenKey = token.scriptTokenKey;
+  const scriptGroupKey = token.scriptGroupKey;
+  const scriptRole = token.scriptRole;
+  const hanziBoxContent = (
+    <>
+      {guidesVisible && token.writingGuideType ? (
+        <span
+          className="writing-guide"
+          data-guide-type={token.writingGuideType}
+          aria-hidden="true"
+        >
+          <GuideLines type={token.writingGuideType} />
+        </span>
+      ) : null}
+      {token.scriptRole && token.scriptBadgeVisible ? (
+        <span className="static-script-indicator" aria-hidden="true">
+          {getScriptRoleLabel(token.scriptRole)}
+        </span>
+      ) : null}
+      <span className="static-hanzi cjk">
+        <span className="static-character-text">{token.character}</span>
+      </span>
+    </>
+  );
+
   return (
     <li
       className={clsx(
@@ -1846,26 +2097,33 @@ function LyricTokenView({
               {token.pinyin || "\u00a0"}
             </span>
           </span>
-          <span
-            className={clsx(
-              "static-hanzi-box",
-              !token.isCjkBox && "static-punctuation-box",
-              guidesVisible && token.writingGuideType && "show-guide",
-            )}
-          >
-            {guidesVisible && token.writingGuideType ? (
-              <span
-                className="writing-guide"
-                data-guide-type={token.writingGuideType}
-                aria-hidden="true"
-              >
-                <GuideLines type={token.writingGuideType} />
-              </span>
-            ) : null}
-            <span className="static-hanzi cjk">
-              <span className="static-character-text">{token.character}</span>
+          {scriptTokenKey && scriptGroupKey && scriptRole ? (
+            <button
+              aria-label={`${token.character} is marked as ${getScriptRoleName(
+                scriptRole,
+              )}. Tap to switch this linked Han-character run or character.`}
+              className={hanziBoxClassName}
+              data-script-role={scriptRole}
+              onClick={() =>
+                onToggleScriptOverride(
+                  scriptTokenKey,
+                  scriptGroupKey,
+                  scriptRole,
+                )
+              }
+              title={`Switch ${token.character} between Hanzi, Kanji, and Hanja`}
+              type="button"
+            >
+              {hanziBoxContent}
+            </button>
+          ) : (
+            <span
+              className={hanziBoxClassName}
+              data-script-role={token.scriptRole ?? undefined}
+            >
+              {hanziBoxContent}
             </span>
-          </span>
+          )}
         </>
       )}
     </li>

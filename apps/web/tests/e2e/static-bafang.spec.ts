@@ -85,6 +85,16 @@ const getContrastRatio = (foreground: string, background: string) => {
   return (lighter + 0.05) / (darker + 0.05);
 };
 
+const getRgbDistance = (
+  first: readonly [number, number, number],
+  second: readonly [number, number, number],
+) =>
+  Math.sqrt(
+    (first[0] - second[0]) ** 2 +
+      (first[1] - second[1]) ** 2 +
+      (first[2] - second[2]) ** 2,
+  );
+
 const getFontSizePx = async (locator: Locator) => {
   const value = await locator.evaluate(
     (element) => window.getComputedStyle(element).fontSize,
@@ -150,6 +160,53 @@ const assertTileHasReadableColors = async (locator: Locator, label: string) => {
     .toBeGreaterThanOrEqual(4.5);
 };
 
+const assertTileBackgroundSeparation = async (
+  locator: Locator,
+  label: string,
+) => {
+  const colors = await locator.evaluateAll((elements) =>
+    elements
+      .slice(0, 4)
+      .map((element) => getComputedStyle(element).backgroundColor),
+  );
+  const rgbColors = colors.map(parseRgbColor);
+
+  expect
+    .soft(rgbColors.every(Boolean), `${label}: expected parseable tile colors`)
+    .toBe(true);
+
+  const parsedColors = rgbColors.filter(
+    (color): color is readonly [number, number, number] => color !== null,
+  );
+
+  expect
+    .soft(
+      new Set(colors).size,
+      `${label}: adjacent CJK tiles should not collapse into one color`,
+    )
+    .toBeGreaterThanOrEqual(4);
+
+  const distances = parsedColors.flatMap((color, index) =>
+    parsedColors
+      .slice(index + 1)
+      .map((nextColor) => getRgbDistance(color, nextColor)),
+  );
+  const luminances = parsedColors.map(getRelativeLuminance);
+
+  expect
+    .soft(
+      Math.min(...distances),
+      `${label}: tile hues should remain visibly separated`,
+    )
+    .toBeGreaterThanOrEqual(18);
+  expect
+    .soft(
+      Math.max(...luminances) - Math.min(...luminances),
+      `${label}: tile values should remain visibly separated`,
+    )
+    .toBeGreaterThanOrEqual(0.025);
+};
+
 const assertElementTextContrast = async (
   locator: Locator,
   label: string,
@@ -192,7 +249,9 @@ const assertElementBorderContrast = async (
     .toBeGreaterThanOrEqual(minimumRatio);
 };
 
-test("renders the static multilingual lyric practice mode", async ({ page }) => {
+test("renders the static multilingual lyric practice mode", async ({
+  page,
+}) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
@@ -235,6 +294,11 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(previewLine).toContainText("fāng");
   await expect(previewLine).toContainText("lái");
   await expect(previewLine).toContainText("cái");
+  await expect(
+    page.getByText(
+      "Tap an ideograph tile to switch its role between Hanzi, Kanji, and Hanja.",
+    ),
+  ).toBeVisible();
 
   const themeGroup = page.getByRole("group", { name: "Theme" });
   const lightThemeButton = themeGroup.getByRole("button", { name: "Light" });
@@ -344,6 +408,10 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await assertElementBorderContrast(adSlot, "Dark theme responsive ad slot");
   await assertTileHasReadableColors(samplePinyinBox, "Dark theme pinyin");
   await assertTileHasReadableColors(sampleHanziBox, "Dark theme Hanzi");
+  await assertTileBackgroundSeparation(
+    previewOutput.locator(".static-hanzi-box"),
+    "Dark theme Hanzi",
+  );
 
   await oledThemeButton.click();
   await expect(readerPage).toHaveAttribute("data-reader-theme", "oled");
@@ -368,6 +436,10 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await assertElementBorderContrast(adSlot, "OLED theme responsive ad slot");
   await assertTileHasReadableColors(samplePinyinBox, "OLED theme pinyin");
   await assertTileHasReadableColors(sampleHanziBox, "OLED theme Hanzi");
+  await assertTileBackgroundSeparation(
+    previewOutput.locator(".static-hanzi-box"),
+    "OLED theme Hanzi",
+  );
 
   await lightThemeButton.click();
   await expect(readerPage).toHaveAttribute("data-reader-theme", "light");
@@ -386,7 +458,9 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(
     limitations.getByText("Japanese kanji and Korean hanja"),
   ).toBeVisible();
-  await expect(limitations.getByText("dictionary-backed readings")).toBeVisible();
+  await expect(
+    limitations.getByText("dictionary-backed readings"),
+  ).toBeVisible();
 
   const lyricsLayoutBox = await lyricsLayout.boundingBox();
   const lyricsFieldsBox = await lyricsFields.boundingBox();
@@ -643,13 +717,13 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await romanizationSizeSlider.fill(String(romanizationSizeMax));
   const romanizedPinyinPx = await getFontSizePx(lyricOutputPinyinBox.first());
   const romanizedHanziPx = await getFontSizePx(lyricOutputHanzi.first());
-  const previewRomanizedPinyinPx = await getFontSizePx(previewPinyinBox.first());
+  const previewRomanizedPinyinPx = await getFontSizePx(
+    previewPinyinBox.first(),
+  );
   const previewRomanizedHanziPx = await getFontSizePx(previewHanzi.first());
   expect(romanizedPinyinPx).toBeGreaterThan(lyricScaledPinyinPx);
   expect(romanizedHanziPx).toBeCloseTo(lyricScaledHanziPx, 1);
-  expect(previewRomanizedPinyinPx).toBeGreaterThan(
-    previewLyricScaledPinyinPx,
-  );
+  expect(previewRomanizedPinyinPx).toBeGreaterThan(previewLyricScaledPinyinPx);
   expect(previewRomanizedHanziPx).toBeCloseTo(previewLyricScaledHanziPx, 1);
 
   await characterSizeSlider.fill(
@@ -657,7 +731,9 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   );
   const characterPinyinPx = await getFontSizePx(lyricOutputPinyinBox.first());
   const characterHanziPx = await getFontSizePx(lyricOutputHanzi.first());
-  const previewCharacterPinyinPx = await getFontSizePx(previewPinyinBox.first());
+  const previewCharacterPinyinPx = await getFontSizePx(
+    previewPinyinBox.first(),
+  );
   const previewCharacterHanziPx = await getFontSizePx(previewHanzi.first());
   expect(characterPinyinPx).toBeCloseTo(romanizedPinyinPx, 1);
   expect(characterHanziPx).toBeGreaterThan(romanizedHanziPx);
@@ -711,6 +787,83 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(page.getByTestId("pinyin-line-1")).toContainText("山");
   await expect(page.getByTestId("pinyin-line-1")).toContainText("shān");
   await expect(page.getByTestId("pinyin-line-1")).toContainText("gāo");
+
+  const chineseLine = page.getByTestId("pinyin-line-1");
+  const chineseScriptTiles = chineseLine.locator(".static-character-toggle");
+  const chineseScriptBadges = chineseLine.locator(".static-script-indicator");
+  const chineseLineReadings = chineseLine.locator(".static-pinyin-box");
+  await expect(chineseScriptTiles).toHaveCount(2);
+  await expect(chineseScriptTiles.nth(0)).toHaveAttribute(
+    "data-script-role",
+    "zh",
+  );
+  await expect(chineseScriptTiles.nth(1)).toHaveAttribute(
+    "data-script-role",
+    "zh",
+  );
+  await expect(chineseScriptBadges).toHaveText(["CN"]);
+
+  await chineseScriptTiles.nth(0).click();
+  await expect(chineseScriptTiles.nth(0)).toHaveAttribute(
+    "data-script-role",
+    "ja",
+  );
+  await expect(chineseScriptTiles.nth(1)).toHaveAttribute(
+    "data-script-role",
+    "ja",
+  );
+  await expect(chineseScriptBadges).toHaveText(["KAN"]);
+  await expect(chineseLineReadings.nth(0)).toHaveText("\u00a0");
+  await expect(chineseLineReadings.nth(1)).toHaveText("\u00a0");
+
+  await chineseScriptTiles.nth(1).click();
+  await expect(chineseScriptTiles.nth(0)).toHaveAttribute(
+    "data-script-role",
+    "ja",
+  );
+  await expect(chineseScriptTiles.nth(1)).toHaveAttribute(
+    "data-script-role",
+    "ko",
+  );
+  await expect(chineseScriptBadges).toHaveText(["KAN", "HAN"]);
+
+  await chineseScriptTiles.nth(1).click();
+  await expect(chineseScriptTiles.nth(0)).toHaveAttribute(
+    "data-script-role",
+    "ja",
+  );
+  await expect(chineseScriptTiles.nth(1)).toHaveAttribute(
+    "data-script-role",
+    "zh",
+  );
+  await expect(chineseScriptBadges).toHaveText(["KAN", "CN"]);
+  await expect(chineseLineReadings.nth(0)).toHaveText("\u00a0");
+  await expect(chineseLineReadings.nth(1)).toHaveText("gāo");
+
+  await chineseScriptTiles.nth(0).click();
+  await expect(chineseScriptTiles.nth(0)).toHaveAttribute(
+    "data-script-role",
+    "ko",
+  );
+  await expect(chineseScriptTiles.nth(1)).toHaveAttribute(
+    "data-script-role",
+    "zh",
+  );
+  await expect(chineseScriptBadges).toHaveText(["HAN", "CN"]);
+
+  await chineseScriptTiles.nth(0).click();
+  await expect(chineseScriptTiles.nth(0)).toHaveAttribute(
+    "data-script-role",
+    "zh",
+  );
+  await expect(chineseScriptTiles.nth(1)).toHaveAttribute(
+    "data-script-role",
+    "zh",
+  );
+  await expect(chineseScriptBadges).toHaveText(["CN"]);
+  await expect(chineseLineReadings.nth(0)).toHaveText("shān");
+  await expect(chineseLineReadings.nth(1)).toHaveText("gāo");
+
   await expect(page.getByTestId("pinyin-line-2")).toHaveAttribute(
     "data-language",
     "ja",
@@ -766,9 +919,9 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
       ".static-character-stack:not(.static-space-token):not(.static-inline-token)",
     ),
   ).toHaveCount(3);
-  await expect(japaneseKanjiLine.locator(".static-character-text").first()).toHaveText(
-    "春",
-  );
+  await expect(
+    japaneseKanjiLine.locator(".static-character-text").first(),
+  ).toHaveText("春");
   expect(
     await japaneseKanjiLine.locator(".static-pinyin-box").first().textContent(),
   ).toBe("\u00a0");
@@ -786,9 +939,9 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   const koreanHanjaLine = page.getByTestId("pinyin-line-7");
   await expect(koreanHanjaLine).toHaveAttribute("data-language", "ko");
   await expect(koreanHanjaLine.locator(".static-text-token")).toHaveCount(0);
-  await expect(koreanHanjaLine.locator(".static-character-text").first()).toHaveText(
-    "愛",
-  );
+  await expect(
+    koreanHanjaLine.locator(".static-character-text").first(),
+  ).toHaveText("愛");
   expect(
     await koreanHanjaLine.locator(".static-pinyin-box").first().textContent(),
   ).toBe("\u00a0");
@@ -841,10 +994,7 @@ test("renders the static multilingual lyric practice mode", async ({ page }) => 
   await expect(roundStyleButton).toHaveAttribute("aria-pressed", "true");
   await expect(brushStyleButton).toHaveAttribute("aria-pressed", "false");
   await expect(lyricOutput).toHaveAttribute("data-character-style", "round");
-  await expect(previewOutput).toHaveAttribute(
-    "data-character-style",
-    "round",
-  );
+  await expect(previewOutput).toHaveAttribute("data-character-style", "round");
   expect(await getFontFamily(zhCharacterText)).toContain("HanziPen SC");
   expect(await getFontFamily(jaCharacterText)).toContain(
     "Hiragino Maru Gothic ProN",

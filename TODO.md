@@ -1,6 +1,6 @@
 # TODO Board
 
-Last reviewed: 2026-05-13
+Last reviewed: 2026-05-14
 Board owner: Orchestrator  
 Operating mode: Jira-style source of truth for planned work, active ownership, evidence, blockers, and handoff discipline.
 
@@ -57,6 +57,7 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 - Evidence Required:
   - `corepack pnpm@10.33.4 install --lockfile-only --ignore-scripts --config.engine-strict=false` succeeded on 2026-05-12 and generated `pnpm-lock.yaml`.
   - DevOps manager reported full dependency materialization succeeded with Corepack pnpm 10.33.4.
+  - Node `v24.15.0` was installed via local `nvm` on 2026-05-14, and focused static-reader gates now run without the old host Node 21 warning when `nvm use 24` is active.
   - Quality gates still need rerun under Node 22.12+ or 24+ with pnpm 10.33.4.
 
 ### ORCH-003: Coordinate 5M Monthly Views Readiness Epic
@@ -87,6 +88,35 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
   - SEO-002 added AI crawler/agent policy files, RSL license discovery, copyright-leak e2e assertions, and a static-route bundle budget gate.
 
 ## Done
+
+### FE-013: Add Linked Han Script Role Toggles And Dark Theme Polish
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, UX Research Manager, Romanization/NLP Manager, QA/Accessibility Manager, DevOps/System Engineering Manager, Orchestrator
+- Goal: Let users correct ambiguous Han ideographs as Hanzi, Kanji, or Hanja without cluttering every tile, while improving Dark/OLED theme color separation.
+- Acceptance Criteria:
+  - Tapping any Han ideograph in an unbroken linked run first changes the whole run's role between Hanzi, Kanji, and Hanja.
+  - After a run-level change, tapping an individual Han tile changes only that character's role.
+  - Role changes preserve romanization slot alignment: Chinese roles use the matching Chinese reading slot, while Kanji/Hanja roles render blank unless a custom romanization track supplies text.
+  - The UI exposes only one role badge per same-role linked segment, and every Han tile in the segment uses a border keyed to the same role color.
+  - Han role tiles are keyboard-accessible buttons with meaningful accessible names and focus-visible styling.
+  - Customer-facing copy tells users they can tap an ideograph tile to switch between Hanzi, Kanji, and Hanja.
+  - Dark and OLED controls use restrained accents instead of neon controls, and CJK tile backgrounds preserve visible hue/value separation comparable to Light mode.
+  - E2E covers grouped toggling, individual override after group change, pinyin slot preservation, user hint visibility, dark/OLED tile separation, and desktop/mobile behavior.
+- Blockers/Dependencies:
+  - Automatic kanji/hanja transcription remains blocked on future dictionary-backed, context-aware adapters.
+  - Docker is still unavailable in this WSL distro, so local Docker validation remains under `DEVOPS-001`.
+- Evidence Required:
+  - Fermat subagent audit completed for renderer state, keyboard accessibility, pinyin-slot alignment, and dark/OLED color risks.
+  - `nvm install 24` installed Node `v24.15.0`, and `corepack prepare pnpm@10.33.4 --activate` prepared the repo package manager.
+  - `pnpm --filter @lyricbridge/web typecheck` passed under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web lint` passed under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web e2e -- static-bafang.spec.ts` passed for desktop and mobile Chromium under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
+  - `pnpm --filter @lyricbridge/web budget:static` passed at `704.6 KiB` first-render total and `222.2 KiB` largest referenced asset.
+  - Prettier was run on the three touched files; repo-wide `pnpm format:check` still reports pre-existing unrelated formatting warnings.
 
 ### SEO-003: Add Human-Readable AI Policy Page
 

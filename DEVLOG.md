@@ -2,6 +2,15 @@
 
 ## 2026-05-14
 
+- Added linked Han-script role correction for the static reader: tapping an unbroken Han ideograph run first switches the whole run between Hanzi, Kanji, and Hanja, then later taps can split individual characters inside that run.
+- Added one compact role badge per same-role segment, with matching role-colored borders on all surrounding Han tiles, so the correction state is visible without putting a badge on every character.
+- Preserved romanization alignment when a character's role changes: Chinese roles keep their matching pinyin/Jyutping/Cantonese slot, while Kanji and Hanja roles render blank unless the user supplies a custom romanization track.
+- Added user-facing helper copy that tells readers they can tap an ideograph tile to switch between Hanzi, Kanji, and Hanja.
+- Reworked Dark/OLED reader accents so segmented controls, sliders, and checkboxes use muted semantic control colors instead of neon greens, and adjusted dark study tiles to keep stronger perceived hue/value separation.
+- Expanded static-reader e2e coverage for grouped role toggling, individual overrides, slot preservation, helper text, and dark/OLED tile color separation on desktop and mobile.
+- Installed Node `v24.15.0` via local `nvm` for repo-compliant verification and activated pnpm `10.33.4` with Corepack.
+- Verification passed under Node `v24.15.0`: `git diff --check`, `typecheck`, `lint`, `e2e -- static-bafang.spec.ts`, `build:static`, and `budget:static`. The static route budget measured `704.6 KiB` first-render raw bytes and a `222.2 KiB` largest referenced asset.
+- Ran Prettier on the three touched files. Repo-wide `pnpm format:check` still reports pre-existing unrelated formatting warnings in files outside this patch.
 - Added `/ai-policy/` as the human-readable AI policy page so visible `AI policy` footer links no longer lead to a raw file or missing route.
 - Updated the shared site footer and static-reader footer to point `AI policy` at `/ai-policy`.
 - Added `/ai-policy/` to the sitemap and cross-referenced it from `/llms.txt` and `/.well-known/ai-policy.json`.
