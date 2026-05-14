@@ -5,7 +5,8 @@
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   --font-cjk:
-    "Noto Sans CJK SC", "Noto Sans CJK JP", "Noto Sans CJK KR", "PingFang SC",
+    "Noto Sans CJK SC", "Noto Sans CJK TC", "Noto Sans CJK HK",
+    "Noto Sans CJK JP", "Noto Sans CJK KR", "PingFang SC", "PingFang TC",
     "Hiragino Sans", "Yu Gothic", "Malgun Gothic", sans-serif;
   --color-ink: #181715;
   --color-paper: #f8f7f3;
@@ -1052,8 +1053,9 @@ textarea {
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei",
-    "Heiti SC", sans-serif;
+    "Noto Sans SC", "Noto Sans TC", "Noto Sans HK", "Noto Sans CJK SC",
+    "Noto Sans CJK TC", "Noto Sans CJK HK", "PingFang SC", "PingFang TC",
+    "Microsoft YaHei", "Microsoft JhengHei", "Heiti SC", sans-serif;
   font-weight: 650;
 }
 
@@ -1061,8 +1063,8 @@ textarea {
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Yu Gothic",
-    "Meiryo", sans-serif;
+    "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Yu Gothic", "Meiryo",
+    sans-serif;
   font-weight: 650;
 }
 
@@ -1070,8 +1072,8 @@ textarea {
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo",
-    "Malgun Gothic", sans-serif;
+    "Noto Sans KR", "Noto Sans CJK KR", "Apple SD Gothic Neo", "Malgun Gothic",
+    sans-serif;
   font-weight: 650;
 }
 
@@ -1093,7 +1095,9 @@ textarea {
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Serif SC", "Source Han Serif SC", "Songti SC", SimSun, serif;
+    "Noto Serif SC", "Noto Serif TC", "Noto Serif HK", "Source Han Serif SC",
+    "Source Han Serif TC", "Source Han Serif HK", "Songti SC", "Songti TC",
+    SimSun, PMingLiU, serif;
   font-weight: 700;
 }
 
@@ -1101,8 +1105,8 @@ textarea {
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Noto Serif JP", "Source Han Serif JP", "Hiragino Mincho ProN",
-    "Yu Mincho", serif;
+    "Noto Serif JP", "Source Han Serif JP", "Hiragino Mincho ProN", "Yu Mincho",
+    serif;
   font-weight: 700;
 }
 
@@ -1126,8 +1130,8 @@ textarea {
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Ma Shan Zheng", "Long Cang", "Kaiti SC", STKaiti, KaiTi, BiauKai,
-    cursive;
+    "Ma Shan Zheng", "LXGW WenKai TC", "Long Cang", "Kaiti SC", "Kaiti TC",
+    STKaiti, KaiTi, BiauKai, cursive;
   font-weight: 400;
 }
 
@@ -1135,8 +1139,7 @@ textarea {
   [data-language="ja"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Yuji Boku", "Hachi Maru Pop", "Yu Mincho", "Hiragino Mincho ProN",
-    serif;
+    "Yuji Boku", "Hachi Maru Pop", "Yu Mincho", "Hiragino Mincho ProN", serif;
   font-weight: 400;
 }
 
@@ -1144,8 +1147,7 @@ textarea {
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "Nanum Brush Script", "East Sea Dokdo", "Dokdo", "Nanum Pen Script",
-    cursive;
+    "Nanum Brush Script", "East Sea Dokdo", "Dokdo", "Nanum Pen Script", cursive;
   font-weight: 400;
 }
 
@@ -1161,7 +1163,8 @@ textarea {
   [data-language="zh"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    "ZCOOL KuaiLe", Huninn, "Noto Sans SC", "PingFang SC", "Microsoft YaHei",
+    "ZCOOL KuaiLe", Huninn, "Noto Sans TC", "Noto Sans HK", "Noto Sans SC",
+    "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei",
     sans-serif;
   font-weight: 400;
 }
@@ -1179,8 +1182,8 @@ textarea {
   [data-language="ko"]
   :is(.static-character-text, .static-text-token) {
   font-family:
-    Gaegu, Dongle, Jua, "Noto Sans KR", "Apple SD Gothic Neo",
-    "Malgun Gothic", sans-serif;
+    Gaegu, Dongle, Jua, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic",
+    sans-serif;
   font-weight: 700;
 }
 
@@ -1189,6 +1192,57 @@ textarea {
   :is(.static-character-text, .static-text-token) {
   font-family: "Comic Neue", Gaegu, ui-rounded, sans-serif;
   font-weight: 700;
+}
+
+.static-lyric-output[data-character-style="sans"][data-chinese-script="traditional"]
+  [data-language="zh"]
+  :is(.static-character-text, .static-text-token),
+.static-lyric-output[data-character-style="sans"]
+  [data-language="zh"][data-chinese-variant="traditional"]
+  :is(.static-character-text, .static-text-token) {
+  font-family:
+    "Noto Sans TC", "Noto Sans HK", "Noto Sans SC", "Noto Sans CJK TC",
+    "Noto Sans CJK HK", "Noto Sans CJK SC", "PingFang TC", "PingFang HK",
+    "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif;
+  font-weight: 650;
+}
+
+.static-lyric-output[data-character-style="serif"][data-chinese-script="traditional"]
+  [data-language="zh"]
+  :is(.static-character-text, .static-text-token),
+.static-lyric-output[data-character-style="serif"]
+  [data-language="zh"][data-chinese-variant="traditional"]
+  :is(.static-character-text, .static-text-token) {
+  font-family:
+    "Noto Serif TC", "Noto Serif HK", "Noto Serif SC", "Source Han Serif TC",
+    "Source Han Serif HK", "Source Han Serif SC", "Songti TC", "Songti SC",
+    PMingLiU, SimSun, serif;
+  font-weight: 700;
+}
+
+.static-lyric-output[data-character-style="brush"][data-chinese-script="traditional"]
+  [data-language="zh"]
+  :is(.static-character-text, .static-text-token),
+.static-lyric-output[data-character-style="brush"]
+  [data-language="zh"][data-chinese-variant="traditional"]
+  :is(.static-character-text, .static-text-token) {
+  font-family:
+    "LXGW WenKai TC", "Ma Shan Zheng", "Noto Serif TC", "Noto Serif HK",
+    "Kaiti TC", "Kaiti SC", STKaiti, KaiTi, BiauKai, cursive;
+  font-weight: 400;
+}
+
+.static-lyric-output[data-character-style="round"][data-chinese-script="traditional"]
+  [data-language="zh"]
+  :is(.static-character-text, .static-text-token),
+.static-lyric-output[data-character-style="round"]
+  [data-language="zh"][data-chinese-variant="traditional"]
+  :is(.static-character-text, .static-text-token) {
+  font-family:
+    Huninn, "ZCOOL KuaiLe", "Noto Sans TC", "Noto Sans HK", "Noto Sans SC",
+    "PingFang TC", "PingFang HK", "PingFang SC", "Microsoft JhengHei",
+    "Microsoft YaHei", sans-serif;
+  font-weight: 400;
 }
 
 .static-lyric-output[data-character-style="brush"]
@@ -1203,8 +1257,7 @@ textarea {
   [data-script-role="ko"]
   .static-character-text {
   font-family:
-    "Ma Shan Zheng", "Yuji Boku", "Noto Serif KR", "Source Han Serif KR",
-    serif;
+    "Ma Shan Zheng", "Yuji Boku", "Noto Serif KR", "Source Han Serif KR", serif;
   font-weight: 400;
 }
 

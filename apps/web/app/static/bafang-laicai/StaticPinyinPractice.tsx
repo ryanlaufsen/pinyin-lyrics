@@ -239,9 +239,11 @@ type LineLanguage = "zh" | "ja" | "ko" | "mixed" | "text";
 type TokenLanguage = "zh" | "ja" | "ko" | "text";
 type IdeographScript = "zh" | "ja" | "ko";
 type ScriptOverrideMap = Record<string, IdeographScript>;
+type ChineseGlyphVariant = "traditional";
 
 type RenderToken = {
   character: string;
+  chineseGlyphVariant: ChineseGlyphVariant | null;
   color: string;
   displayAsText: boolean;
   isHanzi: boolean;
@@ -594,6 +596,29 @@ function getChineseSyllables(
   return jyutping.map(toCantonesePinyin);
 }
 
+function getChineseGlyphVariant(
+  character: string,
+  language: TokenLanguage,
+  chineseScript: ChineseScript,
+  romanizationEngines: RomanizationEngines | null,
+): ChineseGlyphVariant | null {
+  if (language !== "zh" || !hanziPattern.test(character)) {
+    return null;
+  }
+
+  if (chineseScript === "traditional") {
+    return "traditional";
+  }
+
+  if (chineseScript === "simplified" || romanizationEngines === null) {
+    return null;
+  }
+
+  return romanizationEngines.chineseToSimplified(character) !== character
+    ? "traditional"
+    : null;
+}
+
 function getJapaneseKanaReadings(
   characters: string[],
   romanizationEngines: RomanizationEngines | null,
@@ -889,6 +914,12 @@ function buildLineTokens(
         : null;
     const token = {
       character,
+      chineseGlyphVariant: getChineseGlyphVariant(
+        character,
+        language,
+        chineseScript,
+        romanizationEngines,
+      ),
       color: tileColors[index % tileColors.length] ?? fallbackTileColor,
       displayAsText: language === "text" && !isWhitespace,
       isHanzi,
@@ -2278,6 +2309,7 @@ function LyricOutput({
       aria-label={ariaLabel}
       className="static-lyric-output"
       data-character-style={characterBrushStyle}
+      data-chinese-script={chineseScript}
       style={
         {
           "--lyric-scale": lyricTextSize / 100,
@@ -2398,6 +2430,7 @@ function LyricTokenView({
         token.displayAsText && "static-inline-token",
       )}
       data-language={token.language}
+      data-chinese-variant={token.chineseGlyphVariant ?? undefined}
       style={{ "--tile-color": token.color } as CSSProperties}
     >
       {token.isWhitespace ? (

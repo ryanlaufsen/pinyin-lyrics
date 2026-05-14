@@ -2,12 +2,17 @@ import { type Locator, type Page, expect, test } from "@playwright/test";
 
 const characterStyleFontChecks = [
   ["Noto Sans SC", "八"],
+  ["Noto Sans TC", "龜"],
+  ["Noto Sans HK", "龜"],
   ["Noto Sans JP", "か"],
   ["Noto Sans KR", "사"],
   ["Noto Serif SC", "八"],
+  ["Noto Serif TC", "龜"],
+  ["Noto Serif HK", "龜"],
   ["Noto Serif JP", "か"],
   ["Noto Serif KR", "사"],
   ["Ma Shan Zheng", "八"],
+  ["LXGW WenKai TC", "龜"],
   ["Yuji Boku", "か"],
   ["Nanum Brush Script", "사"],
   ["ZCOOL KuaiLe", "八"],
@@ -1182,13 +1187,26 @@ test("renders the static multilingual lyric practice mode", async ({
   await expect(sourceScript).toHaveAttribute("aria-pressed", "true");
   await expect(simplifiedScript).toHaveAttribute("aria-pressed", "false");
   await expect(traditionalScript).toHaveAttribute("aria-pressed", "false");
+  await expect(lyricOutput).toHaveAttribute("data-chinese-script", "source");
 
   await lyricsInput.fill("[zh] 发财\n\n[zh] 發財\n[auto] 龙龍");
   await traditionalScript.click();
   await expect(traditionalScript).toHaveAttribute("aria-pressed", "true");
   await expect(sourceScript).toHaveAttribute("aria-pressed", "false");
+  await expect(lyricOutput).toHaveAttribute(
+    "data-chinese-script",
+    "traditional",
+  );
   await expect(page.getByTestId("pinyin-line-1")).toContainText("發");
   await expect(page.getByTestId("pinyin-line-1")).toContainText("財");
+  expect(
+    await getFontFamily(
+      page
+        .getByTestId("pinyin-line-1")
+        .locator(".static-character-text")
+        .first(),
+    ),
+  ).toContain("Noto Sans TC");
   await expect(page.getByTestId("pinyin-line-empty")).toHaveCount(1);
   await expect(page.getByTestId("pinyin-line-4")).toHaveAttribute(
     "aria-label",
@@ -1197,6 +1215,10 @@ test("renders the static multilingual lyric practice mode", async ({
   await simplifiedScript.click();
   await expect(simplifiedScript).toHaveAttribute("aria-pressed", "true");
   await expect(traditionalScript).toHaveAttribute("aria-pressed", "false");
+  await expect(lyricOutput).toHaveAttribute(
+    "data-chinese-script",
+    "simplified",
+  );
   await expect(page.getByTestId("pinyin-line-3")).toContainText("发");
   await expect(page.getByTestId("pinyin-line-3")).toContainText("财");
   await expect(page.getByTestId("pinyin-line-4")).toHaveAttribute(
@@ -1214,6 +1236,7 @@ test("renders the static multilingual lyric practice mode", async ({
 
   await sourceScript.click();
   await expect(sourceScript).toHaveAttribute("aria-pressed", "true");
+  await expect(lyricOutput).toHaveAttribute("data-chinese-script", "source");
 
   const pinyinModeButton = romanizationGroup.getByRole("button", {
     name: "Pinyin",
@@ -1483,6 +1506,57 @@ test("renders the static multilingual lyric practice mode", async ({
     page.getByRole("contentinfo").getByRole("link", { name: "AI policy" }),
   ).toHaveAttribute("href", "/ai-policy");
   expect(errors).toEqual([]);
+});
+
+test("uses Traditional Chinese font stacks for Traditional-only glyphs", async ({
+  page,
+}) => {
+  await page.goto("/static/bafang-laicai");
+  await assertCharacterStyleFontsLoaded(page);
+
+  const lyricsInput = page.getByRole("textbox", {
+    name: "User-provided lyrics",
+  });
+  const lyricOutput = page.locator('[aria-label="Rendered romanized lyrics"]');
+  const styleGroup = page.getByRole("group", { name: "Character style" });
+
+  await lyricsInput.fill("[zh] 龜鬱臺灣麵");
+
+  const line = page.getByTestId("pinyin-line-1");
+  const traditionalGlyphTokens = line.locator(
+    '.static-character-stack[data-chinese-variant="traditional"]',
+  );
+  const firstTraditionalGlyph = traditionalGlyphTokens
+    .first()
+    .locator(".static-character-text");
+
+  await expect(lyricOutput).toHaveAttribute("data-chinese-script", "source");
+  await expect(line.locator(".static-pinyin-box")).toHaveText([
+    "guī",
+    "yù",
+    "tái",
+    "wān",
+    "miàn",
+  ]);
+  await expect(traditionalGlyphTokens).toHaveCount(5);
+  expect(await getFontFamily(firstTraditionalGlyph)).toContain("Noto Sans TC");
+
+  await styleGroup.getByRole("button", { name: "Serif" }).click();
+  expect(await getFontFamily(firstTraditionalGlyph)).toContain("Noto Serif TC");
+
+  await styleGroup.getByRole("button", { name: "Brush" }).click();
+  expect(await getFontFamily(firstTraditionalGlyph)).toContain(
+    "LXGW WenKai TC",
+  );
+
+  await styleGroup.getByRole("button", { name: "Round" }).click();
+  expect(await getFontFamily(firstTraditionalGlyph)).toContain("Huninn");
+
+  await page.getByRole("button", { name: "繁" }).click();
+  await expect(lyricOutput).toHaveAttribute(
+    "data-chinese-script",
+    "traditional",
+  );
 });
 
 test("applies contextual kana and common Hanja pronunciation rules", async ({

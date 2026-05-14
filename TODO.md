@@ -89,6 +89,32 @@ Operating mode: Jira-style source of truth for planned work, active ownership, e
 
 ## Done
 
+### FE-016: Add Traditional Chinese Font Coverage
+
+- Status: `Done`
+- Priority: `P1`
+- Primary Manager: Frontend Manager
+- Supporting Managers: UI Design Manager, QA/Accessibility Manager, Orchestrator
+- Goal: Ensure Traditional-only Chinese glyphs render with Traditional-capable font stacks instead of relying on Simplified Chinese webfont coverage.
+- Acceptance Criteria:
+  - Static reader loads Traditional Chinese font families for sans, serif, brush, and rounded/cute modes.
+  - Traditional Chinese script mode exposes a render hook so all Chinese lyric glyphs can prefer TC/HK font stacks.
+  - Source mode detects Traditional-only Chinese glyphs and marks those tokens so they can use TC/HK font stacks without forcing the whole line into Traditional mode.
+  - `Sans`, `Serif`, `Brush`, and `Round` each have tested Traditional font-family behavior using synthetic Traditional-only glyphs.
+  - Existing Simplified, Japanese, Korean, Latin, and script-role behavior remains unchanged.
+- Blockers/Dependencies:
+  - This fixes font/glyph coverage only; regional TW/HK conversion choices remain future product work.
+- Evidence Required:
+  - Added Google Fonts families for `Noto Sans TC`, `Noto Sans HK`, `Noto Serif TC`, `Noto Serif HK`, and `LXGW WenKai TC`.
+  - `static-bafang.spec.ts` added a desktop/mobile regression for `[zh] 龜鬱臺灣麵` in Source mode and checks Sans/Serif/Brush/Round Traditional font stacks.
+  - `git diff --check` passed.
+  - Targeted ESLint passed for touched TypeScript files under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web typecheck` passed under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web e2e -- tests/e2e/static-bafang.spec.ts` passed for desktop and mobile Chromium under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
+  - `PAGES_BASE_PATH=/pinyin-lyrics corepack pnpm@10.33.4 --filter @lyricbridge/web build:static` passed under Node `v24.15.0`.
+  - `corepack pnpm@10.33.4 --filter @lyricbridge/web budget:static` passed at `715.6 KiB` first-render total and `222.2 KiB` largest referenced asset.
+
 ### FE-015: Replace Fallback CJK Character Styles With Loaded Fonts
 
 - Status: `Done`

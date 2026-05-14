@@ -9,7 +9,7 @@ import {
 import "./globals.css";
 
 const cjkCharacterStyleFontHref =
-  "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Ma+Shan+Zheng&family=Yuji+Boku&family=Nanum+Brush+Script&family=ZCOOL+KuaiLe&family=Huninn&family=Hachi+Maru+Pop&family=Zen+Maru+Gothic:wght@400;700;900&family=Gaegu:wght@400;700&family=Caveat:wght@400;700&family=Comic+Neue:wght@400;700&display=swap";
+  "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Sans+HK:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&family=Noto+Serif+HK:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Ma+Shan+Zheng&family=LXGW+WenKai+TC:wght@400;700&family=Yuji+Boku&family=Nanum+Brush+Script&family=ZCOOL+KuaiLe&family=Huninn&family=Hachi+Maru+Pop&family=Zen+Maru+Gothic:wght@400;700;900&family=Gaegu:wght@400;700&family=Caveat:wght@400;700&family=Comic+Neue:wght@400;700&display=swap";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
